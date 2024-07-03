@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+<title>title</title>
+
+<head>
+
+
+
+</head>
+
+<body>
+	<style>
+	
+		.title{
+			margin: 50px 0px 0px 50px;
+		}
+		
+		.intro {
+			margin: 30px 0px 0px 50px;
+			width:500px;
+		}
+	
+		.softBodyBg{
+			background-image: linear-gradient(to right,#8888bb, #665599);
+		}
+		
+		.darkBodyBg{
+			background-image: linear-gradient(to right,#333366, #110044);
+		}
+		
+		.softBlueColor {
+			color: #42d7f5;
+		}
+		
+		.darkBlueColor {
+			color: #0D6EFD;
+		}
+			
+		.softTextColor{
+			color: white;
+		}
+		
+		.darkTextColor {
+			color: black;
+		}
+		
+	
+		
+	</style>
+	<div id="container">
+	
+			<div onmouseover="changeMode()" style="margin: 50px 0px 0px 50px; float:right">
+				<h3 >Dark mode</h3>
+			</div>
+			
+			<div style="clear:both"></div>
+			
+			<div id="text"  class="title">
+				<h1 >Cu Stima Drag CompanyName</h1>
+			</div>
+			
+			<div id="text" class="intro">
+				<p >Buna Ziua,</p>
+				<p>A-si lasa un C.V in caz daca o sa aveti posturi vacante pentru joburi care necesita studii superiaore</p>
+				<p> Cu Eugen Fazekas, </p>
+			</div>
+			
+			<div id="text" style="margin: 30px 0px 0px 50px; width:500px">
+				<p >Daca cumva nu face-ti parte dintre personalul care selecteaza noi angajati va-rog sa da-ti un forward la emailul meu catre hr (resurse umane).</p>
+			</div>
+			
+			<div id="text" style="margin: 30px 0px 0px 50px">
+				<p >Acesta email o fost trimis printr-un Java Service Automatizat.</p>
+			</div>
+			
+			<div style=" margin: 30px 0px 0px 50px">
+			
+				<div style="width:400px; height:20px; margin: 0px 0px 0px 0px; width:120px;">
+					<div id="blue">
+						<b>King Regards,</b>
+					</div>
+				</div>
+				
+				<div id="text" style="width:400px; height:20px; margin: 0px 0px 0px 0px; width:120px;">
+					<div><b>Eugen Fazekas,</b></div>
+				</div>
+				
+				<div>
+					<div style="width:100px; height:20px; margin: 0px 0px 0px 0px;
+						float:left; width:60px;">
+						<div id="blue">
+							Mobile:</div>
+					</div>
+					
+					<div id="text" style="width:120px;height:20px; float:left; margin: 0px 0px 0px 0px; width:200px;">
+						<div>
+							+40 771 326 745</div>
+					</div>
+					
+					<div style="clear:both"></div>			
+				</div>
+				
+				<div>
+					<div style="width:100px;height:20px;margin: 0px 0px 0px 0px;
+						float:left; width: 60px;">
+						<div id="blue" >
+							Address:</div>
+					</div>
+					
+					<div  style="width:120px;height:20px; float:left; margin: 0px 0px 0px 0px; width:200px;">
+						<div id="text">
+							Romania, Oradea</div>
+					</div>
+					<div style="clear:both"></div>
+				</div>
+				
+				<div>
+					<div style="width:100px;height:20px;margin: 0px 0px 0px 0px;
+						float:left; width: 60px;">
+						<div id="blue">
+							Email:</div>
+					</div>
+					
+					<div  style="width:120px;height:20px; float:left; margin: 0px 0px 0px 0px; width:200px;">
+						<div id="text">
+							eugen.fazekas@gmail.com</div>
+					</div>
+					<div style="clear:both"></div>
+				</div>
+
+				<div>
+					<div id="blue" style="width:100px;height:20px;margin: 0px 0px 0px 0px;
+						float:left; width:60px;">
+						<a href="https://github.com/eugenfazekas" target="_blank">GitHub:</a>
+					</div>
+					
+					<div id="text" style="width:200px;height:20px; float:left; margin: 0px 0px 0px 0px;">
+						<div>
+							https://github.com/eugenfazekas</div>
+					</div>
+					
+					<div style="clear:both"></div>
+					 
+				</div>
+			</div>
+			<div style="margin: 20px 0px 0px 50px">
+				<img src="Cube.png"  width="215" height="140">
+			</div>
+		</div>
+<script>
+
+var mode = "soft";
+
+function addClass(id,className) {
+	   var element = document.getElementById(id);
+	   element.classList.add(className);
+	   console.log('added: '+className);
+}
+	
+function removeCLass(id,className) {
+	   var element = document.getElementById(id);
+	   element.classList.remove(className);
+}
+
+function changeMode() {
+
+	console.log('mode: '+mode);
+	
+	if(mode == "soft") {
+		addClass("container","darkBodyBg");
+		addClass("blue","softBlueColor");
+		addClass("text","softTextColor");
+		
+		removeCLass("container","softBodyBg");
+		removeCLass("blue","darkBlueColor");
+		removeCLass("text","darkTextColor");
+		
+		mode = "dark";
+		}
+		
+	else {
+		addClass("container","softBodyBg");
+		addClass("blue","darkBlueColor");
+		addClass("text","darkTextColor");
+		
+		removeCLass("container","darkBodyBg");
+		removeCLass("blue","softBlueColor");
+		removeCLass("text","softTextColor");
+		
+		mode = "soft";
+	}
+}
+
+addClass("container","softBodyBg");
+addClass("blue","darkBlueColor");
+addClass("text","softTextColor");
+
+	
+</script>
+</body>
