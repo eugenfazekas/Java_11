@@ -25,7 +25,7 @@ public class VoiceSynthesizer implements Runnable{
 	
 	@Override
 	public void run() {
-		System.out.println("VoiceSynthesizer new Thread created! ThreadName: "+Thread.currentThread().getName());
+		//System.out.println("VoiceSynthesizer new Thread created! ThreadName: "+Thread.currentThread().getName());
 		buildSynthesizer();
 	
 		while(true) {	
@@ -37,7 +37,7 @@ public class VoiceSynthesizer implements Runnable{
 				e.printStackTrace();
 			}
 			if(!bufferIsEmpty) {
-				System.out.println("bufferIsEmpty: "+bufferIsEmpty);
+				//System.out.println("bufferIsEmpty: "+bufferIsEmpty);
 				startSynthesizer();
 				synthesize(messages.poll());
 				bufferIsEmpty = true;
@@ -54,7 +54,7 @@ public class VoiceSynthesizer implements Runnable{
 				Central.registerEngineCentral( "com.sun.speech.freetts"+ ".jsapi.FreeTTSEngineCentral");
 				synthesizer = Central.createSynthesizer(new SynthesizerModeDesc(Locale.US)); 
 	        	synthesizer.allocate(); 
-				System.out.println("VoiceSynthesizer builded! ThreadName: "+Thread.currentThread().getName());
+				//System.out.println("VoiceSynthesizer builded! ThreadName: "+Thread.currentThread().getName());
 			} catch (EngineException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -63,10 +63,10 @@ public class VoiceSynthesizer implements Runnable{
 	
 	private void startSynthesizer() {
 
-		System.out.println("VoiceSynthesizer synthesizer started! synthesizer.getEngineState(): "+synthesizer.getEngineState()+" ThreadName: "+Thread.currentThread().getName());
+		//System.out.println("VoiceSynthesizer synthesizer started! synthesizer.getEngineState(): "+synthesizer.getEngineState()+" ThreadName: "+Thread.currentThread().getName());
         try {
 			synthesizer.resume();
-			System.out.println("VoiceSynthesizer synthesizer started! ThreadName: "+Thread.currentThread().getName());
+			//System.out.println("VoiceSynthesizer synthesizer started! ThreadName: "+Thread.currentThread().getName());
 		} catch (AudioException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -78,7 +78,7 @@ public class VoiceSynthesizer implements Runnable{
 	
 	public  void synthesize(String message) {
         synthesizer.speakPlainText(message, null); 
-        System.out.println("VoiceSynthesizer synthesizing complete! ThreadName: "+Thread.currentThread().getName());
+        System.out.println("VoiceSynthesizer synthesizing complete! ThreadName: "+Thread.currentThread().getName()+" Synthesizer message: "+message);
 	}
 	
 	

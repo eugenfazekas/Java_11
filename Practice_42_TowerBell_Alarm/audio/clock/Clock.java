@@ -29,6 +29,9 @@ public class Clock {
 	private static int minute_temp;
 	private static RawAudio [] rawAudioLib = new RawAudio[2];
 	private static VoiceSynthesizer voiceSynthesizer;
+	private static boolean synchronizing ;
+	private static LocalDateTime timestamp;	
+	//private static LocalDateTime timestamp = LocalDateTime.now();
 
 	
 	private static void init() {
@@ -38,6 +41,7 @@ public class Clock {
 		stream = buildAudioInputStreamFromFile(FileUtil.MINUTE_BELL_PATH);
 		rawAudioLib[1] = new RawAudio(buildBuffer(stream),stream.getFormat()); 
 		voiceSynthesizer = new VoiceSynthesizer();
+		synchronizeTime(0);
 	}
 	
 	public static void clock() {
@@ -46,18 +50,13 @@ public class Clock {
 		
 		while(true) {
 			
-			synchronizeTime();
-			
 			increaseTime();
 			
-			alarmCheck();
-
 			checkTimeForBell();
-
-			System.out.println("Actual time hour: "+hour+" minute: "+minute +" seconds:"+second + " "+ hour_24+"h :"+minute+"min");
-		
-			sleep(60);
 			
+			alarmCheck();
+	
+			sleep(60);			
 		}
 		
 	}
@@ -90,25 +89,33 @@ public class Clock {
 	
 	private static void checkTimeForBell() {
 		
-		if(minute == 0 && (second == 59 || second == 0))
+		timestamp = LocalDateTime.now();
+		
+		System.out.println("checkTimeForBell Hour: "+hour+" minute: "+minute+ " second: "+second );
+		
+		if(timestamp.getMinute() !=  minute)
+			synchronizeTime(1);
+		
+		if(minute == 13 || minute == 28 || minute == 43|| minute == 58)
+			synchronizeTime(1);
+		
+		if(timestamp.getHour() == hour_24 &&  minute == 0 && (second == 0 || second == 1 ))
 			multiPlayer(hour, 0);
 		
-		if(minute == 15 || minute == 30 || minute == 45)
-			multiPlayer(hour, minute/15);
+		if(timestamp.getMinute() == minute && (minute == 15 || minute == 30 || minute == 45)) {
+			multiPlayer(hour, minute/15);		
+		}
 	}
 	
-	private static void synchronizeTime() {
-
-		boolean synchronizing = false;
-		LocalDateTime timestamp = LocalDateTime.now();
+	private static void synchronizeTime(int increase) {
 		
+		timestamp = LocalDateTime.now();
 		
-		
-		if(timestamp.getHour() != hour_24 || timestamp.getMinute() != minute+1 || ( Math.abs(timestamp.getSecond() - second)> 1)) {
-			System.out.println("synchronizeTime timestamp.toString(): "+(timestamp.getHour() != hour_24)+", "+(timestamp.getMinute() != minute)+", "+( Math.abs(timestamp.getSecond() - second)> 1));
+		if(timestamp.getHour() != hour_24 || timestamp.getMinute() != minute || ( Math.abs(timestamp.getSecond() - second)> 1)) {
+			//System.out.println("synchronizeTime timestamp.toString(): "+(timestamp.getHour() != hour_24)+", "+(timestamp.getMinute() != minute+1)+", "+( Math.abs(timestamp.getSecond() - second)> 1));
 			hour_24 = timestamp.getHour();
 			hour = timestamp.getHour() > 12 ? timestamp.getHour() - 12 : timestamp.getHour();
-			minute = timestamp.getMinute();
+			minute = timestamp.getMinute()+increase;
 			second = timestamp.getSecond();
 			month = timestamp.getMonthValue();
 			day = timestamp.getDayOfMonth();
@@ -119,7 +126,10 @@ public class Clock {
 		if(synchronizing) {
 			sleep(60-second);
 			second = 0;
+			synchronizing = false;
 		}
+		if(!synchronizing)
+			System.out.println("NO need to synchronize Hour: " +hour + ", minute: "+minute +", second: " +second);
 	}
 
 	private static void increaseTime() {
@@ -135,14 +145,11 @@ public class Clock {
 		
 		if(hour == 13)
 			hour = 1;
-		
-		if(hour == 12 || minute == 0)
-			synchronizeTime();
-		
+
 		if(hour_24 == 24) {
 			hour_24 = 0;
 		}
-		//System.out.println("increaseTime hour: "+hour+" minute: "+minute +" seconds: "+second + " hour24 "+ hour_24 );
+		System.out.println("increaseTime hour: "+hour+" minute: "+minute +" seconds: "+second + " 24-hour "+ hour_24 );
 	}
 	
 	private static void sleep(int sleepSeconds) {
@@ -163,10 +170,13 @@ public class Clock {
 		if(quarter == 0 && hour != 0 ) {
 				stream = buildAudioInputStreamFromBuffer(rawAudioLib[0].getData(),rawAudioLib[0].getAudioFormat());
 				player = new Player(stream,hour);	
+				System.out.println("Fix hour bell! "+hour);
+				
 		}
 		if(quarter != 0) {
 			    stream = buildAudioInputStreamFromBuffer(rawAudioLib[1].getData(),rawAudioLib[1].getAudioFormat());
 				player = new Player(stream,quarter);
+				System.out.println("Quater bell!, Hour: " + hour+ ", minute: "+quarter*15);
 		} 
 	}
 	

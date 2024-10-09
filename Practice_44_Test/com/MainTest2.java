@@ -29,9 +29,7 @@ public class MainTest2 {
 		//int test = (44100 / (2 * 1) /2205) % == 0 ? (44100 / (2 * 1) /2205) : (44100 / (2 * 1) /2205+1) ;
 		
 
-		middleCorrection();
-		
-		System.out.println(Arrays.toString(waveMap));
+		System.out.println(Math.pow(2,12 ));;
 	}
 	
 	public static void middleCorrection() {
@@ -204,25 +202,18 @@ private static void buildAmplitudeQuarteWaves() {
 					waveSequenceArray[i] = new int[j];
 					
 					for( j = 2 ; j < 500; j++) {
-						
-						
+					
 						value =  Math.pow(j, power);
 						
 						if(value < 32736) {
 							waveSequenceArray[i][j-2] = (int) value;						
 						}
 						
-						if(value > 32736) {
-
-							
-	
+						if(value > 32736) {	
 							//waveSequenceArray[i][0] =  (int) power * 1000;
 							break;
-						}
-							
-										
-					}
-				
+						}									
+					}				
 					power = power - 0.001;
 					// 
 					System.out.println("i: "+i + " power: "+power+ "array i: "+ Arrays.toString(waveSequenceArray[i]) );

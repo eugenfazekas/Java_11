@@ -56,6 +56,6 @@ public class AudioClient {
 			}
 		
 			public static void main(String args[]) throws Exception {
-				AudioClient client = new AudioClient("localhost", 6789);
+				AudioClient client = new AudioClient("localhost", 8000);
 			}
 		}

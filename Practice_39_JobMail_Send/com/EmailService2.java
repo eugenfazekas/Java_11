@@ -200,7 +200,7 @@ public class EmailService2 {
 				+ "					\r\n"
 				+ "					<div class=\"intro\">\r\n"
 				+ "						<div class=\"zoomClassIntro\">\r\n"
-				+ "							<p>   Buna ziua, caut loc de munca Agent de securitate cu atestat in zona Borsului-Rogerius-Uzinelor, tura de noapte(doua cu doua) magazine si cluburi exclusi, Va multumesc.\r\n"
+				+ "							<p>Buna ziua, caut loc de munca Agent de securitate cu atestat in zona Borsului-Rogerius-Uzinelor,cu program doua cu doua (magazine si cluburi exclusi), Va multumesc.\r\n"
 				+ "							</p>\r\n"
 				+ "						</div>\r\n"
 				+ "					</div>\r\n"

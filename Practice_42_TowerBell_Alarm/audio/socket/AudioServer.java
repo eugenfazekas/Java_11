@@ -23,7 +23,7 @@ public class AudioServer implements Runnable{
 	public void run() {
 
 		   try {
-				serverSocket = new ServerSocket(6789);
+				serverSocket = new ServerSocket(8000);
 				//serverSocket.setSoTimeout(10000);
 				clientSocket = serverSocket.accept();
 				
