@@ -8,10 +8,10 @@ public class Main {
 
 	public static void main(String[] args) {
 
-		//sendCVs("test.csv");
+		sendCVs("job_send_part4.csv");
 		//sendCVs("Programing.csv");		
 		//sendCVs("Inginerie.csv");
-		sendCVs("tempemail.csv");
+		//sendCVs("tempemail.csv");
 		//sendCVs("Operator2.csv");
 		//sendPazaMail("security companies.txt");
 		

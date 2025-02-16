@@ -33,7 +33,7 @@ public class EmailService3 {
 		    MimeMessage message = new MimeMessage(session);  
 		    message.setFrom(new InternetAddress(EmailService.gmailUser));  
 		    message.addRecipient(Message.RecipientType.TO,new InternetAddress(to));  
-		    message.setSubject("Operator Calculator C.V. Eugen Fazekas");  
+		    message.setSubject("C.V. Eugen Fazekas - Inginer Autovehicule Rutiere");  
 		      
 		    //3) create MimeBodyPart object and set your message text     
 		    BodyPart messageBodyPart1 = new MimeBodyPart();  
@@ -44,7 +44,7 @@ public class EmailService3 {
 		    //4) create new MimeBodyPart object and set DataHandler object to this object      
 		    MimeBodyPart messageBodyPart2 = new MimeBodyPart();  
 		  
-		    String filename = "C V Eugen Fazekas O.pdf";//change accordingly  
+		    String filename = "C.V. Eugen Fazekas.pdf";//change accordingly  
 		    DataSource source = new FileDataSource(filename);  
 		    messageBodyPart2.setDataHandler(new DataHandler(source));  
 		    messageBodyPart2.setFileName(filename);  
@@ -180,8 +180,13 @@ public class EmailService3 {
 				+ "\r\n"
 				+ "			<div class=\"baseAnimationClass color-change paddingBig font-15 w-600\">\r\n"
 				+ "				<p>Bună Ziua,</p>\r\n"
-				+ "				<p>Ași lăsa un C.V in caz dacă o să aveți posturi disponibile pentru</p>\r\n"
-				+ "				<p> un post de operator calculator care necesita studii medii sau superioare.</p>\r\n"
+				+ "					<p>Aș dori să îmi depun C.V.-ul în vederea unor oportunități viitoare,</p>\r\n"
+				+ "					<p>pentru un post ce implică activități desfășurate pe calculator sau laptop</p>\r\n"
+				+ "					<p>și care necesită studii medii sau superioare.</p>\r\n"
+				+ "					<p>Menționez că nu sunt interesat de poziții de conducere,</p>\r\n"
+				+ "					<p>cum ar fi cea de șef de tură sau manager,</p>\r\n"
+				+ "					<p>întrucât nu am experiență în astfel de roluri și,</p>\r\n"
+				+ "					<p>din motive personale, nu caut astfel de posturi.</p>\r\n"
 				+ "			</div>\r\n"
 				+ "			\r\n"
 				+ "			<div class=\"baseAnimationClass color-change paddingBig font-15 w-600\">\r\n"
@@ -310,7 +315,7 @@ public class EmailService3 {
 				+ "				<div style=\"clear:both\"></div>\r\n"
 				+ "					 \r\n"
 				+ "			</div>\r\n"
-				+ "			<p style=\"margin: 20px 0px 0px 50px\">Acesta email este "+ counter_i+" -lea din cele 201 firme diferite</p>\r\n"
+				+ "			<p style=\"margin: 20px 0px 0px 50px\">Acesta email este "+ counter_i+" -lea din cele 250 firme diferite</p>\r\n"
 				+ "		</div>\r\n"
 				+ "</body>\r\n"
 				+ "</html>"; 

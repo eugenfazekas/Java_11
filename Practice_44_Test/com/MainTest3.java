@@ -4,33 +4,31 @@ import java.util.Arrays;
 
 public class MainTest3 {
 
-	static int dB_1_Percent;
-	static int difference;
-	static int result;
-	static int[] test = new int[]{0,1};
+
+	static int[] test = new int[]{30,30,30,35,50,40,40,60,70,10,50,40,40};
 	
 	public static void main(String[] args) {
+			
+		//addToarray(test,5);
 		
+		removeSpikes(test);
+	}
+	
+	public static void removeSpikes(int [] inputArray) {
 		
-		addToarray(test,5);
+		int limit = 0;
 		
-		System.out.println(Arrays.toString(test));
+		for(int i = 1; i < inputArray.length; i++) {
+			
+			if(inputArray[i-1] <= inputArray[i]-limit && inputArray[i+1] <= inputArray[i]-limit) 	
+				inputArray[i] = inputArray[i-1] > inputArray[i+1] ? inputArray[i-1] : inputArray[i+1];
+				
+			if(inputArray[i-1] >= inputArray[i]+limit && inputArray[i+1] >= inputArray[i]+limit) 			
+				inputArray[i] = inputArray[i-1] < inputArray[i+1] ? inputArray[i-1] : inputArray[i+1];
 
-//		System.out.println(getProcent(400,400));
-//		System.out.println(getProcent(400,500));
-//		System.out.println(getProcent(400,300));
-//		
-//		System.out.println(getProcent(400,600));
-//		System.out.println(getProcent(400,200));
-//		
-//		System.out.println(getProcent(400,700));
-//		System.out.println(getProcent(400,100));
-//		
-//		System.out.println(getProcent(400,800));
-//		System.out.println(getProcent(400,0));
-//		
-//		System.out.println(getProcent(400,900));
-//		System.out.println(getProcent(100,150));
+		}
+		
+		System.out.println(Arrays.toString(inputArray));
 	}
 	
 	public static void addToarray(int[] arrToadd , int  value) {
@@ -44,13 +42,5 @@ public class MainTest3 {
 		arrToadd = new int[2];
 	}
 
-	public static int getProcent(int dB_Value, int check_Value) {
-		
-		dB_1_Percent = dB_Value/100;
-		difference = Math.abs(dB_Value) - Math.abs(check_Value);
-		result = 100 - Math.abs(difference /dB_1_Percent);
-		if((dB_Value > 0 && check_Value < 0)||(dB_Value < 0 && check_Value > 0) ||result< 0 )
-			return 1;
-		return result;
-	}
+
 }
