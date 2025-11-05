@@ -85,10 +85,10 @@ public class SequenceFilter {
 
 	@Override
 	public String toString() {
-		return "SequenceFilter [amplitudeStartLimit=" + amplitudeStartLimit + ", amplitudeEndLimit=" + amplitudeEndLimit
-				+ ", startFrequencyLowerLimit=" + startFrequencyLowerLimit + ", startFrequencyUpperLimit="
-				+ startFrequencyUpperLimit + ", endFrequencyLowerLimit=" + endFrequencyLowerLimit
-				+ ", endFrequencyUpperLimit=" + endFrequencyUpperLimit + ", startLengthCheck=" + startLengthCheck
-				+ ", endLengthCheck=" + endLengthCheck + "]";
+		return "SequenceFilter [amplitudeStartLimit=" + amplitudeStartLimit + ", amplitudeEndLimit=" 
+				+ amplitudeEndLimit + ", startFrequencyLowerLimit=" + startFrequencyLowerLimit 
+				+ ", startFrequencyUpperLimit=" + startFrequencyUpperLimit + ", endFrequencyLowerLimit=" 
+				+ endFrequencyLowerLimit + ", endFrequencyUpperLimit=" + endFrequencyUpperLimit 
+				+ ", startLengthCheck=" + startLengthCheck+ ", endLengthCheck=" + endLengthCheck + "]";
 	}	
 }

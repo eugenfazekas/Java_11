@@ -25,7 +25,7 @@ public class VoiceSynthesizer implements Runnable{
 	
 	@Override
 	public void run() {
-		//System.out.println("VoiceSynthesizer new Thread created! ThreadName: "+Thread.currentThread().getName());
+		System.out.println("VoiceSynthesizer new Thread created! ThreadName: "+Thread.currentThread().getName());
 		buildSynthesizer();
 	
 		while(true) {	

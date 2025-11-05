@@ -7,27 +7,24 @@ import com.audio8.util.Debug;
 
 public class AmplitudeTrimImpl implements AudioTrim{
 		
-	public AmplitudeTrimImpl(int id, int[] inputArray ,SequenceFilter sequenceFilter) {
+	public AmplitudeTrimImpl(int id, int[] inputArray) {
 		
-		buildSequence(inputArray,sequenceFilter);
+		buildTrimSequenceBorders(id, inputArray);
 		
 		AudioTrimSelector.setSequencePoints();
-		
-//		getFocusedAmplitudeSequencePoints(inputArray,AppSetup.idle_amplitude_volume
-//			,AppSetup.idle_amplitude_volume,sequenceFilter);
-//		
-		BuildTrimedSequence.mainTrimedSequenceBuilder(id, inputArray,null);
+
+		BuildTrimedSequence.mainTrimedSequenceBuilder(id, inputArray);
 	}
 
 	@Override
-	public void buildSequence(int[] inputArray ,SequenceFilter sequenceFilter) {
+	public void buildTrimSequenceBorders(int id,int[] inputArray) {
 		
 		AudioTrimSelector.setZeroMultiTrimVariables();
-		
+		SequenceFilter sequenceFilter = AudioTrimSelector.amplitudeSequenceFilter;
 		AudioTrimSelector.sequence = new Sequence(-1,-1);
 		
-		Debug.debug(3,"AmplitudeTrimImplementation 0.0 IDLE LIMIT: "+AppSetup.idle_amplitude_volume
-			+ ", "+sequenceFilter.toString());
+		Debug.debug(3,"AmplitudeTrimImpl buildTrimSequenceBorders 0.0 IDLE LIMIT: "
+			+AppSetup.IDLE_AMPLITUDE_VOLUME+ ", "+sequenceFilter.toString());
 				
 		for(int i = 1; i < inputArray.length; i++) {
 		
@@ -40,7 +37,7 @@ public class AmplitudeTrimImpl implements AudioTrim{
 				 AudioTrimSelector.a_avg = 
 						 AudioTrimSelector.a_sum / sequenceFilter.getStartLengthCheck();
 				 
-				 Debug.debug(3,"AmplitudeTrimImplementation 1.0 Index: " +i
+				 Debug.debug(3,"AmplitudeTrimImpl buildTrimSequenceBorders 1.0 Index: " +i
 					+ ", AmplitudeStartLimit: "+sequenceFilter.getAmplitudeStartLimit()  
 				 	+ ", avg "+AudioTrimSelector.a_avg +", LengthCheck: "
 					+ sequenceFilter.getStartLengthCheck());
@@ -48,9 +45,10 @@ public class AmplitudeTrimImpl implements AudioTrim{
 				 if(AudioTrimSelector.a_avg > sequenceFilter.getAmplitudeStartLimit()) {
 					 
 					 AudioTrimSelector.sequence
-					 .setStartIndex((int) (i -  sequenceFilter.getStartLengthCheck()*1.2));
+					 .setStartIndex((int) (i -  AudioTrimSelector.getLengthCorrection(false,
+							 AppSetup.START_BEFORE_MSEC_TRIM_LENGTH,false)));
 					 
-					 Debug.debug(3,"AmplitudeTrimImplementation 1.1 Index: "+i+", avg " 
+					 Debug.debug(3,"AmplitudeTrimImpl buildTrimSequenceBorders 1.1 Index: "+i+", avg " 
 						+AudioTrimSelector.a_avg+ ", startIndex: "
 						+AudioTrimSelector.sequence.getStartIndex() + " AmplitudeStartLimit: "
 						+sequenceFilter.getAmplitudeStartLimit());
@@ -69,15 +67,17 @@ public class AmplitudeTrimImpl implements AudioTrim{
 				 
 				AudioTrimSelector.a_avg=AudioTrimSelector.a_sum/sequenceFilter.getEndLengthCheck();
 				 
-				Debug.debug(3,"AmplitudeTrimImplementation 2.0 Index: "+i +", AmplitudeEndLimit: "
+				Debug.debug(3,"AmplitudeTrimImpl buildTrimSequenceBorders 2.0 Index: "+i+", AmplitudeEndLimit: "
 					+sequenceFilter.getAmplitudeEndLimit() +", avg: "+AudioTrimSelector.a_avg 
 					+", LengthCheck: " + sequenceFilter.getEndLengthCheck());
 				 
 				if(AudioTrimSelector.a_avg < sequenceFilter.getAmplitudeEndLimit()) {
 					
-					AudioTrimSelector.sequence.setEndIndex((int) (i -  sequenceFilter.getStartLengthCheck()* 1));
+					AudioTrimSelector.sequence
+					.setEndIndex((int) (i -  AudioTrimSelector.getLengthCorrection(false,
+						AppSetup.AFTER_END_MSEC_TRIM_LENGTH,false)));
 					 
-					Debug.debug(3,"AmplitudeTrimImplementation  2.1 Index: "+i+", avg "
+					Debug.debug(3,"AmplitudeTrimImpl buildTrimSequenceBorders 2.1 Index: "+i+", avg "
 						+ AudioTrimSelector.a_avg+ ", endIndex: "
 						+ AudioTrimSelector.sequence.getEndIndex()
 						+ " AmplitudeEndLimit: "+sequenceFilter.getAmplitudeEndLimit());
@@ -90,21 +90,22 @@ public class AmplitudeTrimImpl implements AudioTrim{
 				}
 			}
 			
-			if(AudioTrimSelector.sequence.getStartIndex() != -1 && AudioTrimSelector.sequence.getEndIndex() != -1 ) {
+			if(AudioTrimSelector.sequence.getStartIndex()!=-1&&AudioTrimSelector.sequence.getEndIndex()!=-1) {
 				
 				if(AudioTrimSelector.sequence.getStartIndex() < 0) 			
 					AudioTrimSelector.sequence.setStartIndex(0);
 							 
-				if(AudioTrimSelector.sequence.getEndIndex() - AudioTrimSelector.sequence.getStartIndex() > 3000 )
+				if(AudioTrimSelector.sequence.getEndIndex()-AudioTrimSelector.sequence.getStartIndex()>3000)
 					AudioTrimSelector.sequences.add(AudioTrimSelector.sequence);
 				
-					Debug.debug(3,"AmplitudeTrimImplementation 3.0 "+ AudioTrimSelector.sequence.toString());
+					Debug.debug(3,"AmplitudeTrimImpl buildTrimSequenceBorders 3.0 "
+							+ AudioTrimSelector.sequence.toString());
 					
 					AudioTrimSelector.sequence = new Sequence(-1,-1);	
 			}
 		}	
 		
-		Debug.debug(3,"AmplitudeTrimImplementation 4.0 "+inputArray.length);
+		Debug.debug(3,"AmplitudeTrimImpl buildTrimSequenceBorders 4.0 "+inputArray.length);
 		if(AudioTrimSelector.sequence.getStartIndex() != -1 && AudioTrimSelector.sequence.getEndIndex() == -1 
 				&& inputArray.length -  AudioTrimSelector.sequence.getStartIndex() > 10000) {
 			
@@ -115,67 +116,8 @@ public class AmplitudeTrimImpl implements AudioTrim{
 			AudioTrimSelector.sequences.add(AudioTrimSelector.sequence);
 		}
 		
-		Debug.debug(3,"AmplitudeTrimImplementation: " + (inputArray.length -  AudioTrimSelector.sequence.getStartIndex()));
+		Debug.debug(3,"AmplitudeTrimImpl buildTrimSequenceBorders " 
+			+ (inputArray.length -  AudioTrimSelector.sequence.getStartIndex()));
 				return ;
-	}
-	
-	public static void getFocusedAmplitudeSequencePoints(int [] samples ,int startAMP,int endAMP,
-			SequenceFilter sequenceFilter) {
-		
-		if(AudioTrimSelector.startIndex < 0 ||  AudioTrimSelector.endIndex == -1) return; 
-			
-		startAMP = (int) (startAMP *0.8);
-		endAMP = (int) (endAMP *0.8);
-		
-		AudioTrimSelector.setZeroMultiTrimVariables();
-		
-		for(int i = AudioTrimSelector.startIndex+1; i < AudioTrimSelector.endIndex; i++) {
-			
-			AudioTrimSelector.a_sum+= Math.abs(samples[i]);
-			AudioTrimSelector.counter++;
-			 
-			if(AudioTrimSelector.counter == 100) {
-				 
-				AudioTrimSelector.a_avg = AudioTrimSelector.a_sum /AudioTrimSelector.counter;
-				 
-				Debug.debug(1,"BuildTrimedSequence get focused i: " + i +" startAMP: "+startAMP
-					+",  avg: "+AudioTrimSelector.a_avg);
-				 
-				if(AudioTrimSelector.a_avg > startAMP) {
-					 
-					AudioTrimSelector.startIndex = i - AudioTrimSelector.counter ;
-					AudioTrimSelector.setZeroMultiTrimVariables();
-					break;
-				}
-				 
-				 AudioTrimSelector.setZeroMultiTrimVariables();
-			 }
-		}
-		
-		AudioTrimSelector.setZeroMultiTrimVariables();
-
-		for(int i = AudioTrimSelector.endIndex; i > AudioTrimSelector.startIndex; i--) {
-			
-			AudioTrimSelector.a_sum+= Math.abs(samples[i]);
-			AudioTrimSelector.counter++;
-			 
-			if(AudioTrimSelector.counter == 100) {
-				
-				AudioTrimSelector.a_avg = AudioTrimSelector.a_sum /AudioTrimSelector.counter;
-				Debug.debug(1,"BuildTrimedSequence get focused i: " + i +" endAMP: "
-				+endAMP+",  avg: "+AudioTrimSelector.a_avg);
-				
-				if(AudioTrimSelector.a_avg > endAMP) {
-					 AudioTrimSelector.endIndex= i + AudioTrimSelector.counter;
-					 AudioTrimSelector.setZeroMultiTrimVariables();
-					 break;
-				 }
-				
-				 AudioTrimSelector.setZeroMultiTrimVariables();
-			 }
-		}
-		
-		Debug.debug(1,"BuildTrimedSequence getFocusedAmplitudeSequencePoints result startIndex: "
-			+ AudioTrimSelector.startIndex + ", endIndex: "+AudioTrimSelector.endIndex);
 	}
 }

@@ -1,141 +1,172 @@
 package com.audio5.audioGramBuilder;
 
-import com.audio0.main.AppSetup;
-import com.audio4.audioGramInitializer.AudioAnalysisThread;
-import com.audio5.recognition.slope.Slope;
-import com.audio5.recognition.slope.SlopeBuilder;
+import com.audio4.audioGramInitializer.mainInit.AudioAnalysisThread;
 import com.audio8.util.Debug;
 
 public class MiscellaneousData {
 
-	public static int voiceRecognitionPointsintArray[];
-	public static String voiceRecognitionPointsStringArray[];
+	static StringBuilder stringBuilder;
+	static String[] rawAudioData;
+	static int[] bestDBMatchArray;
+	static int sequenceStartIndex;
+	static int sequenceEndIndex;
+
+	static int voiceCheckStartIndex;
+	static int[] tempSlopeArray;
+	static int[] tempArray;
 	
-	public static int voiceRecognitionSlopesIntArray;
-	public static String voiceRecognitionSlopesStringArray;
+	static int rawDataCounter;
+	static int sequenceDataCounter;
 	
-	public static int buildSequenceIntArray[];
-	public static String buildSequenceStringArray[];
+	static int[] mixedWaveStreamPointsIntArray;
+	static String[] MixedWaveStreamPointsStringArray;
+	static String buildSequenceStringArray[];
+		
+	static int voiceRecognitionPointsIntArray[];
+	static String voiceRecognitionPointsStringArray;
 	
-	public static Slope[] tempSlopeArray;
-	public static int[] tempArray;
-	public static int rawDataCounter;
-	public static int sequenceDataCounter;
-	public static int [] waveDetails;
-	public static StringBuilder sb = new StringBuilder();	
-	public static String[] rawAudioData;
-	public static int[] bestDBMatchArray;
-	private static StringBuilder stringBuilder;
+	static int voiceRecognitionSlopesIntArray;
+	static String voiceRecognitionSlopesStringArray;
+		
+	static int[][][] voiceRecognitionAreaArrays;
+	static String voiceRecognitionStringAreaArray;
 	
-	public static void initMiscellaneousDataDetails(int id) {
+	static String buildVoiceRecognitionScanString[];
+	
+	static int[] temp;
+	static int tempCounter;
+	
+	static void initMiscellaneousDataDetails(int id) {
 		
 		rawAudioData = new String[(int)
 		    AudioAnalysisThread.startedVoiceCheck.get(id).getAudioFormat().getSampleRate()];
-		buildSequenceStringArray = new String [2000];
 		rawDataCounter = 0;
-		sequenceDataCounter = 0;
-		waveDetails = new int[4];
-		sb = new StringBuilder();
 		
+		buildSequenceStringArray = new String [300];
+		sequenceDataCounter = 0;
+		voiceCheckStartIndex = 0;
+
 		Debug.debug(2,"MiscellaneousData initFrequencyWaveDetails!");
 	}
-	
-	public static void buildVoiceRecognitionPointsArray(int[] spektrogramMap) {
 		
-		if(spektrogramMap == null) return;
+	static void buildVoiceRecognitionPointsArray(int id) {
 		
-		rawDataCounter = 0;
-		sequenceDataCounter = 0;
+		stringBuilder = new StringBuilder();
+		int[][] points = new int[2][];
+				
+		points = VoiceRecognitionPointsBuilder.mainPointsBuilder(AudioAnalysisThread.startedVoiceCheck.get(id)
+			.getFrequencyWaveMap(), AudioAnalysisThread.startedVoiceCheck.get(id)
+			.getAmplitudeWaveMap(), AudioAnalysisThread.startedVoiceCheck.get(id).getVoiceRecognitionBorders());
 		
-		voiceRecognitionPointsintArray = new int[(spektrogramMap.length/2)*3];
-		voiceRecognitionPointsStringArray = new String[(spektrogramMap.length/2)*3];
+		stringBuilder.append(StringArrayUtil.buildIntArrayToString(points[0]));
 		
-		Debug.debug(5,"MiscellaneousData buildVoiceRecognitionPointsArray "
-			+ "spektrogramMap.length: "+spektrogramMap.length );
-		
-		for(int i = 0; i < spektrogramMap.length ; i = i+2) {
-
-			voiceRecognitionPointsintArray[rawDataCounter++] = spektrogramMap[i];
-			voiceRecognitionPointsintArray[rawDataCounter++] = spektrogramMap[i+1];
-			voiceRecognitionPointsintArray[rawDataCounter++] =
-					(spektrogramMap[i+1] *100) / spektrogramMap[i];
+		stringBuilder.append(";");
 			
-			voiceRecognitionPointsStringArray[sequenceDataCounter++] = String.valueOf(spektrogramMap[i]);
-			voiceRecognitionPointsStringArray[sequenceDataCounter++] = String.valueOf(spektrogramMap[i+1]);
-			voiceRecognitionPointsStringArray[sequenceDataCounter++] =
-								String.valueOf((spektrogramMap[i+1] *100) / spektrogramMap[i]);
-			
-			Debug.debug(5,"MiscellaneousData buildVoiceRecognitionPointsArray dataCounter: "
-				+rawDataCounter);
-		}
+		stringBuilder.append(StringArrayUtil.buildIntArrayToString(points[1]));
+		
+		AudioAnalysisThread.startedVoiceCheck.get(id).setVoiceReconitionCheckPointsArray(points);
+		AudioAnalysisThread.startedVoiceCheck.get(id).setVoiceRecognitionPointsArray(stringBuilder.toString());	
 	}
 	
-	public static void buildVoiceRecognitionSlopesArray(int id) {
+	static void buildVoiceRecognitionSlopesArray(int id) {
 		
-		rawDataCounter = 0;
 		stringBuilder = new StringBuilder();
 		int[][] slopes = new int[2][];
 		
-		tempSlopeArray = SlopeBuilder.mainSlopeBuilder(AudioAnalysisThread.startedVoiceCheck.get(id)
-				.getAmplitudeWaveMap());
-		
-		tempArray = new int[tempSlopeArray.length*4];
-		
-		for(int i = 0; i < tempSlopeArray.length; i++) {
-			
-			tempArray[rawDataCounter++] = tempSlopeArray[i].gethPosition();
-			tempArray[rawDataCounter++] = tempSlopeArray[i].getvPosition();
-			tempArray[rawDataCounter++] = tempSlopeArray[i].getAvgSlopedirection();
-			tempArray[rawDataCounter++] = tempSlopeArray[i].getMainLength();
-			
-			stringBuilder.append(String.valueOf(tempSlopeArray[i].gethPosition()) + ",");
-			stringBuilder.append(String.valueOf(tempSlopeArray[i].getvPosition())+ ",");
-			stringBuilder.append(String.valueOf(tempSlopeArray[i].getAvgSlopedirection())+ ",");
-			stringBuilder.append(String.valueOf(tempSlopeArray[i].getMainLength())+ ",");	
-		}
-			stringBuilder.deleteCharAt(stringBuilder.length()-1);
-			slopes[0] = tempArray;
-			
-			stringBuilder.append(";");
-			
-			rawDataCounter = 0;
-			tempSlopeArray = SlopeBuilder.mainSlopeBuilder(AudioAnalysisThread.startedVoiceCheck.get(id)
-					.getFrequencyWaveMap());
-			tempArray = new int[tempSlopeArray.length*4];
-			
-			for(int i = 0; i < tempSlopeArray.length; i++) {
+		slopes[0] = VoiceRecognitionSlopeBuilder.mainSlopeBuilder(AudioAnalysisThread.startedVoiceCheck.get(id)
+			.getAmplitudeWaveMap(),AudioAnalysisThread.startedVoiceCheck.get(id).getVoiceRecognitionBorders());
 				
-				tempArray[rawDataCounter++] = tempSlopeArray[i].gethPosition();
-				tempArray[rawDataCounter++] = tempSlopeArray[i].getvPosition();
-				tempArray[rawDataCounter++] = tempSlopeArray[i].getAvgSlopedirection();
-				tempArray[rawDataCounter++] = tempSlopeArray[i].getMainLength();
-				
-				stringBuilder.append(String.valueOf(tempSlopeArray[i].gethPosition()) + ",");
-				stringBuilder.append(String.valueOf(tempSlopeArray[i].getvPosition())+ ",");
-				stringBuilder.append(String.valueOf(tempSlopeArray[i].getAvgSlopedirection())+ ",");
-				stringBuilder.append(String.valueOf(tempSlopeArray[i].getMainLength())+ ",");	
-			}
+		slopes[1] = VoiceRecognitionSlopeBuilder.mainSlopeBuilder(AudioAnalysisThread.startedVoiceCheck.get(id)
+			.getFrequencyWaveMap(),AudioAnalysisThread.startedVoiceCheck.get(id).getVoiceRecognitionBorders());		
+
+		stringBuilder.append(StringArrayUtil.buildIntArrayToString(slopes[0]));
+		
+		stringBuilder.append(";");
 			
-			stringBuilder.deleteCharAt(stringBuilder.length()-1);
-			slopes[1] = tempArray;
-			
-			AudioAnalysisThread.startedVoiceCheck.get(id).setVoiceReconitionCheckSlopesArray(slopes);
-			AudioAnalysisThread.startedVoiceCheck.get(id).setVoiceRecognitionSlopesArray(stringBuilder.toString());
+		stringBuilder.append(StringArrayUtil.buildIntArrayToString(slopes[1]));
+
+		AudioAnalysisThread.startedVoiceCheck.get(id).setVoiceReconitionCheckSlopesArray(slopes);
+		AudioAnalysisThread.startedVoiceCheck.get(id).setVoiceRecognitionSlopesArray(stringBuilder.toString());
 			
 		Debug.debug(3,"MiscellaneousData buildVoiceRecognitionSlopeArray 1.0: "+stringBuilder.toString());
 	}
+
+	static void buildVoiceRecognitionAreaArray(int id) {
+		
+		stringBuilder = new StringBuilder();
+		voiceRecognitionAreaArrays = new int[1][][];
+				
+		voiceRecognitionAreaArrays = VoiceRecognitionAreaBuilder.mainAreaBuilder(
+			AudioAnalysisThread.startedVoiceCheck.get(id).getAmplitudeWaveMap(),
+			AudioAnalysisThread.startedVoiceCheck.get(id).getFrequencyWaveMap(),
+			AudioAnalysisThread.startedVoiceCheck.get(id).getVoiceRecognitionBorders()
+		);
+		
+		Debug.debug(3,"MiscellaneousData voiceRecognitionAreaArrays int READY! ");
+		stringBuilder.append(VoiceRecognitionBuilderUtil.buildVoiceRecognitionAreaString(voiceRecognitionAreaArrays));
+
+		
+		AudioAnalysisThread.startedVoiceCheck.get(id).setVoiceReconitionCheckAreaArray(voiceRecognitionAreaArrays);
+		
+		AudioAnalysisThread.startedVoiceCheck.get(id).setVoiceRecognitionAreaArray(stringBuilder.toString());	
+		Debug.debug(3,"MiscellaneousData voiceRecognitionAreaArrays String READY! ");
+	}
 	
-	public static void getWaveDetails(int pos_avg , int pos_counter,int neg_avg , int neg_counter) {
-		 
-		 pos_counter = pos_counter > 0 ?   pos_counter : 1 ;
-		 neg_counter = neg_counter > 0 ?   neg_counter : 1 ;
-		 
-		 waveDetails = new int[] {(pos_avg/pos_counter),pos_counter,(neg_avg/neg_counter),neg_counter};
-		 
-		 waveDetails[0] = (int) (waveDetails[0] > 10 ?  waveDetails[0]
-				 * AppSetup.BUILD_SEQUENCE_AMPLITUDE_CORRECTION_KONSTANT : 10);
-		 
-		 waveDetails[2] = (int) (waveDetails[2] > 10 ?  waveDetails[2]
-				 * AppSetup.BUILD_SEQUENCE_AMPLITUDE_CORRECTION_KONSTANT : 10);
-	 }
+	static void sequenceSetHighestAmplitude(int amplitude) {
+		
+		if(AGBCVariables.amplitudeHighest1 < amplitude) {
+			
+			AGBCVariables.amplitudeHighest2 = AGBCVariables.amplitudeHighest1; 
+			AGBCVariables.amplitudeHighest1 = amplitude;  
+		}
+	};
+	
+	static int sequenceGetAmplitude() {
+		
+		return (AGBCVariables.amplitudeHighest2 + AGBCVariables.amplitudeHighest1) / 2;
+	}
+	
+	static void buildVoiceRecognitionBorders(int id) {
+		
+		AudioAnalysisThread.startedVoiceCheck.get(id).setVoiceRecognitionBorders(
+			VoiceRecognitionBuilderUtil.buildSequenceBorders(
+			AudioAnalysisThread.startedVoiceCheck.get(id).getFrequencyWaveMap(),10 , 10));
+	}
+	
+	static void buildVoiceRecognitionScanString(int id) {
+		
+		temp = new int[(AudioAnalysisThread.startedVoiceCheck.get(id).getVoiceRecognitionBorders()[1]
+				- AudioAnalysisThread.startedVoiceCheck.get(id).getVoiceRecognitionBorders()[0])*4];
+		tempCounter = 0; 
+		
+		int start = AudioAnalysisThread.startedVoiceCheck.get(id).getVoiceRecognitionBorders()[0] * 2 > 2 ? 
+				AudioAnalysisThread.startedVoiceCheck.get(id).getVoiceRecognitionBorders()[0] * 2 : 2;
+		
+		int end = AudioAnalysisThread.startedVoiceCheck.get(id).getVoiceRecognitionBorders()[1] * 2 < 
+				AudioAnalysisThread.startedVoiceCheck.get(id).getMySpektrogramMap().length - 3 ? 
+				AudioAnalysisThread.startedVoiceCheck.get(id).getVoiceRecognitionBorders()[1] * 2 : 
+				AudioAnalysisThread.startedVoiceCheck.get(id).getVoiceRecognitionBorders()[1] - 3;
+		Debug.debug(1, "MiscellaneousData buildVoiceRecognitionScanString start: " +start+ " end: " +end 
+				+", temp.length "+temp.length+", MySpektrogram length:"
+				+ AudioAnalysisThread.startedVoiceCheck.get(id).getMySpektrogramMap().length); 
+		
+		for(int i = start; i < end; i = i + 2) {
+			
+			temp[tempCounter++] = AudioAnalysisThread.startedVoiceCheck.get(id).getMySpektrogramMap()[i];
+			temp[tempCounter++] = AudioAnalysisThread.startedVoiceCheck.get(id).getMySpektrogramMap()[i+1];
+			
+			temp[tempCounter++] = (int) Math.toDegrees(Math.atan2(
+					AudioAnalysisThread.startedVoiceCheck.get(id).getMySpektrogramMap()[i+2] 
+					- AudioAnalysisThread.startedVoiceCheck.get(id).getMySpektrogramMap()[i-2], 2));
+			temp[tempCounter++] = (int) Math.toDegrees(Math.atan2(
+					AudioAnalysisThread.startedVoiceCheck.get(id).getMySpektrogramMap()[i+3] 
+					- AudioAnalysisThread.startedVoiceCheck.get(id).getMySpektrogramMap()[i-1], 2));
+			
+		}	
+		
+		AudioAnalysisThread.startedVoiceCheck.get(id).setVoiceReconitionCheckScanArray(temp);
+		
+		AudioAnalysisThread.startedVoiceCheck.get(id).setVoiceRecognitionScanArray(
+			StringArrayUtil.buildIntArrayToString(temp));
+	}
 }

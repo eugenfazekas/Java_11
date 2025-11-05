@@ -1,45 +1,60 @@
 package com.audio5.recognition;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import com.audio8.util.Debug;
 
 public class VoiceCheckModel {
 
 	private int id;
-	public int [][] pointsResultVerifier;
-	public int [][] slopesResultVerifier;
-	private int testsCounter;
-	public Map<Integer, int[]> evoluatorResult = new ConcurrentHashMap<Integer, int[]>();
+	public float [][][] dbCheckResults;
+	public float [][][] sortedResults;
+	private int baseTestsCounter;
+	private int finishedTestsCounter;
 	
-	public VoiceCheckModel(int Id) {
+	public VoiceCheckModel(int Id , int testsCounter) {
 		
 		this.id = Id;
-		testsCounter = 0;
+		this.baseTestsCounter = testsCounter;
+		initArrays();
 	}
 	
 	public int getId() {
 		return id;
 	}
 	
-	public int[][] getPointsResultVerifier() {
-		return pointsResultVerifier;
+	public float[][][] getDbCheckResults() {
+		return dbCheckResults;
+	}
+	
+	public void setCheckResult(float[][] checkResult, int setIndex) {		
+		this.dbCheckResults[setIndex] = checkResult;
+		addToFinishTestLength();
+	}
+	
+	public float[][][] getSortedResults() {
+		return sortedResults;
+	}
+	
+	public void setSortResult(float[][] sortResult, int setIndex) {	
+		
+		Debug.debug(1, "VoiceCheckModel setSortResult: "+ setIndex);
+		this.sortedResults[setIndex] = sortResult;
+	}
+	
+	public int getBaseTestsCounter() {
+		return baseTestsCounter;
 	}
 
-	public void setPointsResultVerifier(int[][] pointsResultVerifier) {
-		this.pointsResultVerifier = pointsResultVerifier;
-		testsCounter++;
+	public int getFinishedTestsCounter() {
+		return finishedTestsCounter;
 	}
 
-	public int[][] getSlopesResultVerifier() {
-		return slopesResultVerifier;
+	public void addToFinishTestLength() {		
+		finishedTestsCounter++;
 	}
-
-	public void setSlopesResultVerifier(int[][] slopesResultVerifier) {
-		this.slopesResultVerifier = slopesResultVerifier;
-		testsCounter++;
+	
+	public void initArrays() {
+		
+		this.dbCheckResults = new float[baseTestsCounter][][];
+		this.sortedResults = new float[baseTestsCounter][][];
 	}
-
-	public int getTestsCounter() {
-		return testsCounter;
-	}	
 }

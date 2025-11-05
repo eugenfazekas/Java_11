@@ -1,91 +1,165 @@
 package com.audio2.recorder;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-
 import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.TargetDataLine;
 
+import com.audio0.main.AppSetup;
+import com.audio1.logical.EntryPointMethods;
 import com.audio2.audioObject.AudioObject;
-import com.audio4.audioGramInitializer.AudioAnalysisThread;
-import com.audio8.util.AudioUtil;
+import com.audio4.audioGramInitializer.mainInit.AudioAnalysisThread;
+import com.audio7.threads.MyThread;
+import com.audio7.threads.ThreadManagement;
 import com.audio8.util.Debug;
 
-public class TimeFixedSoundRecorder implements Runnable {
+public class TimeFixedSoundRecorder implements MyThread {
 
-    private AudioFormat format;
-    private Thread thread;
-    private long recordLength;
-    private String speechName;
-    private ByteArrayOutputStream out;
+    private static AudioFormat format;
+    private static int recordLength;
+    private static String speechName;
+	private static int sleepTime = AppSetup.RECORDER_MILISEC_BUFFER_LENGTH / 2;
+    private static byte[] buffer;
+    private static int[] intStream;
+    private static int bufferCounter;
+    private long endTime;
+    	
+	private boolean threadIsActive;
+	private boolean threadIsSuspended;
+	private Thread thread;
+	final private String THREAD_NAME = "TimeFixedSoundRecorder"; 
     
-    public TimeFixedSoundRecorder(String speechName, long recordLength) {
+    public TimeFixedSoundRecorder(String SpeechName, int RecordLength) {
     	
-    	this.format = AudioUtil.getAudioFormat("MainRecord");
-		this.recordLength = recordLength;
-		this.speechName = speechName;
-		out = new ByteArrayOutputStream();
-		start();
-    }
-
-    public void start() {
-    	
-        thread = new Thread(this);
-        thread.setName("Fixed Sound Record Thread");
-        thread.start();
-    }
-
-    public void stop() {
-    	
-        thread = null;
+    	format = AudioUtil.getAudioFormat("MainRecord");
+		recordLength = RecordLength;
+		speechName = SpeechName;
+		setAudioListener();
+		threadIsActive = true;
+		threadIsSuspended = false;
+		thread = new Thread(this);		
+		thread.start();
     }
 
     @Override
     public void run() {
-
-		Debug.debug(1,"Starting Fixed Sound Record Thread! ");
-
-        try (final TargetDataLine line =  AudioUtil.getTargetDataLineForRecord();) {
-           
-        	buildByteOutputStream(out, line, format.getFrameSize(), (line.getBufferSize()
-        		* format.getFrameSize()/5));
-           
-        	AudioAnalysisThread.analysisStarter(
-        			new AudioObject(out.toByteArray(),null,null,speechName,line.getFormat(),0));
- 	       
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            return;
-        }
-        
-        stop();
-    }
-
-    public void buildByteOutputStream(final ByteArrayOutputStream out, final TargetDataLine line,
-    		int frameSizeInBytes, final int bufferLengthInBytes) throws IOException {
     	
-        final byte[] data = new byte[bufferLengthInBytes];
-        int numBytesRead;     
-		long startTime = System.currentTimeMillis();
-		long endTime = startTime + recordLength;
+		Thread.currentThread().setName(THREAD_NAME);
+		Debug.debug(1,"Starting "+Thread.currentThread().getName() +" Thread!");	
+		ThreadManagement.addingThread(this);
 		
-        line.start();
+		buffer = new byte[calculateBufferLength(recordLength)];
+		bufferCounter = 0;
+		Debug.debug(1, "Buffer length: "+buffer.length);
+		endTime = System.currentTimeMillis() + recordLength;
+		
+		while(threadIsActive) {
 
-        while (endTime <= startTime + recordLength ) {
-        	
-            if ((numBytesRead = line.read(data, 0, bufferLengthInBytes)) == -1) { 
-            	Debug.debug(3,"data.length 1 :"+data[0]+" "+data[1]+" numBytesRead" +numBytesRead);
-                break;
-            }
-            
-            out.write(data, 0, numBytesRead);
-            
-            Debug.debug(3,"data.length 2.:" +data.length+ " numBytesRead "+numBytesRead 
-            		+ " bufferLengthInBytes "+bufferLengthInBytes);
-            
-            endTime = System.currentTimeMillis();
-        }
+			suspendThread();
+			
+			if(!AudioListener.bufferSizeNonZero.get())
+				sleepThread(sleepTime);
+			
+			if(AudioListener.bufferSizeNonZero.get()) 	 {
+				
+				addTobuffer(AudioListener.audioBuffers.poll());
+			}
+			
+			if(System.currentTimeMillis() > endTime)
+				ThreadManagement.stopAndRemoveThreadByName(THREAD_NAME);
+		}
+		
+		intStream = AudioUtil.buildIntStreamFromByteStream(buffer,format);
+
+		AudioAnalysisThread.analysisStarter(new AudioObject(buffer,intStream,null,null,
+				speechName,format,intStream[0],EntryPointMethods.getSvitch()));		
     }
+
+	//Calculating with one one Frame.
+	private int calculateBufferLength(int mSec) {
+		
+		int sampleSizeInBytesOneSec = (int) ((format.getSampleSizeInBits() / 8) 
+				*  format.getSampleRate() * format.getChannels());
+		float oneMilisecBufferLength = (float)sampleSizeInBytesOneSec / 1000;
+		int finalBufferLengthInBytes = (int) (oneMilisecBufferLength * mSec) ;
+		
+		Debug.debug(1,"TimeFixedSoundRecorder calculateBufferLength sampleSizeInBytesOneSec: "
+			+sampleSizeInBytesOneSec+ ", oneMilisecBufferLength: "
+			+ oneMilisecBufferLength +", finalBufferLengthInBytes: "+finalBufferLengthInBytes);
+		
+		return finalBufferLengthInBytes;
+	}
+		
+	private void addTobuffer(byte[] inputBuffer) {
+		
+		for(int i = 0; i < inputBuffer.length ; i++) {
+			
+			buffer[bufferCounter++] = inputBuffer[i];
+			
+		Debug.debug(5,"TimeFixedSoundRecorder i: "+ i + ", buffer length: "+inputBuffer.length 
+			+ " inputBuffer[i] "+inputBuffer[i]+ "   " + buffer.length);
+		}
+		
+	    AudioListener.bufferSizeNonZero.set(false);	
+	    
+	    Debug.debug(1, "TimeFixedSoundRecorder Timefixed added to buffer");
+	}
+	
+	private void setAudioListener() {
+		
+		if(!AudioListener.isInstanceOf())
+			new AudioListener();
+	}
+   
+    @Override
+	public void stopThread() {	
+		
+		threadIsActive = false;
+	}
+	
+	@Override
+	public void suspendThread() {
+
+		while(isThreadSuspended()) {
+			
+			sleepThread(50);
+		}
+	}
+	
+	@Override
+	public void setSuspendThread() {
+		
+		threadIsSuspended = true;		
+	}
+
+	@Override
+	public void stopSuspendThread() {
+		
+		threadIsSuspended = false;
+	}
+
+	@Override
+	public Thread getThread() {
+
+		return thread;
+	}
+
+	@Override
+	public boolean isThreadSuspended() {
+		
+		return threadIsSuspended;
+	}
+	
+	public void sleepThread(int mSec) {
+		
+		try {
+			Thread.sleep(mSec);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}	
+	}
+	
+	@Override
+	public String getThreadName() {
+		
+		return Thread.currentThread().getName();
+	}
 }

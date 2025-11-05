@@ -4,10 +4,7 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-
-import com.audio8.util.StringArrayUtil;
 import com.audio8.util.Debug;
-import com.audio8.util.file.FileWriterUtil;
 
 public class DeleteLastAnalysisBuilder {
 	
@@ -16,6 +13,7 @@ public class DeleteLastAnalysisBuilder {
 	public static String[] fileSavePaths;
 	public static String[] directorySavePaths;	
 	public static Map<String, byte[]> addedSavedFiles;
+	private static String[] tempStringArray; 
 	
 	public static void deleteLastSave(DeleteLastDataModel deleteData) {
 		
@@ -65,8 +63,8 @@ public class DeleteLastAnalysisBuilder {
 		
 		Debug.debug(3,"DeleteLastAnalysis resetSavedData!");
 		
-		fileSavePaths = new String[12];
-		directorySavePaths = new String[12];
+		fileSavePaths = new String[13];
+		directorySavePaths = new String[13];
 		addedSavedFiles = new HashMap<>();
 		fileCounter = 0;
 		directoryCounter = 0;
@@ -85,12 +83,27 @@ public class DeleteLastAnalysisBuilder {
 	
 	public static DeleteLastDataModel createFinalDeleteList() {
 
-		fileSavePaths = StringArrayUtil.filterEmptyStringsWithFixedLength(fileSavePaths,
+		fileSavePaths = filterEmptyStringsWithFixedLength(fileSavePaths,
 				fileCounter, "fileSavePaths");
 		
-		directorySavePaths = StringArrayUtil.filterEmptyStringsWithFixedLength(directorySavePaths
+		directorySavePaths = filterEmptyStringsWithFixedLength(directorySavePaths
 				,directoryCounter, "directorySavePaths");
 		
 		return new DeleteLastDataModel(fileSavePaths, directorySavePaths, addedSavedFiles);
+	}
+	
+	static String[]filterEmptyStringsWithFixedLength(String[]inputStringArray,int arraySize
+			,String arrayNam) {
+		
+		tempStringArray = new String[arraySize];
+		
+		for (int i = 0; i < arraySize ; i++)
+			tempStringArray[i] = inputStringArray[i];
+		
+		Debug.debug(3,"AudioBuilderUtil filterEmptyStringsWithUnknownLength Array Name: "
+			+arrayNam+", old length: "+inputStringArray.length+", new length: "
+			+tempStringArray.length);
+		
+			return tempStringArray;		
 	}
 }

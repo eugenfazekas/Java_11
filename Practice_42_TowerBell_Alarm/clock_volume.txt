@@ -1,0 +1,4 @@
+HourVolumePercent,QuarterVolumePercent
+50,70
+
+

@@ -30,6 +30,8 @@ public class Clock {
 	private static RawAudio [] rawAudioLib = new RawAudio[2];
 	private static VoiceSynthesizer voiceSynthesizer;
 	private static boolean synchronizing ;
+	public static int hourVolumePercent;
+	public static int quarterVolumePercen;
 	private static LocalDateTime timestamp;	
 	//private static LocalDateTime timestamp = LocalDateTime.now();
 
@@ -130,6 +132,7 @@ public class Clock {
 		}
 		if(!synchronizing)
 			System.out.println("NO need to synchronize Hour: " +hour + ", minute: "+minute +", second: " +second);
+		
 	}
 
 	private static void increaseTime() {
@@ -169,13 +172,13 @@ public class Clock {
 		
 		if(quarter == 0 && hour != 0 ) {
 				stream = buildAudioInputStreamFromBuffer(rawAudioLib[0].getData(),rawAudioLib[0].getAudioFormat());
-				player = new Player(stream,hour);	
+				player = new Player(stream,hour,hourVolumePercent);	
 				System.out.println("Fix hour bell! "+hour);
 				
 		}
 		if(quarter != 0) {
 			    stream = buildAudioInputStreamFromBuffer(rawAudioLib[1].getData(),rawAudioLib[1].getAudioFormat());
-				player = new Player(stream,quarter);
+				player = new Player(stream,quarter,quarterVolumePercen);
 				System.out.println("Quater bell!, Hour: " + hour+ ", minute: "+quarter*15);
 		} 
 	}

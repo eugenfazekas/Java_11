@@ -3,219 +3,207 @@ package com.audio5.recognition;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.audio0.main.AppSetup;
-import com.audio1.logical.EntryPointMethods;
-import com.audio4.audioGramInitializer.AudioAnalysisThread;
+import com.audio4.audioGramInitializer.mainInit.AudioAnalysisThread;
+import com.audio5.recognition.area.VoiceRecognitionAreaCheck;
 import com.audio5.recognition.points.VoiceRecognitionPointsCheck;
+import com.audio5.recognition.scan.VoiceRecognitionScanCheck;
 import com.audio5.recognition.slope.VoiceRecognitionSlopeCheck;
 import com.audio8.util.Debug;
 
 public class VoiceRecognitionMain {
 	
-    public static int id = 0;
-	public static Map<Integer, VoiceCheckModel> startedVoiceCheck = new ConcurrentHashMap<Integer, VoiceCheckModel>();
-	public static Map<Integer, String> readedVoiceArrray = new ConcurrentHashMap<Integer, String>();
-	public static int[][] result;
-	private static int testsLength = 0;
-	private static int sortParam = 2;
+	public static Map<Integer, VoiceCheckModel> startedVoiceCheck =
+					new ConcurrentHashMap<Integer, VoiceCheckModel>();
+	public static Map<Integer, String> readedVoiceArrray = 
+					new ConcurrentHashMap<Integer, String>();
+	public static float[][] sortResult;
+	public static float[] mainResult;
+	private static float[] tempResult;
+	private static int testsLength;
+	private static int sortParam = 4; // sort param 4 BestMatch ; sort param 3 Avg; 
+	private static int readedVoiceArrrayCounter = 0;
+	public static AtomicBoolean building = new AtomicBoolean(false);
 	
 	public static void main(int id) {
 		
 		if(AudioAnalysisThread.startedVoiceCheck.get(id).getBuild() == false 
 			|| !AudioAnalysisThread.startedVoiceCheck.get(id).getNextStage().equals("voiceCheck")) 
 				return;
+		building.set(true);
 
-		setVoiceRecognitionTestsLength();
-		
-		AudioAnalysisThread.startedVoiceCheck.get(id).setNextStage("pending");
-			
-		Debug.debug(3, "VoiceRecognitionMain main WaveStream().length: "
-			+AudioAnalysisThread.startedVoiceCheck.get(id).getWaveStream().length);
-		
-		VoiceCheckModel vcModel = new VoiceCheckModel(id);
-		
-		if(AudioAnalysisThread.startedVoiceCheck.get(id).getVoiceReconitionCheckPointsArray() != null)
-			new VoiceRecognitionPointsCheck(vcModel.getId(), AudioAnalysisThread
-					.startedVoiceCheck.get(id).getVoiceReconitionCheckPointsArray());
-		
-		if(AudioAnalysisThread.startedVoiceCheck.get(id).getVoiceReconitionCheckSlopesArray() != null)
-			new VoiceRecognitionSlopeCheck(vcModel.getId(),AudioAnalysisThread
-					.startedVoiceCheck.get(id).getVoiceReconitionCheckSlopesArray());
-		
+		VoiceCheckModel vcModel = new VoiceCheckModel(id,getVoiceRecognitionTestsLength());
+
 		startedVoiceCheck.put(id,vcModel);
+		
+		initVoiceRecognitionThreads(id);
+		
+		building.set(false);
 	}
 	
-	private static void setVoiceRecognitionTestsLength() {
+	private static void initVoiceRecognitionThreads(int id) {
+		
+		if(AudioAnalysisThread.startedVoiceCheck.get(id).getVoiceReconitionCheckPointsArray() != null) 
+			new VoiceRecognitionPointsCheck(id, AudioAnalysisThread
+					.startedVoiceCheck.get(id).getVoiceReconitionCheckPointsArray());
+				
+		if(AudioAnalysisThread.startedVoiceCheck.get(id).getVoiceReconitionCheckSlopesArray() != null)
+			new VoiceRecognitionSlopeCheck(id,AudioAnalysisThread
+					.startedVoiceCheck.get(id).getVoiceReconitionCheckSlopesArray());
+		
+		if(AudioAnalysisThread.startedVoiceCheck.get(id).getVoiceReconitionCheckAreaArray() != null)
+			new VoiceRecognitionAreaCheck(id,AudioAnalysisThread
+					.startedVoiceCheck.get(id).getVoiceReconitionCheckAreaArray());
+		
+		if(AudioAnalysisThread.startedVoiceCheck.get(id).getVoiceReconitionCheckScanArray() != null)
+			new VoiceRecognitionScanCheck(id,AudioAnalysisThread
+					.startedVoiceCheck.get(id).getVoiceReconitionCheckScanArray());
+	}
+		
+	private static int getVoiceRecognitionTestsLength() {
+		
+		testsLength = 0;
 		
 		if(AppSetup.voicePointsRecognition)
 			testsLength++;
 			
 		if(AppSetup.voiceSlopesRecognition)
 			testsLength++;
+				
+		if(AppSetup.voiceAreaRecognition)
+			testsLength++;
+		
+		if(AppSetup.voiceScanRecognition)
+			testsLength++;
 		
 		Debug.debug(1, "VoiceRecognitionMain setVoiceRecognitionTestsLength: " +testsLength+ "!");
+		
+			return testsLength;
 	}
 	
-	
-	private static void addToResultArray(int id, int[][] resultFromDbCheck) {
+	public static void addToCheckResult(int id, int index, float[][] result) {
 		
-		int existCounter;
-		int chekResultLength = 	resultFromDbCheck.length < 3 ? resultFromDbCheck.length : 3;
-		Debug.debug(1, "VoiceRecognitionMain evoluatorResult.size: "+startedVoiceCheck.get(id).evoluatorResult.size() + ", id: "+id);
-			for(int i = 0; i < chekResultLength; i++) {
-				
-				existCounter = 0;
-				
-				for(Map.Entry<Integer, int[]> result : startedVoiceCheck.get(id).evoluatorResult.entrySet()){
-					
-					if(resultFromDbCheck[i][resultFromDbCheck[i].length-2] == result.getKey()) {
+		startedVoiceCheck.get(id).setCheckResult(result, index);
+		
+		if(startedVoiceCheck.get(id).getFinishedTestsCounter() 
+			== startedVoiceCheck.get(id).getBaseTestsCounter()) {
+			
+			buildMainResultBuilder(id);
+		}		
+	}
+	
+	private static void buildMainResultBuilder(int id) {
+		
+		sortResults(id);
+		
+		mainResult = new float[startedVoiceCheck.get(id).getBaseTestsCounter()*2];
+		
+		if(startedVoiceCheck.get(id).sortedResults[0] != null) {
+			mainResult[0] =
+					//startedVoiceCheck.get(id).sortedResults[0][0][startedVoiceCheck.get(id).sortedResults[0][0].length-1-sortParam] *
+					AppSetup.VOICE_RECOGNITION_POINTS_CORRECTION_KONSTANT
+					* (startedVoiceCheck.get(id).sortedResults[0][0][startedVoiceCheck.get(id).sortedResults[0][0].length-sortParam] / 
+					   startedVoiceCheck.get(id).sortedResults[0][1][startedVoiceCheck.get(id).sortedResults[0][1].length-sortParam] );
+			Debug.debug(1, "VoiceRecognitionMain 1 " 
+					   +startedVoiceCheck.get(id).sortedResults[0][0][startedVoiceCheck.get(id).sortedResults[0][0].length-sortParam] 
+				+ ", 2: "+ startedVoiceCheck.get(id).sortedResults[0][1][startedVoiceCheck.get(id).sortedResults[0][1].length-sortParam]);
+			mainResult[1] = startedVoiceCheck.get(id).sortedResults[0][0][startedVoiceCheck.get(id).sortedResults[0][0].length-2];
+		}
+		
+		if(startedVoiceCheck.get(id).sortedResults[1] != null) {
+			mainResult[2] = 
+					//startedVoiceCheck.get(id).sortedResults[1][0][startedVoiceCheck.get(id).sortedResults[1][0].length-1-sortParam] *
+					 AppSetup.VOICE_RECOGNITION_SLOPE_CORRECTION_KONSTANT
+					* (startedVoiceCheck.get(id).sortedResults[1][0][startedVoiceCheck.get(id).sortedResults[1][0].length-sortParam] / 
+					   startedVoiceCheck.get(id).sortedResults[1][1][startedVoiceCheck.get(id).sortedResults[1][1].length-sortParam] );
+			
+			mainResult[3] = startedVoiceCheck.get(id).sortedResults[1][0][startedVoiceCheck.get(id).sortedResults[1][0].length-2];
+		}
+		
+		if(startedVoiceCheck.get(id).sortedResults[2] != null) {
+			mainResult[4] = 
+					//startedVoiceCheck.get(id).sortedResults[2][0][startedVoiceCheck.get(id).sortedResults[2][0].length-1-sortParam] *
+					 AppSetup.VOICE_RECOGNITION_AREA_CORRECTION_KONSTANT
+					* (startedVoiceCheck.get(id).sortedResults[2][0][startedVoiceCheck.get(id).sortedResults[2][0].length-sortParam] / 
+					   startedVoiceCheck.get(id).sortedResults[2][1][startedVoiceCheck.get(id).sortedResults[2][1].length-sortParam] );
 						
-						Debug.debug(1, "VoiceRecognitionMain addToResultArray i: "+resultFromDbCheck[i][resultFromDbCheck[i].length-2] 
-							+ ", result.getKey(): "+result.getKey());
-						existCounter++;
-					}
-				}
-				
-				if(existCounter == 0) {
-					startedVoiceCheck.get(id).evoluatorResult.put(resultFromDbCheck[i][resultFromDbCheck[i].length-2]
-							, new int[] {0,resultFromDbCheck[i][resultFromDbCheck[i].length-2],resultFromDbCheck[i][resultFromDbCheck[i].length-1]});
-					
-					Debug.debug(1, "VoiceRecognitionMain addToResultArray! "+resultFromDbCheck[i][resultFromDbCheck[i].length-2]
-						+ " "+ resultFromDbCheck[i][resultFromDbCheck[i].length-1]);
-				}
-			}
-	}
-	
-	private static void buildResultPodium(int id) {
+			mainResult[5] = startedVoiceCheck.get(id).sortedResults[2][0][startedVoiceCheck.get(id).sortedResults[2][0].length-2];
+		}
 		
-		if(AppSetup.voicePointsRecognition) 		
-			addToResultArray(id, startedVoiceCheck.get(id).pointsResultVerifier);
+		if(startedVoiceCheck.get(id).sortedResults[3] != null) {
+			mainResult[6] = 
+					//startedVoiceCheck.get(id).sortedResults[3][0][startedVoiceCheck.get(id).sortedResults[3][0].length-1-sortParam] *
+					 AppSetup.VOICE_RECOGNITION_SCAN_CORRECTION_KONSTANT
+					* (startedVoiceCheck.get(id).sortedResults[3][0][startedVoiceCheck.get(id).sortedResults[3][0].length-sortParam] / 
+					   startedVoiceCheck.get(id).sortedResults[3][1][startedVoiceCheck.get(id).sortedResults[3][1].length-sortParam] );
+						
+			mainResult[7] = startedVoiceCheck.get(id).sortedResults[3][0][startedVoiceCheck.get(id).sortedResults[3][0].length-2];
+		}
 		
-		if(AppSetup.voiceSlopesRecognition) 		
-			addToResultArray(id, startedVoiceCheck.get(id).slopesResultVerifier);
+		tempResult = new float[2];
 		
-		
-		Debug.debug(1, "VoiceRecognitionMain buildResultPodium!  id: "+id);
-	}
-	
-	private static void compareResult(int[][] inputResult) {
-		
-		Debug.debug(1, "VoiceRecognitionMain compareResult! id: "+id);
-		
-		for(Map.Entry<Integer, int[]> result : startedVoiceCheck.get(id).evoluatorResult.entrySet()) {
-			
-			for(int i = 0; i < inputResult.length; i++) {
-				
-				if(result.getKey() == inputResult[i][inputResult[i].length-2]) 
-					result.setValue(new int[] {result.getValue()[0] +  10 - i * 2, result.getValue()[1], result.getValue()[2]});				
+		for(int i = 0; i < startedVoiceCheck.get(id).getBaseTestsCounter() * 2; i = i + 2) {
+						
+			Debug.debug(1, "VoiceRecognitionMain buildMainResultBuilder  mainResult[i] " + mainResult[i]
+					+ ", mainResult[i+1] "+mainResult[i+1]);
+			if(mainResult[i] > tempResult[0] && mainResult[i] < 100000) {
+				tempResult[0] = mainResult[i];
+				tempResult[1] = mainResult[i+1];
 			}
 		}
 		
-		Debug.debug(1, "VoiceRecognitionMain compareResult!");
-	}
-	
-	private static void evaulateResult(int id) {
+		AudioAnalysisThread.startedVoiceCheck.get(id).setNextStage();
 		
-		int key = 0;
-		int value = 0;
+		if(VoiceRecognitionDB.DB_NAMES.get((int)tempResult[1])!=null)
+		readedVoiceArrray.put(readedVoiceArrrayCounter++, VoiceRecognitionDB.DB_NAMES.get((int)tempResult[1]));
 		
-		buildResultPodium(id);
-		
-		if(AppSetup.voicePointsRecognition && startedVoiceCheck.get(id).pointsResultVerifier != null) 	
-			compareResult(startedVoiceCheck.get(id).pointsResultVerifier);
-		
-		if(AppSetup.voiceSlopesRecognition &&  startedVoiceCheck.get(id).slopesResultVerifier != null)
-			compareResult(startedVoiceCheck.get(id).slopesResultVerifier);
-		
-		for(Map.Entry<Integer, int[]> result : startedVoiceCheck.get(id).evoluatorResult.entrySet()) {
-			
-			if(result.getValue()[0] > value) {
-				
-				key = result.getKey();
-				value = result.getValue()[0];
-			}
-		}
-		
-		resultValidityCheck(id);
-		
-		Debug.debug(1, "VoiceRecognitionMain evoluatorResult key[0]: "+startedVoiceCheck.get(id).evoluatorResult.get(key)[0] 
-				+ ", evoluatorResult key[1]: "+startedVoiceCheck.get(id).evoluatorResult.get(key)[1] + ", Rank 1 Match: "+
-				VoiceRecognitionDB.DB_NAMES.get(startedVoiceCheck.get(id).evoluatorResult.get(key)[1]));
-		
-		Debug.debug(1, "VoiceRecognitionMain evoluatorResult DB length: "+VoiceRecognitionDB.audioPointsDB[startedVoiceCheck.get(id).evoluatorResult.get(key)[1]]
-				[startedVoiceCheck.get(id).evoluatorResult.get(key)[2]].length + ", Array: "
-				+Arrays.toString(VoiceRecognitionDB.audioPointsDB[startedVoiceCheck.get(id).evoluatorResult.get(key)[1]]
-				[startedVoiceCheck.get(id).evoluatorResult.get(key)[2]]));
-		
-		Debug.debug(1, "VoiceRecognitionMain evoluatorResult AudioObject: "+ AudioAnalysisThread.startedVoiceCheck.get(id).toString());
-		
-		AudioAnalysisThread.startedVoiceCheck.get(id).setPointsBestDBMatchArray(
-			VoiceRecognitionDB.audioPointsDB[startedVoiceCheck.get(id).evoluatorResult.get(key)[1]]
-					[startedVoiceCheck.get(id).evoluatorResult.get(key)[2]]);
-		
-		Debug.debug(1,"VoiceRecognitionMain evaulateResult Best result: "+ VoiceRecognitionDB.DB_NAMES.get(key) 
-			+ ", position: "+startedVoiceCheck.get(id).evoluatorResult.get(key)[1]);
-	}
-	
-	public static void checkTestEnd(int id) {
-				
-		Debug.debug(1,"VoiceRecognitionMain checkTestEnd id: "+id 
-			+", startedVoiceCheck.get(id).getTestsCounter(): "
-				+startedVoiceCheck.get(id).getTestsCounter() + ", testsLength: "+testsLength);
-		
-		if(startedVoiceCheck.get(id).getTestsCounter() == testsLength) {
-			
-			if(AppSetup.voicePointsRecognition)
-				startedVoiceCheck.get(id).setPointsResultVerifier(sort(startedVoiceCheck.get(id).getPointsResultVerifier(),sortParam));
-			
-			if(AppSetup.voiceSlopesRecognition)
-				startedVoiceCheck.get(id).setSlopesResultVerifier(sort(startedVoiceCheck.get(id).getSlopesResultVerifier(),sortParam));
-			
-			if((testsLength == 1 && startedVoiceCheck.get(id).pointsResultVerifier != null ) || (testsLength == 2 
-					&& startedVoiceCheck.get(id).pointsResultVerifier != null  && startedVoiceCheck.get(id).slopesResultVerifier != null))
-			evaulateResult(id);
-			
-			if(EntryPointMethods.getSvitch().equals("voiceRecognition"))
-				AudioAnalysisThread.startedVoiceCheck.get(id).setNextStage("analysis");
-			
-			if(EntryPointMethods.getSvitch().equals("voiceRecognitionDebug"))
-				AudioAnalysisThread.startedVoiceCheck.get(id).setNextStage("save");
-		}
-	}
-	
-	private static void resultValidityCheck(int id) {
-		
-		Debug.debug(1,"VoiceRecognitionMain resultValidityCheck validity: "+((float)startedVoiceCheck
-			.get(id).getPointsResultVerifier()[0][startedVoiceCheck.get(id).getPointsResultVerifier()[0].length - sortParam-1] 
-				/ startedVoiceCheck.get(id).getPointsResultVerifier()[1][startedVoiceCheck.get(id).getPointsResultVerifier()[1].length - sortParam-1]));
+		Debug.debug(1, "VoiceRecognitionMain buildMainResultBuilder MatchPercent: "+ tempResult[0] 
+			+ ", Match Name-: "+ VoiceRecognitionDB.DB_NAMES.get((int)tempResult[1]));
 	}
 
-	public static int[][] sort(int[][] input, int sortParam) {
+	private static void sortResults(int id) {
 		
-		result = input;
-    	int highest[] = input[0] ;
+		if(startedVoiceCheck.get(id).getDbCheckResults()[0]!= null)
+			startedVoiceCheck.get(id).setSortResult(sort(startedVoiceCheck.get(id).getDbCheckResults()[0], sortParam),0);
+		
+		if(startedVoiceCheck.get(id).getDbCheckResults()[1]!= null)		
+			startedVoiceCheck.get(id).setSortResult(sort(startedVoiceCheck.get(id).getDbCheckResults()[1],sortParam),1);
+		
+		if(startedVoiceCheck.get(id).getDbCheckResults()[2]!= null)	
+			startedVoiceCheck.get(id).setSortResult(sort(startedVoiceCheck.get(id).getDbCheckResults()[2],sortParam),2);
+		
+		if(startedVoiceCheck.get(id).getDbCheckResults()[3]!= null)	
+			startedVoiceCheck.get(id).setSortResult(sort(startedVoiceCheck.get(id).getDbCheckResults()[3],sortParam),3);
+	}
+	
+	private static float[][] sort(float[][] input, int sortParam) {
+
+		sortResult = input;
+    	float highest[] = input[0] ;
     	int highestpos = 0;
     	int counter = 0;
-		for(int i = 0; i < result.length; i++) {
+		for(int i = 0; i < sortResult.length; i++) {
 			
 			Debug.debug(3, "VoiceRecognitionMain sort i: "+i +", result[i][result[i].length-sortParam-1] "
-					+result[i][result[i].length-sortParam-1]+ ", Array: "+Arrays.toString(result[i]));
-			if(result[i][result[i].length-sortParam-1] > highest[highest.length-sortParam-1]) {	
-						highest = result[i];
+					+sortResult[i][sortResult[i].length-sortParam]+ ", Array: "+Arrays.toString(sortResult[i]));
+			if(sortResult[i][sortResult[i].length-sortParam] > highest[highest.length-sortParam]) {	
+						highest = sortResult[i];
 						highestpos = i;
 			}
 					
-			if(i == result.length-1) {
-				Debug.debug(3, "VoiceRecognitionMain sort i: "+i +", highest: "+Arrays.toString(highest) +", counter: "+counter +  ", array[counter]: "+ Arrays.toString(result[counter]));
-				result[highestpos] = result[counter];
-				result[counter++] = highest;
+			if(i == sortResult.length-1) {
+				Debug.debug(3, "VoiceRecognitionMain sort i: "+i +", highest: "+Arrays.toString(highest) +", counter: "+counter 
+					+  ", array[counter]: "+ Arrays.toString(sortResult[counter]));
+				sortResult[highestpos] = sortResult[counter];
+				sortResult[counter++] = highest;
 				i = counter;
-				highest = result[counter];
+				highest = sortResult[counter];
 				highestpos = counter;
 			}
 		}
 		
-		return result;
+		return sortResult;
 	}	
 }

@@ -1,41 +1,61 @@
 package com.audio1.logical;
 
+import java.util.Map;
 import java.util.Scanner;
 
 import com.audio0.main.AppSetup;
-import com.audio2.recorder.AudioListener;
-import com.audio3.recorder.refinary.StreamRefinarySelector;
-import com.audio4.audioGramInitializer.AudioAnalysisThread;
 import com.audio5.recognition.VoiceRecognitionMain;
 import com.audio6.audioGramSaver.DeleteLastAnalysisBuilder;
 import com.audio6.audioGramSaver.DeleteLastDataModel;
 import com.audio6.audioGramSaver.SaveMultiAudioFeatures;
+import com.audio7.threads.MyThread;
+import com.audio7.threads.ThreadManagement;
 import com.audio8.util.Debug;
 
-public class DeleteOrNotActionLogic {
+public class DeleteOrNotActionLogic implements MyThread {
 	
+	private boolean threadIsActive;
+	private boolean threadIsSuspended;
+	private Thread thread;	
+	final private static String THREAD_NAME = "DeleteOrNotActionLogic"; 
 	private static Scanner scanner ;
 	public static boolean checking;
 	public static String input;
 	private static DeleteLastDataModel lastDelete;
 	private static String svitch;
-	private static String speech;
-	
-	public static void startAnalysisSaveCheck() {
+	private final static String[] threadsAlive = new String[] {"DeleteOrNotActionLogic"};
 		
-	    Runnable thread = () -> {   
+	public DeleteOrNotActionLogic() {
+		
+		threadIsActive = true;
+		threadIsSuspended = false;
+		thread = new Thread(this);		
+		thread.start();
+	}
 
-	    	analysisSaveCheck();	    	
-	     };
-	     
-	     new Thread(thread).start();
-	};
+	@Override
+	public void run() {
 		
-	public static void analysisSaveCheck() {
+		Thread.currentThread().setName(THREAD_NAME);		
+		ThreadManagement.addingThread(this);
+		
+		Debug.debug(1,"Starting "+Thread.currentThread().getName() +" Thread!");
+
+		while(threadIsActive) {
+			
+			suspendThread();
+			
+			analysisSaveCheck();
+			
+			stopThread();
+		}
+	}
+		
+	private static void analysisSaveCheck() {
 					
 		if(SaveMultiAudioFeatures.deleteList.peek()  == null) return;
 		
-		Debug.debug(3,"Starting analysisSaveCheck! ");	
+		Debug.debug(3,"Starting DeleteOrNotActionLogic analysisSaveCheck! ");	
 			
 		suspendBaseTask();
 		
@@ -52,41 +72,39 @@ public class DeleteOrNotActionLogic {
 	
 	private static void voiceRecognitionSaveCheck() {
 		
-		System.out.println("Start voiceRecognitionSaveCheck");
+		Debug.debug(3, "DeleteOrNotActionLogic Start voiceRecognitionSaveCheck");
 		
 		svitch = EntryPointMethods.getSvitch();
-		speech = EntryPointMethods.getSpeechName();
-		StreamRefinarySelector.activeRefinary.getRefinaryThread().stopThread();
-		
 		EntryPointMethods.mainOptionRun("voiceRecognition", null);
 	
 		while(checking) {
 			
 			if(VoiceRecognitionMain.readedVoiceArrray.size() > 0) {
 				
-				//input = VoiceRecognitionMain.readedVoiceArrray.ge;			
-				System.out.println("Start voiceRecognitionSaveCheck input: "+input);
-				
-				makeCheckAction(input);
+				for(Map.Entry<Integer, String> entry: VoiceRecognitionMain.readedVoiceArrray.entrySet()) {
+					
+					input  = entry.getValue();
+					Debug.debug(3, "DeleteOrNotActionLogic Start voiceRecognitionSaveCheck input: "+input);
+					
+					if(makeCheckAction(input)) 					
+						checking = false;
+				}
 			}
 			
 			try {
-				Thread.sleep(500);
+				Thread.sleep(50);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
-		StreamRefinarySelector.activeRefinary.getRefinaryThread().stopThread();
-		EntryPointMethods.mainOptionRun(svitch, speech);
+		EntryPointMethods.setSvitch(svitch);
 	}
 	
 	private static void keyboardSavecheck() {
 		
-		StreamRefinarySelector.activeRefinary.getRefinaryThread().suspendThread();
-		
 		scanner = new Scanner(System.in);
-		System.out.println("\nDelete Last Save? Yes(y) or No(n)");
+		Debug.debug(3, "\nDeleteOrNotActionLogicDelete Last Save? Yes(y) or No(n)");
 		
 		while(checking) {
 			
@@ -97,14 +115,11 @@ public class DeleteOrNotActionLogic {
 				checking = false;
 			}
 		}	
-		
-		StreamRefinarySelector.activeRefinary.getRefinaryThread().stopSuspendThread();;
 	}
 	
 	private static void suspendBaseTask() {
 		
-		AudioListener.addToRecorderBuffer = false;
-		AudioAnalysisThread.analysisThreadEnabled = false;
+		ThreadManagement.suspendAllThreadsWithExcluded(threadsAlive);   
 		lastDelete = SaveMultiAudioFeatures.deleteList.poll();
 		input = null;
 		checking = true;
@@ -112,8 +127,7 @@ public class DeleteOrNotActionLogic {
 	
 	private static void restoreBaseTask() {
 		
-		AudioListener.addToRecorderBuffer = true;
-		AudioAnalysisThread.analysisThreadEnabled = true;
+		ThreadManagement.enableAllThreads();  
 	}
 	
 	private static boolean makeCheckAction(String readedInput) {
@@ -131,6 +145,61 @@ public class DeleteOrNotActionLogic {
 		
 		else 		
 			return false;
+	}
+	
+	@Override
+	public void stopThread() {	
+		
+		threadIsActive = false;
+	}
+	
+	@Override
+	public void suspendThread() {
+	
+		while(isThreadSuspended()) {
+			
+			sleepThread(50);
+		}
+	}
+
+	@Override
+	public void setSuspendThread() {
+		
+		threadIsSuspended = true;		
+	}
+	
+	@Override
+	public void stopSuspendThread() {
+		
+		threadIsSuspended = false;
+	}
+
+	@Override
+	public Thread getThread() {
+
+		return thread;
+	}
+
+	@Override
+	public boolean isThreadSuspended() {
+		
+		return threadIsSuspended;
+	}
+	
+	public void sleepThread(int mSec) {
+		
+		try {
+			Thread.sleep(mSec);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}	
+	}
+	
+	@Override
+	public String getThreadName() {
+		
+		return THREAD_NAME;
 	}
 	// Class Cast Example
 	//Class<?> cls = Class.forName("com.getclassfromstr.MyNiceClass");

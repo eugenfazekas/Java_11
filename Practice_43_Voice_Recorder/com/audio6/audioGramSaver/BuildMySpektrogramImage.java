@@ -2,9 +2,6 @@ package com.audio6.audioGramSaver;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
-
-import com.audio4.audioGramInitializer.AudioAnalysisInitializer;
-import com.audio8.util.AudioBuilderUtil;
 import com.audio8.util.Debug;
 
 public class BuildMySpektrogramImage {
@@ -13,16 +10,13 @@ public class BuildMySpektrogramImage {
 	
 	public static BufferedImage buildMySpectrogramImage(int[] map,int width, int height) {
 
-		Debug.debug(2,"BuildAudioImage buildMySpectrogramImage averageAmplitude: "
-			+AudioAnalysisInitializer.averageAmplitude);
-		
 		int spektroGramColor = 0;
 		
 		Debug.debug(2,"AudioGramSaver buildImage getRoundToOneHundred(waveMap.length) "
-				+AudioBuilderUtil.getRoundTo(20,width)+ " waveMap.length "+map.length
+				+SaveMultiAudioFeaturesUtil.getRoundTo(20,width)+ " waveMap.length "+map.length
 				+ " height: "+height);
 		
-		audioGram = new BufferedImage(AudioBuilderUtil.getRoundTo(20,width),height
+		audioGram = new BufferedImage(SaveMultiAudioFeaturesUtil.getRoundTo(20,width),height
 																	,BufferedImage.TYPE_INT_ARGB);	  
 		for (int x = 0; x < map.length-2; x = x+2) {
 		    	

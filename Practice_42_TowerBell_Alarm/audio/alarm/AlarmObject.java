@@ -40,7 +40,7 @@ public class AlarmObject {
 		if(this.repeat == true) {
 			this.repeatHours = repeatHours == null ? repeatHours : null;
 			this.repeatMinutes = repeatMinutes == null ? repeatMinutes : null;
-			System.out.println("name "+name+" repeatHours "+ repeatHours +" repeatMinutes"+repeatMinutes);
+			System.out.println("name "+name+" repeatHours "+ repeatHours +" repeatMinutes: "+repeatMinutes);
 			addRepeatHours(repeatHours);
 			addRepeatMinutes(repeatMinutes);
 		}

@@ -13,11 +13,13 @@ public class Player implements LineListener ,Runnable{
 	private Thread thread;
 	private int times;
 	private AudioInputStream audioStream;
+	private int volumePercent;
 	
 	
 
-	public Player( AudioInputStream stream,int times) {
+	public Player( AudioInputStream stream,int times, int volumePercent) {
 		this.times = times;
+		this.volumePercent = volumePercent;
 		this.audioStream = stream;
 		this.thread = new Thread(this);
 		thread.start();
@@ -26,7 +28,7 @@ public class Player implements LineListener ,Runnable{
 	
 	@Override
 	public void run() {
-		play(audioStream,times);
+		play(audioStream,times,volumePercent);
 		thread = null;
 	}
 
@@ -41,7 +43,7 @@ public class Player implements LineListener ,Runnable{
         }
     }
 	
-	public void play (AudioInputStream stream, int times) {
+	public void play (AudioInputStream stream, int times, int volumePercent ) {
 		
 		AudioInputStream audioStream = stream;
 				
@@ -50,7 +52,7 @@ public class Player implements LineListener ,Runnable{
 			Clip clip = AudioSystem.getClip();
             clip.open(stream);
             FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
-            gainControl.setValue(gainControl.getMaximum()/6);
+            gainControl.setValue((gainControl.getMaximum()*volumePercent)/100);
        
             //System.out.println("clip.getFrameLength() "+clip.getFrameLength()+" clip.getFramePosition() "+clip.getFramePosition()+" clip.getMicrosecondLength() "+clip.getMicrosecondLength()+" clip.getBufferSize() "+clip.getBufferSize());
             //System.out.println("audioStream.available() "+audioStream.reset());

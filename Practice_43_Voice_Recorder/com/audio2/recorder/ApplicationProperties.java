@@ -4,10 +4,10 @@ import javax.sound.sampled.AudioFormat;
 
 public class ApplicationProperties {
 	
-    public final AudioFormat.Encoding ENCODING = AudioFormat.Encoding.PCM_SIGNED;
-    public final float RATE = 22050.0f;
-    public final int CHANNELS = 1;
+     final AudioFormat.Encoding ENCODING = AudioFormat.Encoding.PCM_SIGNED;
+     final float RATE = 44100.0f;
+     final int CHANNELS = 1;
     //public final int SAMPLE_SIZE = 8;
-    public final int SAMPLE_SIZE = 16;
-    public final boolean BIG_ENDIAN = true;
+     final int SAMPLE_SIZE = 16;
+     final boolean BIG_ENDIAN = true;
 }

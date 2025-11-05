@@ -9,6 +9,7 @@ import java.util.List;
 public class FileUtil {
 
 	public final static String ALARMS_PATH = "alarm.txt";
+	public final static String CLOCK_VOLUME_PATH = "clock_volume.txt";
 	public final static String HOUR_BELL_PATH = "resources/audiomass1.wav";
 	public final static String MINUTE_BELL_PATH = "resources/audiomass2.wav";
 
@@ -22,11 +23,9 @@ public class FileUtil {
 					while ((ch = stream.read()) != -1) {
 						if(ch != 10 && ch!=13) {
 							line.append((char)ch);
-						}
-						if((line.length() == 0 && ch == 13))
-							break;
-						
-						if(ch == 13) {
+						}		
+						if(ch == 13 || ch ==10) {
+							if(line.length() >0)
 							lines.add(line.toString());
 							line = new StringBuilder();
 						}

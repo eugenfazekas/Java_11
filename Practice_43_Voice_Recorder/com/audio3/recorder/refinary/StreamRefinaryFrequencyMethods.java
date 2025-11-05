@@ -1,253 +1,214 @@
 package com.audio3.recorder.refinary;
 
-import java.util.Arrays;
-
 import com.audio0.main.AppSetup;
 import com.audio2.recorder.AudioListener;
-import com.audio8.util.AudioBuilderUtil;
+import com.audio5.audioGramBuilder.AudioGramObject;
 import com.audio8.util.Debug;
 
 public class StreamRefinaryFrequencyMethods {
 	 
-	public static int possibleVoices;
-	private static int checkPossibleVoiceCounter;
-	private static int frequencyMeasure;
-	private static int frequency;
-	public static int frequencyIndexCorrection = 0;
-	private static int checkArrayLength = 5 ;
-	private static int[] frequencys = new int[checkArrayLength];
-	private static int lastfrequency;
-	private static int sampleRate;
+	static int amplitude;
+	static int sampleRate;	
+	static boolean validVoiceDetection;
 	
-	public static int[] tempFrequencyMap = new int[8000];
-	public static int   tempFrequencyMapCounter = 0;
-	public static int[] lastFrequencyMap;
-	public static int   lastFrequencyMapCounter ;
-	public static int[] frequencyMap; 
-	public static int frequencyMapCounter;
-	private static int tempAvgAmplitude = 0;
+	static int[] tempAmpMap = new int[500];
+	static int   tempAmpMapCounter = 0;		
+	static int[] tempFreqMap = new int[500];
+	static int   tempFreqMapCounter = 0;	
+		
 	
-	public static int F_AVG_MILISEC_LENGTH;
-	public static int favgMilisecCounter;
-	public static int frequencyBuffer;
+	static int[] ampMap; 
+	static int   ampMapCounter;
+	static int[] freqMap; 
+	static int   freqMapCounter;
+	
+	static int[][]lastAmpMaps;
+	static int   lastAmpMapsCounter;
+	static int[][] lastFreqMaps;
+	static int   lastFreqMapsCounter;	
+	
+	static int[] mapsLengthCounter;
+	static int  mapsArrayLengthCounter;
 
-	public static int avg_a;
-	public static int avg_f;
-	
-	//private static int amplitudeBufferCounter;
-	public static int frequencyBufferDiveder = 0;
-	public static int amplitudeTotal;
-	public static int frequencyTotal;
-	public static float[] frequencySampleLengths;
+	private static int F_AVG_MILISEC_LENGTH;
+	private static int favgMilisecCounter;
+
+    private static AudioGramObject firstBuffer;
+    private static AudioGramObject middleBuffer;
+    private static AudioGramObject lastBuffer;
+
+    
+	//public static float[] frequencySampleLengths;
     	
 	public StreamRefinaryFrequencyMethods () {
-		
-		F_AVG_MILISEC_LENGTH = AudioBuilderUtil.getBuffersLengthByMilisec(
+			
+		F_AVG_MILISEC_LENGTH = StreamRefinaryUtil.getBuffersLengthByMilisec(
 			(int)AudioListener.format.getSampleRate()
 			,AppSetup.AUDIO_BUFFER_MILISEC_LENGTH);
 		
-		frequencyMap = new int[20000]; 
-		frequencyMapCounter = 0;	
-		sampleRate = (int) AudioListener.format.getSampleRate();
+		ampMap = new int[20000]; 
+		ampMapCounter = 0;	
+		freqMap = new int[20000]; 
+		freqMapCounter = 0;	
+		
+		lastAmpMaps = new int[200][];
+		lastAmpMapsCounter = 0;
+		lastFreqMaps = new int[200][];
+		lastFreqMapsCounter = 0;
+		
+		mapsLengthCounter = new int[200];
+		mapsArrayLengthCounter = 0;
+		
+		sampleRate = (int) AudioListener.format.getSampleRate();		
+		firstBuffer = null;
+		middleBuffer = null;
+		lastBuffer = null;	
 	}
    
-	public static void initBaseBufferVariables( ) {
-		
-		frequencyMeasure = 1;
-		possibleVoices = 0;
-		frequencys = new int[checkArrayLength];//frequencys = new int[sampleRate]
-		
-		frequencyIndexCorrection = (int) (StreamRefinaryAmplitudeMethods.sequences 
-			                         * StreamRefinaryAmplitudeMethods.bufferLength);
-		
-		lastFrequencyMap = tempFrequencyMap;
-  		lastFrequencyMapCounter = tempFrequencyMapCounter;
-  		tempFrequencyMap = new int[8000];
-  		tempFrequencyMapCounter = 0;  		
+	 static void initBaseBufferVariables( ) {
+
+		lastAmpMaps[lastAmpMapsCounter++] = tempAmpMap;
+  		lastFreqMaps[lastFreqMapsCounter++] = tempFreqMap;
+  		mapsLengthCounter[mapsArrayLengthCounter++] = tempAmpMapCounter;
+  		
+  		tempAmpMap = new int[1000];
+  		tempAmpMapCounter = 0;
+  		
+  		tempFreqMap = new int[1000];
+  		tempFreqMapCounter = 0; 
+  		 		
+		validVoiceDetection = false;
 	}
-
-	public static void IFR_buildFrequencyCheck(int lasSample, int inputSample,int i) {
-		
-		if(StreamRefinaryAmplitudeMethods.build == false) return;
-		
-		    lastfrequency =0;
-        	frequencyMeasure++;
-        	tempAvgAmplitude += Math.abs(inputSample);
-        	
-        	Debug.debug(5,"StreamRefinaryFrequencyMethods buildFrequencyCheck inputSample: "
-        		+ inputSample + " lasSample: "+lasSample + " frequencyMeasure: "  +frequencyMeasure
-        		+ " i: "+(i/2));
-
-        if(inputSample > 0 && lasSample < 0) {
-        	
-        	lastfrequency = frequency ;
-        	frequency =   sampleRate / frequencyMeasure;    
-        	
-        	tempFrequencyMap[tempFrequencyMapCounter++] = 
-        			frequencyIndexCorrection+ (i/2)-frequencyMeasure;
-        	
-        	tempFrequencyMap[tempFrequencyMapCounter++] = tempAvgAmplitude / frequencyMeasure;
-        	tempFrequencyMap[tempFrequencyMapCounter++] = frequency;
-        	//System.out.println("frequencyMeasure: "+frequencyMeasure + " frequency [0,1,2] "
-        	//+tempFrequencyMap[tempFrequencyMapCounter-3]+ " "
-        	//+tempFrequencyMap[tempFrequencyMapCounter-2]
-        	//+ " " +tempFrequencyMap[tempFrequencyMapCounter-1] +", i: "+i );  
-        	frequencyMeasure = 0;	
-        	tempAvgAmplitude = 0;
-	        // System.out.println("i: "+i+"frequency: "+frequency+" lastfrequency: " +lastfrequency 
-        	//+ " frequencyMeasure: "+frequencyMeasure + " sample: "+inputSample);
-        	
-	    	if((frequency > AppSetup.FREQUENCY_CHECK_LOWER_LIMIT 
-	    		&& frequency < AppSetup.FREQUENCY_CHECK_UPPER_LIMIT ) 
-	    		&& (lastfrequency> AppSetup.FREQUENCY_CHECK_LOWER_LIMIT 
-	    		&& lastfrequency < AppSetup.FREQUENCY_CHECK_UPPER_LIMIT)) {
-	    		
-	    		frequencys[checkPossibleVoiceCounter++] = frequency; 
-	    		
-	    		Debug.debug(5,"StreamRefinaryFrequencyMethods buildFrequencyCheck Found one"
-	    			+" possible checkPossibleVoiceCounter: "+checkPossibleVoiceCounter+" Array: " 
-	    			+Arrays.toString(frequencys));
-	    	}
-	    	
-	    	if((frequency < AppSetup.FREQUENCY_CHECK_LOWER_LIMIT 
-	    			|| frequency  > AppSetup.FREQUENCY_CHECK_UPPER_LIMIT) && frequency!= 0) {
-	    		
-	    		checkPossibleVoiceCounter = 0;
-	    		frequencys = new int [checkArrayLength];
-	    		
-	    		Debug.debug(5,"StreamRefinaryFrequencyMethods buildFrequencyCheck New Array"
-	    			+" frequency:" +frequency);
-	    	}
-	    	
-	    	if(checkPossibleVoiceCounter == checkArrayLength ) {
-	    		
-	    		possibleVoices++;
-	    		checkPossibleVoiceCounter=0;
-	    		
-	    		//System.out.println("i: "+i+" possibleVoices: "+possibleVoices+", Array "
-	    		//+ Arrays.toString(testArray));
-	    		
-	    		frequencys = new int [checkArrayLength];	
-	        }
-		}
-    }
 	
-	public static void VRAR_buildMilisecDualMap(int lasSample, int inputSample,int i) {
+	 static void prebuildMsecCheck(int sample) {
 		
-		if(StreamRefinaryAmplitudeMethods.build == false) return;
-		
-		frequencyMeasure++;
-		tempAvgAmplitude += Math.abs(inputSample);
-		
-		if(inputSample > 0 && lasSample < 0) {		
+		if(lastBuffer != null)
+			return;
+
+		if(firstBuffer == null && favgMilisecCounter == 0) 			
+			firstBuffer = new AudioGramObject(F_AVG_MILISEC_LENGTH);
+	
+		if(firstBuffer != null && favgMilisecCounter == 0) 		
+			middleBuffer = new AudioGramObject(F_AVG_MILISEC_LENGTH);
+				
+		if(middleBuffer == null)
+			firstBuffer.addSampleToObject(sample);
 			
-        	tempFrequencyMap[tempFrequencyMapCounter++] = 
-        			frequencyIndexCorrection+ (i/2)-frequencyMeasure;
-        	
-        	tempFrequencyMap[tempFrequencyMapCounter++] = tempAvgAmplitude / frequencyMeasure;
-        	
-        	tempFrequencyMap[tempFrequencyMapCounter++] 
-        			= sampleRate / frequencyMeasure;
+		if(middleBuffer != null)
+			middleBuffer.addSampleToObject(sample);
+		
+		favgMilisecCounter++;
+		
+		if(favgMilisecCounter == F_AVG_MILISEC_LENGTH-1) {
+			
+			favgMilisecCounter = 0;
+			
+			if(middleBuffer != null)
+				lastBuffer = new AudioGramObject(F_AVG_MILISEC_LENGTH);
+			
+			Debug.debug(5,"StreamRefinaryFrequencyMethods prebuildMsecCheck fBuff: "+
+					(firstBuffer == null) + ", mBuff: " +(middleBuffer == null)+ ", lBuff: "
+					+ (firstBuffer == null));
+		}
+	}
 
-	    	frequencyMeasure = 0;	
-	    	tempAvgAmplitude = 0;
+	 static void builTempAmpFreqMap(int i, int sample) {
+		
+		if(lastBuffer == null) {
+			prebuildMsecCheck(sample);
+		
+			return;
 		}
+
+		lastBuffer.addSampleToObject(sample);
+		
+		if(favgMilisecCounter == F_AVG_MILISEC_LENGTH-1) {
+			
+			amplitude = calculateAVGAmplitude(firstBuffer,middleBuffer,lastBuffer);
+			
+			tempAmpMap[tempAmpMapCounter++] = amplitude;
+			tempFreqMap[tempFreqMapCounter++] =  StreamRefinaryUtil.getFrecvencys(firstBuffer.getSamples(),
+					middleBuffer.getSamples(), lastBuffer.getSamples(), sampleRate)[1];
+
+			favgMilisecCounter = -1;
+			firstBuffer = middleBuffer;
+			middleBuffer = lastBuffer;
+			lastBuffer = new AudioGramObject(F_AVG_MILISEC_LENGTH);	
+		}
+		
+		favgMilisecCounter++;
 	}
 	
-	public static void VRFR_buildMilisecFrequencyCheck(int lasSample, int inputSample,int i) {
-		
-		if(StreamRefinaryAmplitudeMethods.build == false) return;
-		
-		    lastfrequency = 0;
-	    	frequencyMeasure++;
-	    	tempAvgAmplitude += Math.abs(inputSample);
-	    	//System.out.println("inputSample: "+inputSample + " lasSample: "+lasSample
-	    	//+ " frequencyMeasure: "  +frequencyMeasure+ " i: "+(i/2));
-	
-	    if(inputSample > 0 && lasSample < 0) {
-	    	
-	    	lastfrequency = frequency ;
-	    	frequency = sampleRate / frequencyMeasure;  
-	    	
-        	tempFrequencyMap[tempFrequencyMapCounter++] = 
-        			frequencyIndexCorrection+ (i/2)-frequencyMeasure;
-        	
-        	tempFrequencyMap[tempFrequencyMapCounter++] = tempAvgAmplitude / frequencyMeasure;
-        	
-        	tempFrequencyMap[tempFrequencyMapCounter++] = frequency; 
-	    	
-	    	frequencyMeasure = 0;	
-	    	tempAvgAmplitude = 0;
-	        // System.out.println("i: "+i+"frequency: "+frequency+" lastfrequency: "+lastfrequency 
-	    	//+ " frequencyMeasure: "+frequencyMeasure + " sample: "+inputSample);
-	    	
-	    	if((frequency > AppSetup.FREQUENCY_CHECK_LOWER_LIMIT 
-	    			&& frequency < AppSetup.FREQUENCY_CHECK_UPPER_LIMIT) 
-	    			&& (lastfrequency > AppSetup.FREQUENCY_CHECK_LOWER_LIMIT 
-	    			&& lastfrequency < AppSetup.FREQUENCY_CHECK_UPPER_LIMIT)) {
-	    		
-	    		frequencys[checkPossibleVoiceCounter++] = frequency; 
-	    		//System.out.println("Found one possible checkPossibleVoiceCounter: "
-	    		//+checkPossibleVoiceCounter+" Array: " +Arrays.toString(testArray));
-	    	}
-	    	
-	    	if((frequency < AppSetup.FREQUENCY_CHECK_LOWER_LIMIT 
-	    		|| frequency  > AppSetup.FREQUENCY_CHECK_UPPER_LIMIT) && frequency!= 0) {
-	    		
-	    		checkPossibleVoiceCounter = 0;
-	    		frequencys = new int [checkArrayLength];
-	    		//System.out.println("New Array frequency:"+frequency);
-	    	}
-	    	
-	    	if(checkPossibleVoiceCounter == checkArrayLength ) {
-	    		
-	    		possibleVoices++;
-	    		checkPossibleVoiceCounter=0;
-	    		//System.out.println("i: "+i+" possibleVoices: "+possibleVoices+", Array "
-	    		//+ Arrays.toString(testArray));
-	    		frequencys = new int [checkArrayLength] ;	
-	        }
-		}
-	}
-	
-	public static void addToStreamDetailsMap(int[] frequencyIndex, int inputLength) {
+	 static void addToAmpFreqMap(int[] inputAmpMap, int[] inputFrecMap, int inputLength) {
 		
 		if(StreamRefinaryAmplitudeMethods.build == false) return;
 		
 		for(int i = 0; i < inputLength;i++) {
 			
-			frequencyMap[frequencyMapCounter++] = frequencyIndex[i];
+			ampMap[ampMapCounter++] = inputAmpMap[i];
+			freqMap[freqMapCounter++] = inputFrecMap[i];
 		}
-		
-		if(AppSetup.voiceRecognitionAmplitudeRefinary 
-			|| AppSetup.voiceRecognitionFrequencyRefinary)
-			StreamRefinaryAmplitudeMethods.sequences++;    
-		
-		Debug.debug(5,"StreamRefinary FrequencyMethods addToFrequencyMap oldLength: "
-			+(frequencyMapCounter-inputLength)+", New frequencyMap Length: "+frequencyMapCounter);
+
+		Debug.debug(5,"StreamRefinaryFrequencyMethods addToFrequencyMap oldLength: "
+			+(freqMapCounter-inputLength)+", New frequencyMap Length: "+freqMapCounter);
 	}
-	 	 
-	public static void freqeuncyArrayFilterEmptyElemnts() {
+	
+	 static void freqeuncyArrayFilterEmptyElemnts() {
 			
-		int[] newArray = new int[frequencyMapCounter];
+		int[] newArray1 = new int[ampMapCounter];
+		int[] newArray2 = new int[freqMapCounter];
 		
-		for(int i = 0; i < newArray.length;i++)
-			newArray[i]= frequencyMap[i];
-		
-		frequencyMap = newArray;	
-	}
-		
-	public static void resetSaveStream () {
-		 
-		frequencyMap = new int[20000]; 
-		frequencyMapCounter = 0;
+		for(int i = 0; i < newArray1.length;i++) {
+			newArray1[i]= ampMap[i];
+			newArray2[i]= freqMap[i];
+			
+		}
+		ampMap = newArray1;	
+		freqMap = newArray2;	
 	}
 	
-	public static void buildFrequencySampleLengths() {
+	 static int calculateAVGAmplitude(AudioGramObject first, AudioGramObject middle, AudioGramObject last ) {
+		
+		amplitude = (first.getPosAmplitude() / first.getPosCounter()
+				+first.getNegAmplitude() / first.getNegCounter()
+				+middle.getPosAmplitude()/ middle.getPosCounter()
+				+middle.getNegAmplitude()/ middle.getNegCounter()
+				+last.getPosAmplitude()  / last.getPosCounter()
+				+last.getNegAmplitude()  / last.getNegCounter())/3;
+		
+		return amplitude;
+	}
 	
-  		frequencySampleLengths = new float [(int) (AudioListener.format.getSampleRate()/2 +5)];
-  		
-		for(int i = 1; i < 11029 ; i++)
-			frequencySampleLengths[i] = (float)AudioListener.format.getSampleRate() / i ;
+	 static void validVoiceCheck() {
+		
+		int voiceCounter = 0;
+		
+		for(int i = 0; i < tempFreqMapCounter; i = i+2) {
+			
+			Debug.debug(5, "StreamRefinaryFrequencyMethods validVoiceCheck i "+ i 
+					+ ", tempAmpFreqMap[i]: "+tempFreqMap[i]);
+			Debug.debug(5, "StreamRefinaryFrequencyMethods validVoiceCheck i "+ i 
+					+ ", tempAmpFreqMap[i+1]: "+tempFreqMap[i+1]);
+			
+			if(tempFreqMap[i+1] >30) 
+				voiceCounter++;
+			
+			if(tempFreqMap[i+1] < 30) 
+				voiceCounter = 0;
+			
+			if(voiceCounter == 5) {
+				validVoiceDetection = true;
+				break;
+			}
+		}
+	} 
+
+	 static void resetSaveStream() {
+
+		ampMap = new int[20000]; 
+		ampMapCounter = 0;
+		
+		freqMap = new int[20000]; 
+		freqMapCounter = 0;	
 	}
 }

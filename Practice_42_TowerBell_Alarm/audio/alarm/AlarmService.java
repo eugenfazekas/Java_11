@@ -4,6 +4,7 @@ import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import audio.clock.Clock;
 import audio.util.FileUtil;
 
 public class AlarmService {
@@ -45,5 +46,14 @@ public class AlarmService {
 	
 	public static void addToAlarmObjectList(String alarmFromClient) {
 		alarms.add(buildAlarmObject(alarmFromClient));
+	}
+	
+	public static void setClockBellVolume(String path) {
+		
+		FileInputStream stream = FileUtil.buildFileStreamFromFile(path);
+		List<String> alarmList = FileUtil.buildStringLines(stream);
+		String[] volumes = alarmList.get(1).split(",");
+		Clock.hourVolumePercent = Integer.parseInt(volumes[0]);
+		Clock.hourVolumePercent = Integer.parseInt(volumes[1]);
 	}
 }

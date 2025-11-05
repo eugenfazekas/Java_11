@@ -1,6 +1,6 @@
 package com.audio3.recorder.refinary;
 
-import com.audio8.util.thread.MyThread;
+import com.audio7.threads.MyThread;
 
 public interface StreamRefinary {
 

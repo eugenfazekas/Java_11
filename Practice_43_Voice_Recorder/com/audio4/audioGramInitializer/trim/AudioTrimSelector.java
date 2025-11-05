@@ -2,13 +2,14 @@ package com.audio4.audioGramInitializer.trim;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.audio0.main.AppSetup;
-import com.audio4.audioGramInitializer.AudioAnalysisThread;
+import com.audio2.recorder.AudioListener;
+import com.audio4.audioGramInitializer.mainInit.AudioAnalysisThread;
 import com.audio4.audioGramInitializer.trim.sequence.Sequence;
 import com.audio4.audioGramInitializer.trim.sequence.SequenceFilter;
 import com.audio8.util.Debug;
-import com.audio8.util.filters.NoiseFilter2;
 
 public class AudioTrimSelector {
 	
@@ -24,13 +25,13 @@ public class AudioTrimSelector {
     static int detailsStartIndex;
     static int detailsEndIndex;
 	static int nextIndexCheck;
-   // static int[] inputSamples;
     static Sequence sequence;
 	static int averageAmplitude;
 	static int[] trimedSequence;
 	static List<Sequence> sequences;
 	static SequenceFilter amplitudeSequenceFilter;
 	static SequenceFilter amplitudefrequencySequenceFilter;
+	public static AtomicBoolean building = new AtomicBoolean(false);
 	
 	private static void initMainVariables(int id) {
 		
@@ -41,103 +42,110 @@ public class AudioTrimSelector {
 		detailsStartIndex = -1;
 		detailsEndIndex = -1;
 		averageAmplitude = AudioAnalysisThread.startedVoiceCheck.get(id).getAverageAmplitude();
+		Debug.debug(1, "AudioTrimSelector initMainVariables initiated!");
 	}
 	
-	public static void buildSequenceChecks(int id) {
+	private static void buildSequenceChecks(int id) {
 
-		amplitudeSequenceFilter = new SequenceFilter((int) (AppSetup.idle_amplitude_volume*1.5), 
-			(int) (AppSetup.idle_amplitude_volume *1),0,0,0,0,100,100
-			,AudioAnalysisThread.startedVoiceCheck.get(id).getAudioFormat());
-	
-		amplitudefrequencySequenceFilter = new SequenceFilter((int) (AppSetup.idle_amplitude_volume *1),
-			(int) (AppSetup.idle_amplitude_volume *0.8), AppSetup.START_FREQUENCY_LOWER_LIMIT,
-	        AppSetup.START_FREQUENCY_UPPER_LIMIT, AppSetup.END_FREQUENCY_LOWER_LIMIT,
-	        AppSetup.END_FREQUENCY_UPPER_LIMIT,20,50
-	        ,AudioAnalysisThread.startedVoiceCheck.get(id).getAudioFormat());
+		amplitudeSequenceFilter = new SequenceFilter((int) (AppSetup.IDLE_AMPLITUDE_VOLUME * 1.2), 
+			(int) (AppSetup.IDLE_AMPLITUDE_VOLUME*0.8),0,0,0,0,AppSetup.START_LENGTH_CHECK,
+			AppSetup.END_LENGTH_CHECK,AudioAnalysisThread.startedVoiceCheck.get(id).getAudioFormat());	
 	}
 	
 	public static void mainAudioTrim(int id) {
 		 
+
+		if(!AudioAnalysisThread.startedVoiceCheck.get(id).getNextStage().equals("trim")) {
+			
+			if(AppSetup.amplitudeTrim && AppSetup.frequencyTrim)
+				Debug.debug(1, "AudioTrimSelector mainAudioTrim, "
+						+ " Unable to select Both Amplitude And Frequency Trim Enabled");
+			return;
+		}
+		
+		building.set(true);
 		Debug.startTime = System.currentTimeMillis();	
 		
-		if(!AudioAnalysisThread.startedVoiceCheck.get(id).getNextStage().equals("trim"))
-			return;
-		
+		Debug.debug(1, "AudioTrimSelector mainAudioTrim started id: "
+				+AudioAnalysisThread.startedVoiceCheck.get(id).getId()
+				+ ", nextStage: "+AudioAnalysisThread.startedVoiceCheck.get(id).getNextStage());
+			
 		initMainVariables(id);
 		
 		buildSequenceChecks(id);
 		
 		amplitudeTrim(id);
 					
-		multiTrim(id);
+		frequencyTrim(id);
+		
+		building.set(false);
+		
+		Debug.debug(1, "AudioTrimSelector mainAudioTrim Building: "+building.get()+ ", Build Time: "
+		+(System.currentTimeMillis()-Debug.startTime) + ", nextStage: "
+		+AudioAnalysisThread.startedVoiceCheck.get(id).getNextStage());
 	}
 	
 	private static void amplitudeTrim(int id) {
 		
-		if(AppSetup.preTrim && AppSetup.amplitudeRefinary) {
+		if(AppSetup.preTrim && AppSetup.amplitudeTrim && !AppSetup.frequencyTrim ) {
 
-			trim = new AmplitudeTrimImpl (id, AudioAnalysisThread.startedVoiceCheck.get(id).getIntStream(),
-					amplitudeSequenceFilter);
+			trim = new AmplitudeTrimImpl (id, AudioAnalysisThread.startedVoiceCheck.get(id).getIntStream());
 			
-			AudioAnalysisThread.startedVoiceCheck.get(id).setByteStream(null);
-			AudioAnalysisThread.startedVoiceCheck.get(id).setIntStream(trimedSequence);
-			
-			if(AppSetup.noiseFilter&&trimedSequence != null )
-				AudioAnalysisThread.startedVoiceCheck.get(id).setIntStream(NoiseFilter2.noiseReduction(trimedSequence));
-			
-			AudioAnalysisThread.startedVoiceCheck.get(id).setNextStage("analysis");
-			
-			if(trimedSequence == null) {
+			if(trimedSequence != null) {
 				
-				AudioAnalysisThread.startedVoiceCheck.get(id).setBuild(false);
-				AudioAnalysisThread.startedVoiceCheck.get(id).setNextStage("save");
-				Debug.debug(1,"AudioTrimSelector AmplitudeTrimImpl set false");
+				AudioAnalysisThread.startedVoiceCheck.get(id).setByteStream(null);
+				AudioAnalysisThread.startedVoiceCheck.get(id).setIntStream(trimedSequence);			
+				AudioAnalysisThread.startedVoiceCheck.get(id).setNextStage();
+				Debug.debug(1,"AudioTrimSelector amplitudeTrim trim completed!");
 			}
 			
-			Debug.debug(1, "AudioTrimSelector AmplitudeTrimImplementation cycle length: "
-					+(System.currentTimeMillis()-Debug.startTime));
+			if(trimedSequence == null && AppSetup.continueWithNoTrim) {
+				
+				AudioAnalysisThread.startedVoiceCheck.get(id).setNextStage();
+				Debug.debug(1,"AudioTrimSelector amplitudeTrim failed Continue without trim!");
+			}
 			
-			return;
+			if(trimedSequence == null && !AppSetup.continueWithNoTrim) {
+				
+				AudioAnalysisThread.startedVoiceCheck.get(id).setManualNextStage("end");
+				AudioAnalysisThread.startedVoiceCheck.get(id).setBuild(false);
+				Debug.debug(1,"AudioTrimSelector amplitudeTrim failed Continue without trim!");			
+			}
 		}
 	}
 	
-	private static void multiTrim(int id) {
+	private static void frequencyTrim(int id) {
 		
-		if(AppSetup.preTrim && AppSetup.multiTrim
-				&& (AppSetup.frequencyRefinary  
-				|| AppSetup.voiceRecognitionAmplitudeRefinary 
-				|| AppSetup.voiceRecognitionFrequencyRefinary)) {
+		if(AppSetup.preTrim && AppSetup.frequencyTrim && !AppSetup.amplitudeTrim) {
 
-				trim = new MultiTrimImpl(id, AudioAnalysisThread.startedVoiceCheck.get(id).getIntStream()
-						,AudioAnalysisThread.startedVoiceCheck.get(id).getWaveStream()
-						,amplitudefrequencySequenceFilter);
+			trim = new FrequencyTrimImpl(id, AudioAnalysisThread.startedVoiceCheck.get(id).getIntStream());
+			
+			AudioAnalysisThread.startedVoiceCheck.get(id).setByteStream(null);
+
+			if(!AppSetup.voiceRecognition && trimedSequence != null)	{		
 				
 				AudioAnalysisThread.startedVoiceCheck.get(id).setByteStream(null);
-
-				if(!AppSetup.voiceRecognition && trimedSequence != null)	{		
-					
-					AudioAnalysisThread.startedVoiceCheck.get(id).setIntStream(trimedSequence);
-					AudioAnalysisThread.startedVoiceCheck.get(id).setNextStage("analysis");
-				}
-				
-				if(AppSetup.voiceRecognition && trimedSequence != null)	
-					AudioAnalysisThread.startedVoiceCheck.get(id).setNextStage("voiceCheck");
-				
-				
-				if(trimedSequence == null) {
-					
-					AudioAnalysisThread.startedVoiceCheck.get(id).setBuild(false);
-					AudioAnalysisThread.startedVoiceCheck.get(id).setNextStage("save");
-					Debug.debug(1,"AudioTrimSelector VoiceReconition set false");
-				}
-				
-				Debug.debug(1, "AudioTrimSelector DualTrimImplementation cycle length: "
-						+(System.currentTimeMillis()-Debug.startTime +" mSec"));
-				return;
+				AudioAnalysisThread.startedVoiceCheck.get(id).setIntStream(trimedSequence);			
+				AudioAnalysisThread.startedVoiceCheck.get(id).setNextStage();
+				Debug.debug(1,"AudioTrimSelector frequencyTrim trim completed!");
 			}
+											
+			if(trimedSequence == null && AppSetup.continueWithNoTrim) {
+				
+				AudioAnalysisThread.startedVoiceCheck.get(id).setNextStage();
+				Debug.debug(1,"AudioTrimSelector frequencyTrim set false");
+			}
+			
+			if(trimedSequence == null && !AppSetup.continueWithNoTrim) {
+				
+				AudioAnalysisThread.startedVoiceCheck.get(id).setManualNextStage("end");
+				AudioAnalysisThread.startedVoiceCheck.get(id).setBuild(false);
+				Debug.debug(1,"AudioTrimSelector frequencyTrim failed Continue without trim!");			
+			}
+		}
 	}
 	
-	public static void setZeroMultiTrimVariables() {
+	static void setZeroMultiTrimVariables() {
 		 
 		 counter = 0;
 		 a_sum = 0;
@@ -147,10 +155,10 @@ public class AudioTrimSelector {
 		 freqBuffDive = 0;
 	}
 	 
-	public static void setSequencePoints() {
+	static void setSequencePoints() {
 		 
 		 if(AudioTrimSelector.sequences.size() == 0) {
-			 Debug.debug(1,"BuildTrimedSequence setSequencePoints Trim was Failed! sequences == null.");
+			 Debug.debug(1,"AudioTrimSelector setSequencePoints Trim was Failed! sequences == null.");
 			 return ;
 		 }	
 		 
@@ -159,12 +167,33 @@ public class AudioTrimSelector {
 		 endIndex = AudioTrimSelector.sequences.get(
 				 AudioTrimSelector.sequences.size()-1).getEndIndex();
 		 
-		 detailsStartIndex = AudioTrimSelector.sequences.get(0).getDetailsStartIndex();
-		 
-		 detailsEndIndex = AudioTrimSelector.sequences.get(
-				 AudioTrimSelector.sequences.size()-1).getDetailsEndIndex();
-		 
-		 Debug.debug(3,"BuildTrimedSequence setSequencePoints startIndex: "+startIndex +", endIndex: "
+		 Debug.debug(3,"AudioTrimSelector setSequencePoints startIndex: "+startIndex +", endIndex: "
 			+ endIndex + ", detailsStart: "+ detailsStartIndex + ", detailsEnd: "+ detailsEndIndex);
-	 }
+	}
+	
+	static int getLengthCorrection(boolean stream, int mSec, boolean negative) {
+		
+		int mSecLength;
+		int streamBufferLength;
+		
+		mSecLength = AudioGramTrimUtil.getBuffersLengthByMilisec(
+				(int)AudioListener.format.getSampleRate()
+				,mSec);
+		
+		streamBufferLength = AudioGramTrimUtil.getBuffersLengthByMilisec(
+				(int)AudioListener.format.getSampleRate()
+				,AppSetup.AUDIO_BUFFER_MILISEC_LENGTH);
+		
+		if(stream)
+			mSecLength = (mSecLength / streamBufferLength)*3;
+		
+		if(negative)
+			mSecLength *= -1;
+		
+		Debug.debug(3,"AudioTrimSelector getLengthCorrection mSec: "+mSec + ", stream: "+stream 
+			+ ", mSecLength: "+mSecLength);
+		
+		return mSecLength;
+	}
+	
 }

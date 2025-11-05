@@ -3,16 +3,18 @@ package com.audio5.audioGramBuilder;
 import org.jtransforms.fft.DoubleFFT_1D;
 
 import com.audio0.main.AppSetup;
-import com.audio4.audioGramInitializer.AudioAnalysisThread;
+import com.audio4.audioGramInitializer.mainInit.AudioAnalysisThread;
 import com.audio8.util.Debug;
 
 public class SpektroGramBuilder {
 	
-	public static double spectrogram[][];
+
 	   
-	public static void mainBuilder(int id) {
+	static double[][] mainBuilder(int id) {
 		   
-	    if(!AppSetup.spektrogram) return;
+	    if(!AppSetup.spektrogram) return null;
+	    
+		double spectrogram[][];
 	   
         int fftSize = 1024; // FFT mérete
         int overlap = 512;
@@ -48,5 +50,7 @@ public class SpektroGramBuilder {
         
         Debug.debug(2,"SpektroGramBuilder buildFFT spectrogram length: "+spectrogram.length 
         	+ " spectrogram[0].length: "+spectrogram[0].length );
+        
+        return spectrogram; 
 	}
 }

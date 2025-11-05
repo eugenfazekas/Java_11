@@ -2,62 +2,112 @@ package com.audio2.audioObject;
 
 import javax.sound.sampled.AudioFormat;
 
-import com.audio0.main.AppSetup;
+import com.audio4.audioGramInitializer.mainInit.AudioAnalysisThread;
 import com.audio8.util.Debug;
 
 public class AudioObject {
 
 	private static int counter = 0;	
 	private int id;
+	private ObjectSetup objectSetup;
+	private String mainProfile;
+	private String[] stages;
 	private String nextStage;
 	private String speechName;
 	private byte[] byteStream;
 	private int[] intStream;
-	private int[] waveStream;
 	private int averageAmplitude;
 	private AudioFormat audioFormat;
 	private boolean build = false;
 	private int[] amplitudeWaveMap;
 	private int[] frequencyWaveMap;
 	private int[] mySpektrogramMap;
-	private int[] spektrogramMap;
+	private String mixedWaveStreamPointsStringArray;
+	private double[][] spektrogramMap;
 	private String[] rawAudioData;
 	private String[] sequenceStringArray;
-	private String[] voiceRecognitionPointsArray;
+	private int[] voiceRecognitionBorders;
+	private String voiceRecognitionPointsArray;
 	private String voiceRecognitionSlopesArray;
-	private int[] voiceReconitionCheckPointsArray;
+	private String voiceRecognitionAreaArray;
+	private String voiceRecognitionScanArray;
+	private int[][] voiceReconitionCheckPointsArray;
 	private int[][] voiceReconitionCheckSlopesArray;
-	private int[] bestPointsDBMatchArray;
+	private int[][][] voiceReconitionCheckAreaArray;
+	private int[] voiceReconitionCheckScanArray;
 			
-	public AudioObject(byte[] byteStream, int[] intStream, int[] waveStream,
-			String speechName, AudioFormat audioFormat, int averageAmplitude) {
+	public AudioObject(byte[] byteStream, int[] intStream, int[] ampMap, int[] freqMap,
+			String speechName, AudioFormat audioFormat, int averageAmplitude, String mainProfile) {
 		
 		this.id = counter++;
 		this.speechName = speechName;
 		this.byteStream = byteStream;
 		this.intStream = intStream;
-		this.waveStream = waveStream;
+		this.amplitudeWaveMap = ampMap;
+		this.frequencyWaveMap = freqMap;
 		this.audioFormat = audioFormat;
 		this.averageAmplitude = averageAmplitude;
 		this.build = true;
-		this.nextStage = "";
+		this.mainProfile = mainProfile;
+		this.objectSetup = new ObjectSetup();
+		this.stages = StageManagement.buildStages(objectSetup);
+		this.nextStage = this.stages[0];
 
-		if(AppSetup.preTrim)
-			this.nextStage = "trim";
-		
 		Debug.debug(1,toString());
 	}
 
 	public int getId() {
 		return id;
 	}
-		
+	
+	public ObjectSetup getObjectSetup() {
+		return objectSetup;
+	}
+
+	public AudioObject setObjectSetup(ObjectSetup objectSetup) {
+		this.objectSetup = objectSetup;
+		return this;
+	}
+
+	public String getMainProfile() {
+		return mainProfile;
+	}
+	
+	public AudioObject setMainProfile(String mainProfile) {
+		this.mainProfile = mainProfile;
+		return this;
+	}
+	
+	public String[] getStages() {
+		return stages;
+	}
+
+	public AudioObject setStages(String[] stages) {
+		this.stages = stages;
+		return this;
+	}
+
 	public String getNextStage() {
 		return nextStage;
 	}
 
-	public AudioObject setNextStage(String nextStage) {
+	public AudioObject setManualNextStage(String nextStage) {
 		this.nextStage = nextStage;
+		return this;
+	}
+	
+	public AudioObject setNextStage() {
+		
+		for(int i = 0; i < getStages().length; i++)
+			
+			if(getNextStage().equals(getStages()[i])) {
+				setManualNextStage(getStages()[i+1]);
+				if(getNextStage().equals("end"))
+					AudioAnalysisThread.removeAudioObjct(getId());
+				break;			
+			}	
+		
+		Debug.debug(1, "AudioObject id: "+getId() + ", next Stage: "+ getNextStage());
 		return this;
 	}
 
@@ -87,16 +137,7 @@ public class AudioObject {
 		this.intStream = intStream;
 		return this;
 	}
-	
-	public int[] getWaveStream() {
-		return waveStream;
-	}
-	
-	public AudioObject setWaveStream(int[] waveStream) {
-		this.waveStream = waveStream;
-		return this;
-	}
-	
+
 	public int getAverageAmplitude() {
 		return averageAmplitude;
 	}
@@ -151,11 +192,20 @@ public class AudioObject {
 		return this;
 	}
 		
-	public int[] getSpektrogramMap() {
+	public String getMixedWaveStreamPointsStringArray() {
+		return mixedWaveStreamPointsStringArray;
+	}
+
+	public AudioObject setMixedWaveStreamPointsStringArray(String mixedWaveStreamPointsStringArray) {
+		this.mixedWaveStreamPointsStringArray = mixedWaveStreamPointsStringArray;
+		return this;
+	}
+
+	public double[][] getSpektrogramMap() {
 		return spektrogramMap;
 	}
 
-	public AudioObject setSpektrogramMap(int[] spektrogramMap) {
+	public AudioObject setSpektrogramMap(double[][] spektrogramMap) {
 		this.spektrogramMap = spektrogramMap;
 		return this;
 	}
@@ -177,12 +227,20 @@ public class AudioObject {
 		this.sequenceStringArray = buildSequenceStringArray;
 		return this;
 	}
-	
-	public String[] getVoiceRecognitionPointsArray() {
+		
+	public int[] getVoiceRecognitionBorders() {
+		return voiceRecognitionBorders;
+	}
+
+	public void setVoiceRecognitionBorders(int[] voiceRecognitionBorders) {
+		this.voiceRecognitionBorders = voiceRecognitionBorders;
+	}
+
+	public String getVoiceRecognitionPointsArray() {
 		return voiceRecognitionPointsArray;
 	}
 	
-	public AudioObject setVoiceRecognitionPointsArray(String[] voiceRecognitionPointsArray) {
+	public AudioObject setVoiceRecognitionPointsArray(String voiceRecognitionPointsArray) {
 		this.voiceRecognitionPointsArray = voiceRecognitionPointsArray;
 		return this;
 	}
@@ -196,12 +254,12 @@ public class AudioObject {
 		return this;
 	}
 		
-	public int[] getVoiceReconitionCheckPointsArray() {
+	public int[][] getVoiceReconitionCheckPointsArray() {
 		return voiceReconitionCheckPointsArray;
 	}
 
 	public AudioObject setVoiceReconitionCheckPointsArray(
-			int[] voiceReconitionCheckPointsArray) {
+			int[][] voiceReconitionCheckPointsArray) {
 		this.voiceReconitionCheckPointsArray = voiceReconitionCheckPointsArray;
 		return this;
 	}
@@ -215,18 +273,43 @@ public class AudioObject {
 		return this;
 	}
 
-	public int[] getPointsBestDBMatchArray() {
-		return bestPointsDBMatchArray;
+	public String getVoiceRecognitionAreaArray() {
+		return voiceRecognitionAreaArray;
+	}
+
+	public void setVoiceRecognitionAreaArray(String voiceRecognitionAreaArray) {
+		this.voiceRecognitionAreaArray = voiceRecognitionAreaArray;
 	}
 	
-	public AudioObject setPointsBestDBMatchArray(int[] bestDBMatchArray) {
-		this.bestPointsDBMatchArray = bestDBMatchArray;
+	public String getVoiceRecognitionScanArray() {
+		return voiceRecognitionScanArray;
+	}
+
+	public AudioObject setVoiceRecognitionScanArray(String voiceRecognitionScanArray) {
+		this.voiceRecognitionScanArray = voiceRecognitionScanArray;
+		return this;
+	}
+
+	public int[][][] getVoiceReconitionCheckAreaArray() {
+		return voiceReconitionCheckAreaArray;
+	}
+
+	public void setVoiceReconitionCheckAreaArray(int[][][] voiceReconitionCheckAreaArray) {
+		this.voiceReconitionCheckAreaArray = voiceReconitionCheckAreaArray;
+	}
+
+	public int[] getVoiceReconitionCheckScanArray() {
+		return voiceReconitionCheckScanArray;
+	}
+
+	public AudioObject setVoiceReconitionCheckScanArray(int[] voiceReconitionCheckScanArray) {
+		this.voiceReconitionCheckScanArray = voiceReconitionCheckScanArray;
 		return this;
 	}
 
 	@Override
 	public String toString() {
-		return "AudioObject [id=" + id + ", nextStage=" + nextStage + ", speechName=" + speechName + ", build=" + build
-				+ "]";
+		return "AudioObject [id=" + id + ", nextStage=" + nextStage + ", speechName=" + speechName 
+				+ ", build=" + build+ ", averageAmplitude " +averageAmplitude+ "]";
 	}	
 }

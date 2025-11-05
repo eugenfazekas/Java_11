@@ -4,10 +4,9 @@ import java.util.Arrays;
 
 import com.audio5.recognition.VoiceRecognitionDB;
 import com.audio5.recognition.VoiceRecognitionMain;
+import com.audio7.threads.MyThread;
+import com.audio7.threads.ThreadManagement;
 import com.audio8.util.Debug;
-import com.audio8.util.thread.MyThread;
-import com.audio8.util.thread.ThreadManagement;
-import com.audio8.util.thread.ThreadUtil;
 
 public class VoiceRecognitionSlopeCheck implements MyThread{
 
@@ -15,24 +14,25 @@ public class VoiceRecognitionSlopeCheck implements MyThread{
 	private Thread thread;
 	public static boolean threadIsActive;
 	public boolean threadIsSuspended;
+	final private static String THREAD_NAME = "VoiceRecognitionSlopeCheck"; 
 	
 	private static int checkArray[][];
-	private static int[][] tempResultVerifier;
-	private static int[] baseResult;
-	private static int result1;
-	private static int result2;
-	private static int match;	
-	private static int localBestMatch;	
+	private static float[][] tempResultVerifier;
+	private static float result1;
+	private static float result2;
+	private static float match;	
+	private static float localBestMatch;	
 	private static int localBestPosition;
 	private static int avg;
 	private  static int globalBestName;
 	private static int globalBestPosition;
-	private static int globalBestValue;
+	private static float globalBestValue;
 	
 	public VoiceRecognitionSlopeCheck(int Id ,int[][] inputArray) {
 		
 		id = Id;
 		checkArray = inputArray;
+		
 		threadIsActive = true;
 		threadIsSuspended = false;
 		thread = new Thread(this);
@@ -42,19 +42,19 @@ public class VoiceRecognitionSlopeCheck implements MyThread{
 	@Override
 	public void run() {
 		
-		Thread.currentThread().setName("VoiceRecognitionSlopeCheck");
+		Thread.currentThread().setName(THREAD_NAME);		
+		ThreadManagement.addingThread(this);
 		
-		ThreadManagement.threads.add(this);
-		ThreadUtil.suspendThreadCheck(this);
+		Debug.debug(1,"Starting "+Thread.currentThread().getName() +" Thread!");
 		
-		Debug.debug(1, "Starting VoiceRecognitionPointsCheck Thread!");
-		
-		while(threadIsActive)
+		while(threadIsActive) {
+			
+			suspendThread();
 			
 			mainVoiceFinder(checkArray);
+		}
 		
-		thread = null;	
-		
+		thread = null;			
 	}
 	
 	private static void mainVoiceFinder(int[][] checkArray) {
@@ -63,62 +63,68 @@ public class VoiceRecognitionSlopeCheck implements MyThread{
 		
 		Debug.startTime = System.currentTimeMillis();
 			
-		tempResultVerifier = new int[VoiceRecognitionDB.audioSlopeDB.length][];
+		tempResultVerifier = new float[VoiceRecognitionDB.audioSlopeDB.length][];
 		
 		for(int i = 0; i <  VoiceRecognitionDB.audioSlopeDB.length; i++) {
 			
-			tempResultVerifier[i] = new int[VoiceRecognitionDB.audioSlopeDB[i].length+4];
+			tempResultVerifier[i] = new float[VoiceRecognitionDB.audioSlopeDB[i].length+4];
 			localBestMatch = 0;
 			avg = 0;
 
 			for(int j = 0; j <  VoiceRecognitionDB.audioSlopeDB[i].length; j++) {
 							
-				Debug.debug(1,"VoiceRecognitionDB.audioSlopeDB[i][j][0]"+VoiceRecognitionDB.audioSlopeDB[i][j][0].length 
-						+", VoiceRecognitionDB.audioSlopeDB[i][j][1]: "+VoiceRecognitionDB.audioSlopeDB[i][j][1].length
-						+", checkArray[0].length: "+checkArray[0].length+", checkArray[1].length: "+checkArray[1].length + ", avg: "+avg);
+				Debug.debug(1,"VoiceRecognitionDB.audioSlopeDB[i][j][0]"
+					+VoiceRecognitionDB.audioSlopeDB[i][j][0].length 
+					+", VoiceRecognitionDB.audioSlopeDB[i][j][1]: "+VoiceRecognitionDB.audioSlopeDB[i][j][1].length
+					+", checkArray[0].length: "+checkArray[0].length+", checkArray[1].length: "+checkArray[1].length 
+					+ ", avg: "+avg);
 				
-				baseResult = VRSmainLogic.mainLogic(VoiceRecognitionDB.audioSlopeDB[i][j][0],
-					VoiceRecognitionDB.audioSlopeDB[i][j][1], checkArray[0], checkArray[1], 8);
+				result1 = VRSLMainLogic.mainBuilder(checkArray[0],
+					VoiceRecognitionDB.audioSlopeDB[i][j][0]);
 				
-
-				result1 = baseResult[0] < baseResult[1] ? baseResult[0] : baseResult[1];	
-				result2 = baseResult[0] > baseResult[1] ? baseResult[0] : baseResult[1];	
-				match = ((result1 * 10)*(result2 /1000))/100000;
+				result2 = VRSLMainLogic.mainBuilder(checkArray[1],
+						VoiceRecognitionDB.audioSlopeDB[i][j][1]);
+					
+				match = (  ( (float)  result1 / 100) * ( (float) result2 / 100 )  ) *100;;
 				tempResultVerifier[i][j] = match;
+				
 				avg += match;
-				Debug.debug(1,"VoiceRecognitionDB result1: "+result1+ ", result2: "+ result2 +", match: "+match + ", avg: "+avg+", r1 *10 "+
-						(result1 * 10) + ", r2 /10 " +(result2 /10) +", sum "+ ((result1 * 10)*(result2 /1000))/100000);
+				
+				Debug.debug(1,"VoiceRecognitionDB result1: "+result1+ ", result2: "+ result2 
+					+", match: "+match + ", avg: "+avg);
+				
 				if(match > localBestMatch) {
 					localBestMatch = match;
 					localBestPosition = j;
 					
 					if(localBestMatch > globalBestValue) {
 							
-							globalBestName = i;
-							globalBestPosition = j;
-							globalBestValue = localBestMatch;
-						}			
+						globalBestName = i;
+						globalBestPosition = j;
+						globalBestValue = localBestMatch;
+					}			
 				}
 				
-				if(j == VoiceRecognitionDB.audioPointsDB[i].length-1) {
+				if(j == VoiceRecognitionDB.audioSlopeDB[i].length-1) {
 					
 					tempResultVerifier[i][j+1] = localBestMatch;
-					tempResultVerifier[i][j+2] = avg / (j+1);
+					tempResultVerifier[i][j+2] = (float) avg / (j+1);
 					tempResultVerifier[i][j+3] = i;
 					tempResultVerifier[i][j+4] = localBestPosition;
 					
-					Debug.debug(3, "VoiceRecognitionSlopeCheck mainVoiceFinder Match Word: "+VoiceRecognitionDB.DB_NAMES.get(i)
-					 +", avg: "+(j+1)+ ", Added "+Arrays.toString(tempResultVerifier[i])+ ", Break\n");
+					Debug.debug(3, "VoiceRecognitionSlopeCheck mainVoiceFinder Match Word: "
+						+VoiceRecognitionDB.DB_NAMES.get(i)+", avg: "+(j+1)+ ", Added "
+						+Arrays.toString(tempResultVerifier[i])+ ", Break\n");
 				}			
 			}
 		}
 		
-		Debug.debug(3, "VoiceRecognitionSlopeCheck mainVoiceFinder Actual bestMatch: " + VoiceRecognitionDB.DB_NAMES.get(globalBestName)
-			+ ", globalBestPosition: "+globalBestPosition + ", globalBestValue: " 
-			+ globalBestValue + ", Voice Finder Elapsed Time: " +(System.currentTimeMillis() - Debug.startTime));
+		Debug.debug(3, "VoiceRecognitionSlopeCheck mainVoiceFinder Actual bestMatch: " 
+			+ VoiceRecognitionDB.DB_NAMES.get(globalBestName)+ ", globalBestPosition: "
+			+globalBestPosition+ ", globalBestValue: "+globalBestValue+", Voice Finder Elapsed Time: " 
+			+(System.currentTimeMillis() - Debug.startTime));
 		
-		VoiceRecognitionMain.startedVoiceCheck.get(id).setSlopesResultVerifier(tempResultVerifier);
-		VoiceRecognitionMain.checkTestEnd(id);
+		VoiceRecognitionMain.addToCheckResult(id, 1, tempResultVerifier);
 		
 		threadIsActive = false;
 	}
@@ -131,10 +137,19 @@ public class VoiceRecognitionSlopeCheck implements MyThread{
 	
 	@Override
 	public void suspendThread() {
-		
-		threadIsSuspended = true;
+
+		while(isThreadSuspended()) {
+			
+			sleepThread(50);
+		}
 	}
 	
+	@Override
+	public void setSuspendThread() {
+		
+		threadIsSuspended = true;		
+	}
+
 	@Override
 	public void stopSuspendThread() {
 		
@@ -151,5 +166,21 @@ public class VoiceRecognitionSlopeCheck implements MyThread{
 	public boolean isThreadSuspended() {
 		
 		return threadIsSuspended;
+	}
+	
+	public void sleepThread(int mSec) {
+		
+		try {
+			Thread.sleep(mSec);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}	
+	}
+	
+	@Override
+	public String getThreadName() {
+		
+		return THREAD_NAME;
 	}
 }

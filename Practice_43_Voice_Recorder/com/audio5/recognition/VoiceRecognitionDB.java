@@ -5,24 +5,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import com.audio0.main.AppSetup;
+import com.audio6.audioGramSaver.FileCheckUtil;
+import com.audio6.audioGramSaver.FileReaderUtil;
 import com.audio8.util.Debug;
-import com.audio8.util.StringArrayUtil;
-import com.audio8.util.file.FileCheckUtil;
-import com.audio8.util.file.FileReaderUtil;
 
 public class VoiceRecognitionDB {
 
 	private static boolean instanceOf;
-	public static int [][][] audioPointsDB;
+	public static int [][][][]audioPointsDB;
 	public static int [][][][] audioSlopeDB;
+	public static int [][][][][] audioAreaDB;
+	public static int [][][] audioScanDB;
 	public static Map<Integer, String> DB_NAMES = new HashMap<>();
 
-	private static String tempString;
-	private static String [] tempStringArray;
-	//private static int[][] resultSum;
-//	private static int RECOGNITION_PERCENT_LIMIT = 70;
-	//private static int BORDER_LIMIT = 20;
-
+	private static String[] tempStringArray1;
 	
 	public static void buildAudioDB() {
 		
@@ -35,13 +31,18 @@ public class VoiceRecognitionDB {
 		
 		List<String> readedPointsFile = null;
 		List<String> readedSlopesFile = null;
+		List<String> readedAreaFile = null;
+		List<String> readedScanFile = null;
 
-	
 		Debug.debug(5,"VoiceRecognition buildAudioDB length: "+ voicesNamesList.length);
 		
-		audioPointsDB = new int[voicesNamesList.length][][];
+		audioPointsDB = new int[voicesNamesList.length][][][];
 		
 		audioSlopeDB = new int[voicesNamesList.length][][][];
+		
+		audioAreaDB = new int[voicesNamesList.length][][][][];
+		
+		audioScanDB = new int[voicesNamesList.length][][];
 		
 		for(int i = 0; i < voicesNamesList.length; i++) {
 				
@@ -57,51 +58,64 @@ public class VoiceRecognitionDB {
 									+"/voiceSlopesRecognition/"+voicesNamesList[i]
 											+"-voiceSlopesRecognition.txt"));
 			
+			readedAreaFile = FileReaderUtil.buildStringLinesFromInputStream(
+					FileReaderUtil.buildFileStreamFromFile(
+							AppSetup.BASE_AUDIO_PATH+"spektrum/"+voicesNamesList[i]
+									+"/voiceAreaRecognition/"+voicesNamesList[i]
+											+"-voiceAreaRecognition.txt"));
+			
+			readedScanFile = FileReaderUtil.buildStringLinesFromInputStream(
+					FileReaderUtil.buildFileStreamFromFile(
+							AppSetup.BASE_AUDIO_PATH+"spektrum/"+voicesNamesList[i]
+									+"/voiceScanRecognition/"+voicesNamesList[i]
+											+"-voiceScanRecognition.txt"));
+			
 			DB_NAMES.put(i, voicesNamesList[i]);
 
-			audioPointsDB[i] = new int[readedPointsFile.size()][];
-			audioSlopeDB[i] = new int[readedPointsFile.size()][][];
+			audioPointsDB[i] = new int[readedPointsFile.size()][][];
+			audioSlopeDB[i] = new int[readedSlopesFile.size()][][];
+			audioAreaDB[i] = new int[readedAreaFile.size()][][][];
+			audioScanDB[i] = new int[readedScanFile.size()][];
 			
 			for(int j = 0 ; j < readedPointsFile.size(); j++ ) {
 				
+				audioPointsDB[i][j] = new int[2][];
+				
 				audioSlopeDB[i][j] = new int[2][];
 				
-				tempStringArray = readedSlopesFile.get(j).split(";");
+				audioAreaDB[i][j] = new int[1][][];
 				
-				audioPointsDB[i][j] 
-						= StringArrayUtil.convertStringArrayToIntArray(
-								buildVoicePointArray(readedPointsFile.get(j)));
+				tempStringArray1 = readedPointsFile.get(j).split(";");
 				
-				audioSlopeDB[i][j][0] = StringArrayUtil.convertStringArrayToIntArray(
-						buildVoiceSlopeArray(tempStringArray[0]));
+				audioPointsDB[i][j][0] = VoiceRecognitionDBUtil.convertStringArrayToIntArray(
+						buildVoiceSlopeArray(tempStringArray1[0]));
 				
-				audioSlopeDB[i][j][1] = StringArrayUtil.convertStringArrayToIntArray(
-						buildVoiceSlopeArray(tempStringArray[1]));
+				audioPointsDB[i][j][1] = VoiceRecognitionDBUtil.convertStringArrayToIntArray(
+						buildVoiceSlopeArray(tempStringArray1[1]));
+				
+				tempStringArray1 = readedSlopesFile.get(j).split(";");
+				
+				audioSlopeDB[i][j][0] = VoiceRecognitionDBUtil.convertStringArrayToIntArray(
+						buildVoiceSlopeArray(tempStringArray1[0]));
+				
+				audioSlopeDB[i][j][1] = VoiceRecognitionDBUtil.convertStringArrayToIntArray(
+						buildVoiceSlopeArray(tempStringArray1[1]));
+				
+				audioAreaDB [i][j] = VoiceRecognitionDBUtil.buildThreeDAreaArray(readedAreaFile.get(j));
+				
+				audioScanDB[i][j] = VoiceRecognitionDBUtil.convertStringArrayToIntArray(
+						buildVoiceSlopeArray(readedScanFile.get(j)));
 				 
-//				for(int k = 0; k < voiceNamesArrayList.length; k++ ) {
-//					 
-//					audioPointsDB[i][j][k] = Integer.valueOf(voiceNamesArrayList[k]);
-					Debug.debug(3,"VoiceRecognition DB_NAMES: " +DB_NAMES.get(i) + ", Arr: "+Arrays.toString(audioPointsDB[i][j] ));
-//				}
+				Debug.debug(3,"VoiceRecognition DB_NAMES: " +DB_NAMES.get(i) + ", Arr: "
+					+Arrays.toString(audioPointsDB[i][j]));
 			}
 		}
 	}	
-	
-	private static String[] buildVoicePointArray(String input) {
-	
-		tempString = input.substring(1, (input.length()-1));
-		 
-			return tempString.split(", ");	
-	}
-	
+
 	private static String[] buildVoiceSlopeArray(String input) {
 		
 		return input.split(",");	
-	}
-	
-	public static void voiceFinder(int[] checkArray) {
-
-	}
+	}	
 }
 	
 	

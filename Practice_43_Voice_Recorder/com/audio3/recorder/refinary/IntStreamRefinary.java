@@ -1,56 +1,53 @@
 package com.audio3.recorder.refinary;
 
 import com.audio2.recorder.AudioListener;
+import com.audio7.threads.MyThread;
+import com.audio7.threads.ThreadManagement;
 import com.audio8.util.Debug;
-import com.audio8.util.thread.MyThread;
-import com.audio8.util.thread.ThreadManagement;
-import com.audio8.util.thread.ThreadUtil;
 
 public class IntStreamRefinary implements MyThread,StreamRefinary{
 	
-	public boolean threadIsActive;
-	public boolean threadIsSuspended;
-	public Thread thread;
+	private boolean threadIsActive;
+	private boolean threadIsSuspended;
+	private Thread thread;
+	final private static String THREAD_NAME = "IntStreamRefinary"; 
 	
 	public IntStreamRefinary () {
+
+		setAudioListener();
+		new StreamRefinaryAmplitudeMethods();
 		
 		threadIsActive = true;
 		threadIsSuspended = false;
-
-		setAudioListener();
-		
-		new StreamRefinaryAmplitudeMethods();
-		
-		thread = new Thread(this);
-		
+		thread = new Thread(this);		
 		thread.start();
 	}
 	
-	public void readAudioBuffer() {
+	private void readAudioBuffer() {
 		
-	    Debug.debug(5,"StreamRefinaryAmplitudeMethods.bufferSizeNonZero: "
-	    + StreamRefinaryAmplitudeMethods.bufferSizeNonZero);
+	    Debug.debug(5,"IntStreamRefinary StreamRefinaryAmplitudeMethods.bufferSizeNonZero: "
+	    + AudioListener.bufferSizeNonZero);
 	    	    	
 		    bufferCheck(AudioListener.audioBuffers.poll());	
 		    
-			StreamRefinaryAmplitudeMethods.bufferSizeNonZero = false;	
+		    AudioListener.bufferSizeNonZero.set(false);	
 	}
 	
 	@Override
 	public void run() {	
 		
-		Thread.currentThread().setName("IntStreamRefinary");
-		
-		ThreadManagement.threads.add(this);
-		ThreadUtil.suspendThreadCheck(this);
+		Thread.currentThread().setName(THREAD_NAME);		
+		ThreadManagement.addingThread(this);
 		
 		Debug.debug(1,"Starting "+Thread.currentThread().getName() +" Thread!");
 		
 		while(threadIsActive) {
 
-			ThreadUtil.sleepThreadInMilisec(StreamRefinaryAmplitudeMethods.sleepTime/2);
+			suspendThread();
 			
-			if(StreamRefinaryAmplitudeMethods.bufferSizeNonZero) 	
+			sleepThread(StreamRefinaryAmplitudeMethods.sleepTime/2);
+			
+			if(AudioListener.bufferSizeNonZero.get()) 	
 				readAudioBuffer();		
 		}		
 	}
@@ -68,15 +65,11 @@ public class IntStreamRefinary implements MyThread,StreamRefinary{
 	        
         	StreamRefinaryAmplitudeMethods.addToIntBuffer();
         	
-        	StreamRefinaryAmplitudeMethods.noiseReduction(i);
-        	
         	StreamRefinaryAmplitudeMethods.amplitudeOptimizationMeasure();
 	        
         	StreamRefinaryAmplitudeMethods.validAmplitudeCounter();	        	      	
         }
-        
-        StreamRefinaryAmplitudeMethods.addFirstAmplitudeStream();
-        
+
         StreamRefinaryAmplitudeMethods.addValidAmplitudeStream();
         
         StreamRefinaryAmplitudeMethods.optimizeAmplitudeLimit();
@@ -86,7 +79,7 @@ public class IntStreamRefinary implements MyThread,StreamRefinary{
         StreamRefinaryAmplitudeMethods.info(System.currentTimeMillis()-Debug.startTime);
 	}
 	
-	public void setAudioListener() {
+	private void setAudioListener() {
 		
 		if(!AudioListener.isInstanceOf())
 			new AudioListener();
@@ -100,10 +93,19 @@ public class IntStreamRefinary implements MyThread,StreamRefinary{
 	
 	@Override
 	public void suspendThread() {
-		
-		threadIsSuspended = true;
+
+		while(isThreadSuspended()) {
+			
+			sleepThread(50);
+		}
 	}
 	
+	@Override
+	public void setSuspendThread() {
+		
+		threadIsSuspended = true;		
+	}
+
 	@Override
 	public void stopSuspendThread() {
 		
@@ -121,10 +123,26 @@ public class IntStreamRefinary implements MyThread,StreamRefinary{
 		
 		return threadIsSuspended;
 	}
+	
+	public void sleepThread(int mSec) {
+		
+		try {
+			Thread.sleep(mSec);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}	
+	}
+	
+	@Override
+	public String getThreadName() {
+		
+		return THREAD_NAME;
+	}
 
 	@Override
 	public MyThread getRefinaryThread() {
 
 		return this;
-	}	
+	}
 }

@@ -14,49 +14,48 @@ public class BuildAudioAnalysisFilesPaths {
 		paths = null;
 		tempPaths = null;
 		
-		if(AppSetup.amplitudeGram || AppSetup.multiGram) 		
+		if(AppSetup.amplitudeGram) 		
 			paths = addStringToPath(paths,"amplitudeGram") ;
 		
 		
-		if(AppSetup.frequencyGram  || AppSetup.multiGram) 			
+		if(AppSetup.frequencyGram) 			
 			paths = addStringToPath(paths,"frequencyGram") ;
 		
-		
-		if((AppSetup.amplitudeGram && AppSetup.frequencyGram && AppSetup.rawAudioData) 
-			|| (AppSetup.multiGram && AppSetup.rawAudioData)) 		
+		if((AppSetup.amplitudeGram && AppSetup.frequencyGram && AppSetup.rawAudioData)) 		
 			paths = addStringToPath(paths,"rawAudioData") ;
 		
 		
-		if((AppSetup.amplitudeGram && AppSetup.frequencyGram && AppSetup.spektrogram)
-			|| AppSetup.multiGram && AppSetup.spektrogram) 		
+		if(AppSetup.amplitudeGram && AppSetup.frequencyGram && AppSetup.spektrogram)
+		
 			paths = addStringToPath(paths,"spektroGram") ;
-		
-		
-		if((AppSetup.amplitudeGram && AppSetup.frequencyGram && AppSetup.mySpektrogram)
-			|| AppSetup.multiGram && AppSetup.mySpektrogram) 
-			
+				
+		if(AppSetup.amplitudeGram && AppSetup.frequencyGram && AppSetup.mySpektrogram)
+
 			paths = addStringToPath(paths,"mySpektrogram") ;
 		
+		if(AppSetup.amplitudeGram && AppSetup.frequencyGram && AppSetup.mySpektrogram)
+
+			paths = addStringToPath(paths,"buildMixedWaveStreamPoints") ;
 		
-		if((AppSetup.amplitudeGram && AppSetup.frequencyGram && AppSetup.buildSequenceArray) 
-			||(AppSetup.multiGram && AppSetup.buildSequenceArray)) 		
+		
+		if(AppSetup.amplitudeGram && AppSetup.frequencyGram && AppSetup.buildSequenceArray) 		
 			paths = addStringToPath(paths,"buildSequenceArray");
 		
 		
-		if((AppSetup.amplitudeGram && AppSetup.frequencyGram && AppSetup.voiceRecognitionData)
-			||(AppSetup.multiGram && AppSetup.voiceRecognitionData)) 			
+		if(AppSetup.amplitudeGram && AppSetup.frequencyGram && AppSetup.voiceRecognitionPointsData)			
 			paths = addStringToPath(paths,"voicePointsRecognition");
 		
-		if((AppSetup.amplitudeGram && AppSetup.frequencyGram && AppSetup.voiceRecognitionData)
-			||(AppSetup.multiGram && AppSetup.voiceRecognitionData)) 			
-				paths = addStringToPath(paths,"voiceSlopesRecognition");
+		if(AppSetup.amplitudeGram && AppSetup.frequencyGram && AppSetup.voiceRecognitionSlopesData)	
+			paths = addStringToPath(paths,"voiceSlopesRecognition");
+		
+		if(AppSetup.amplitudeGram && AppSetup.frequencyGram && AppSetup.voiceRecognitionAreaData)	
+			paths = addStringToPath(paths,"voiceAreaRecognition");
+		
+		if(AppSetup.amplitudeGram && AppSetup.frequencyGram && AppSetup.voiceRecognitionScanData)	
+			paths = addStringToPath(paths,"voiceScanRecognition");
 			
 		if(AppSetup.wave) 
 			paths = addStringToPath(paths,"wave");
-		
-		
-		if(AppSetup.voicePointsCompare)
-			paths = addStringToPath(paths,"voiceCompare");
 		
 			return paths;
 	}

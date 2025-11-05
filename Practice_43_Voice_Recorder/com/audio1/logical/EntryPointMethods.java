@@ -7,15 +7,15 @@ import javax.sound.sampled.AudioInputStream;
 import com.audio0.main.AppSetup;
 import com.audio2.audioObject.AudioObject;
 import com.audio2.audioSequenceBuilder.AudioSequenceBuilder;
-import com.audio2.audioSequenceBuilder.AudioWave;
 import com.audio2.audioSequenceBuilder.TestSequence;
 import com.audio2.audioSequenceBuilder.WavesArrayBuilderFromFile;
+import com.audio2.recorder.AudioUtil;
 import com.audio2.recorder.TimeFixedSoundRecorder;
 import com.audio3.recorder.refinary.StreamRefinarySelector;
-import com.audio4.audioGramInitializer.AudioAnalysisThread;
+import com.audio4.audioGramInitializer.mainInit.AudioAnalysisThread;
 import com.audio5.recognition.VoiceRecognitionDB;
-import com.audio8.util.AudioInputStreamUtil;
-import com.audio8.util.AudioUtil;
+import com.audio5.recognition.VoiceRecognitionMain;
+import com.audio6.audioGramSaver.AudioInputStreamUtil;
 import com.audio8.util.Debug;
 
 /*
@@ -25,10 +25,26 @@ public class EntryPointMethods {
 
 	public static String  speechName;
 	private static String  svitch;
+	private static boolean instanceOf;
 		
 	public static void  mainOptionRun(String option, String inputName) {
 	
+		if(instanceOf && !option.equals(svitch)){
+			Debug.debug(0, "EntryPointMethods mainOptionRun  Multiple options Has been selelcted! "
+					+ "option: "+option + ", Has been not started!\n");
+			return;
+		}
+		
+		if(svitch == null || option.equals(svitch)) {
+			svitch = option;
+			instanceOf = true;
+		}
+		
+
 		new AudioAnalysisThread();
+		
+		if(AppSetup.voiceRecognition)			
+			new VoiceRecognitionMain();		
 		
 		setMainProfile(option,inputName);		
 	}
@@ -41,9 +57,9 @@ public class EntryPointMethods {
 				
 		case "saveNamedRecords" :saveNamedRecords(inputName);break;
 		
-		case "voiceRecognition" :voiceRecognition();break;
+		case "voiceRecognition" :voiceRecognition(inputName);break;
 		
-		case "voiceRecognitionDebug" :voiceRecognitionDebug();break;
+		case "voiceRecognitionDebug" :voiceRecognitionDebug(inputName);break;
 		
 		case "saveContinueRecords" :saveContinueRecords();break;
 		
@@ -53,7 +69,7 @@ public class EntryPointMethods {
 		
 		case "buildSpektrogramFromAudioFile" :buildSpektrogaramFromAudioFile(inputName);break;
 		
-		case "timeFixedSoundRecorder" : timeFixedSoundRecorder();break;	
+		case "timeFixedSoundRecorder" : timeFixedSoundRecorder(inputName);break;	
 		
 		}
 	}
@@ -65,27 +81,27 @@ public class EntryPointMethods {
 		
 		setSpeechName(inputName);
 		
-		//VoiceRecognitionDB.buildAudioDB();
+		VoiceRecognitionDB.buildAudioDB();
 		
 		StreamRefinarySelector.mainRefinaryStarter();
 	}
 	
-	private static void voiceRecognition() {
+	private static void voiceRecognition(String inputName) {
 		
 		AppSetup.activateVoiceRecognitionProfile();
 		
-		setSpeechName(AppSetup.VOICE_RECOGNITION_DEBUG_DIRECTORY);
+		setSpeechName(inputName);
         
 		VoiceRecognitionDB.buildAudioDB();
 		
 		StreamRefinarySelector.mainRefinaryStarter();
 	}
 	
-	private static void voiceRecognitionDebug() {
+	private static void voiceRecognitionDebug(String inputName) {
 		
 		AppSetup.activateVoiceRecognitionDebugProfile();
 		
-		setSpeechName(AppSetup.VOICE_RECOGNITION_DEBUG_DIRECTORY);
+		setSpeechName(inputName);
         
 		VoiceRecognitionDB.buildAudioDB();
 		
@@ -98,21 +114,21 @@ public class EntryPointMethods {
 
 		setSpeechName(Debug.getTimeStamp());
 		
-		new StreamRefinarySelector();
-
+		StreamRefinarySelector.mainRefinaryStarter();
 	}
 	
 	private static void buildSequenceFromFrequncyListFromFile(String fileName) {
 		
 		AppSetup.activateBuildSequenceFromFrequncyListFromFileProfile();
 		
-		AudioWave[] readedFrequencys=WavesArrayBuilderFromFile.mainBuilder(AppSetup.BASE_AUDIO_PATH 
+		int[] readedSequenceInfo = WavesArrayBuilderFromFile.mainBuilder(AppSetup.BASE_AUDIO_PATH 
 				                     +"SequencePathLocation/"+fileName);
 	
 		AudioAnalysisThread.analysisStarter(new AudioObject(null
-		,AudioSequenceBuilder.mainSequenceStreamBuilderByReadedFileInputSequences(readedFrequencys)
-		,null,AppSetup.REBUILDED_SEQUENCE_DIRECTORY, AudioUtil.getAudioFormat("MainRecord")
-			,AudioSequenceBuilder.averageAmplitude));
+				,AudioSequenceBuilder.mainBuilder(readedSequenceInfo,
+						(int)AudioUtil.getAudioFormat("AudioListener").getSampleRate())
+				,null,null,fileName, AudioUtil.getAudioFormat("MainRecord")
+					,AudioSequenceBuilder.averageAmplitude,getSvitch()));
 	}
 	
 	private static void buildSpektrogaramFromAudioFile(String fileName) {
@@ -125,27 +141,32 @@ public class EntryPointMethods {
 	
 		byte[] byteArray =
 				AudioInputStreamUtil.buildAudiodDataFromAudioStream(audioInputStream);
-	
-		AudioAnalysisThread.analysisStarter(new AudioObject(byteArray,null,null,"AudioInputStreamStream"
-										 						,audioInputStream.getFormat(),0));
-	}
+		int[] intStream = AudioUtil.buildIntStreamFromByteStream(
+									byteArray, AudioUtil.getAudioFormat("Spektrogram"));
 		
-	private static void timeFixedSoundRecorder() {
-		
-		AppSetup.activateTimeFixedSoundRecorderProfile();
-		
-		new TimeFixedSoundRecorder("Fixed Record",AppSetup.FIXED_RECORD_LENGTH_IN_MILISEC);
+		AudioAnalysisThread.analysisStarter(new AudioObject(byteArray,intStream,null,null,
+			"Spektrogram Ruilded",audioInputStream.getFormat(),intStream[0],getSvitch()));
 	}
 	
 	private static void buildTestAudioSequence() {	
-				
-		AudioAnalysisThread.analysisStarter(new AudioObject(null
-			,AudioSequenceBuilder.mainSequenceIntBuilderByTimeLength(TestSequence.getTestSequence())
-			,null, "builded-" + LocalDateTime.now().getHour()+ "-"+LocalDateTime.now().getMinute()
-		+ "- " + LocalDateTime.now().getSecond(),AudioUtil.getAudioFormat("MainRecord")
-			,AudioSequenceBuilder.averageAmplitude));	
-	}
 		
+		AppSetup.activateBuildTestAudioSequenceProfile();
+		
+		AudioAnalysisThread.analysisStarter(new AudioObject(null,
+				AudioSequenceBuilder.mainBuilder(TestSequence.getTestSequence(),
+						(int)AudioUtil.getAudioFormat("AudioListener").getSampleRate()),null,null
+				, "builded-" + LocalDateTime.now().getHour()+ "-"+LocalDateTime.now().getMinute()
+			+ "- " + LocalDateTime.now().getSecond(),AudioUtil.getAudioFormat("MainRecord")
+				,AudioSequenceBuilder.averageAmplitude,getSvitch()));
+	}
+	
+	private static void timeFixedSoundRecorder(String fileName) {
+		
+		AppSetup.activateTimeFixedSoundRecorderProfile();
+		
+		new TimeFixedSoundRecorder(fileName,AppSetup.FIXED_RECORD_LENGTH_IN_MILISEC);
+	}
+			
 	public static String getSpeechName() {
 		
 		return speechName;

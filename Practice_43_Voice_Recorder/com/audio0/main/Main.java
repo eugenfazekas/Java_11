@@ -2,19 +2,42 @@ package com.audio0.main;
 
 
 import com.audio1.logical.AllFeaturesEntryPoint;
+import com.audio7.threads.ThreadManagement;
+import com.audio8.util.Debug;
 
 public class Main {
     		
+	private static boolean threadIsActive;
+	
 	/**
 	* Files are saved at classpath (path to class files)
 	*                    or this folder......
 	* \src\main\resources\static\audio\spektrum\record Name
 	* 
-	* Run one option at one time.
+	* Run one option at one time from ALLFeaturesEntryPoint.
 	*/
-	public static void main(String[] args) {
+	public static void main(String[] args){
 		
 		AllFeaturesEntryPoint.mainLogicalEntryPoint(args);
 		
+		threadIsActive = true;
+		
+		while(threadIsActive) {
+			
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				
+				e.printStackTrace();
+			}	
+			
+			Debug.debug(6, "Main Threads Count: " + ThreadManagement.getThreadsCount());
+		}	
+			ThreadManagement.stopAllThreads();	
+	}
+	
+	public static void setStopAllThreads() {
+		
+		threadIsActive = false;
 	}
 }

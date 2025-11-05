@@ -14,41 +14,19 @@ public class StreamRefinarySelector {
 	
 	public static void mainRefinaryStarter() {
 		
-		if(AppSetup.amplitudeRefinary && !AppSetup.frequencyRefinary 
-		    && !AppSetup.voiceRecognitionAmplitudeRefinary 
-		    && !AppSetup.voiceRecognitionFrequencyRefinary) {
+		if(AppSetup.amplitudeRefinary && !AppSetup.frequencyRefinary ) {
 			
 				activeRefinary =  new IntStreamRefinary();
 				
 					return;
 		}
 		
-		if(!AppSetup.amplitudeRefinary && AppSetup.frequencyRefinary 
-			&& !AppSetup.voiceRecognitionAmplitudeRefinary 
-			&& !AppSetup.voiceRecognitionFrequencyRefinary) {
+		if(!AppSetup.amplitudeRefinary && AppSetup.frequencyRefinary) {
 
 				activeRefinary = new IntFrequencyRefinary();
 				
 					return;
-		}
-		
-		if(!AppSetup.amplitudeRefinary && !AppSetup.frequencyRefinary 
-			&& AppSetup.voiceRecognitionAmplitudeRefinary 
-			&& !AppSetup.voiceRecognitionFrequencyRefinary) {
-			
-				activeRefinary = new VoiceRecognitionAmplitudeRefinary();
-				
-					return;
-		}
-		
-		if(!AppSetup.amplitudeRefinary && !AppSetup.frequencyRefinary 
-		    && !AppSetup.voiceRecognitionAmplitudeRefinary 
-		    && AppSetup.voiceRecognitionFrequencyRefinary) {
-			
-				activeRefinary = new VoiceRecognitionFrequencyRefinary() ;
-				
-					return;
-		} else {
+		}else {
 			Debug.debug(1,"StreamRefinarySelector.class. Recorder Unable to choose refinary!");
 		}
 	}
