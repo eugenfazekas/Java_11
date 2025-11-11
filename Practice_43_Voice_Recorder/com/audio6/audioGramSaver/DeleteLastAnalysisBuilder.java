@@ -15,6 +15,8 @@ public class DeleteLastAnalysisBuilder {
 	public static Map<String, byte[]> addedSavedFiles;
 	private static String[] tempStringArray; 
 	
+	private static int debug_level_INFO = 5;
+	
 	public static void deleteLastSave(DeleteLastDataModel deleteData) {
 		
 		deleteList(deleteData.getFileSavePaths());
@@ -27,21 +29,18 @@ public class DeleteLastAnalysisBuilder {
 		File myObj = new File(path); 
 		
 	    if(myObj.delete()) 
-	    	Debug.debug(3,"DeleteLastAnalysis Object " + myObj.getName()+ " deleted");      
+	    	Debug.debug(debug_level_INFO,"DeleteLastAnalysis Object " + myObj.getName()+ " deleted");      
 	   
 	    else 	    	
-	    	Debug.debug(3,"DeleteLastAnalysis Failed to delete object: "+myObj.getName());	    
+	    	Debug.debug(debug_level_INFO,"DeleteLastAnalysis Failed to delete object: "+myObj.getName());	    
 	}
 	
 	public static void deleteAddedStream(Map<String, byte[]> lastSavedFiles) {
 		
 		if(lastSavedFiles.size() == 0) return;
 		
-		for(String key : lastSavedFiles.keySet()) {
-			
-			//delete(key);
-			FileWriterUtil.fileWriter(new byte[][] {lastSavedFiles.get(key)},null,key);
-		}
+		for(String key : lastSavedFiles.keySet()) 			
+			FileWriterUtil.fileWriter(new byte[][] {lastSavedFiles.get(key)},null,key);		
 	}
 	
 	public static void  addPathToFileSavedList(String path) {
@@ -61,7 +60,7 @@ public class DeleteLastAnalysisBuilder {
 	
 	public static void resetSavedData () {
 		
-		Debug.debug(3,"DeleteLastAnalysis resetSavedData!");
+		Debug.debug(debug_level_INFO,"DeleteLastAnalysis resetSavedData!");
 		
 		fileSavePaths = new String[13];
 		directorySavePaths = new String[13];
@@ -74,8 +73,8 @@ public class DeleteLastAnalysisBuilder {
 		
 		if(deleteList.length == 0 ) return;
 		
-		Debug.debug(3,"Delete List length: "+deleteList.length+ ", Array: "
-			+ Arrays.toString(deleteList));
+		Debug.debug(debug_level_INFO,"DeleteLastAnalysis Delete List length: "+deleteList.length
+			+ ", Array: "+ Arrays.toString(deleteList));
 	
 		for(int i = 0 ; i < deleteList.length; i++) 
 			delete(deleteList[i]);		
@@ -100,7 +99,7 @@ public class DeleteLastAnalysisBuilder {
 		for (int i = 0; i < arraySize ; i++)
 			tempStringArray[i] = inputStringArray[i];
 		
-		Debug.debug(3,"AudioBuilderUtil filterEmptyStringsWithUnknownLength Array Name: "
+		Debug.debug(debug_level_INFO,"AudioBuilderUtil filterEmptyStringsWithUnknownLength Array Name: "
 			+arrayNam+", old length: "+inputStringArray.length+", new length: "
 			+tempStringArray.length);
 		

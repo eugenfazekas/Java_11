@@ -2,10 +2,13 @@ package com.audio5.recognition.scan;
 
 import java.util.Arrays;
 
+import com.audio1.logical.EntryPointMethods;
 import com.audio5.recognition.VoiceRecognitionDB;
 import com.audio5.recognition.VoiceRecognitionMain;
 import com.audio7.threads.MyThread;
+import com.audio7.threads.ThreadAction;
 import com.audio7.threads.ThreadManagement;
+import com.audio7.threads.util.ThreadObjectDetails;
 import com.audio8.util.Debug;
 
 public class VoiceRecognitionScanCheck implements MyThread{
@@ -15,6 +18,7 @@ public class VoiceRecognitionScanCheck implements MyThread{
 	public static boolean threadIsActive;
 	public boolean threadIsSuspended;
 	final private static String THREAD_NAME = "VoiceRecognitionScanCheck"; 
+	ThreadObjectDetails threadObject; 
 	
 	private static int checkArray[];
 	private static float[][] tempResultVerifier;
@@ -27,11 +31,15 @@ public class VoiceRecognitionScanCheck implements MyThread{
 	private static int globalBestPosition;
 	private static float globalBestValue;
 	
+	private static int debug_level_INFO = 5;
+	private static int debud_level_DEBUG = 5;
+	
 	public VoiceRecognitionScanCheck(int Id ,int[] inputArray) {
 		
 		id = Id;
 		checkArray = inputArray;
 		
+		threadObject = new ThreadObjectDetails(THREAD_NAME, true);
 		threadIsActive = true;
 		threadIsSuspended = false;
 		thread = new Thread(this);
@@ -41,16 +49,27 @@ public class VoiceRecognitionScanCheck implements MyThread{
 	@Override
 	public void run() {
 		
-		Thread.currentThread().setName(THREAD_NAME);		
-		ThreadManagement.addingThread(this);
+		Thread.currentThread().setName(THREAD_NAME);	
 		
-		Debug.debug(1,"Starting "+Thread.currentThread().getName() +" Thread!");
+		ThreadManagement.threadActions.add(
+				new ThreadAction("addingThread",-1,EntryPointMethods.getSvitch(),this));
+		
+		Debug.debug(debug_level_INFO,"Starting "+Thread.currentThread().getName() +" Thread!");
 		
 		while(threadIsActive) {
 			
 			suspendThread();
 			
-			mainVoiceFinder(checkArray);
+			 try {		    
+					mainVoiceFinder(checkArray);
+		    
+		    } catch (Exception ex) {
+		    	
+	            Debug.debug(debud_level_DEBUG,"DebugException in VoiceRecognitionScanCheck! " +ex.getMessage());  
+
+	    		ThreadManagement.threadActions.add(
+	    				new ThreadAction("stopAllThreads",-1,EntryPointMethods.getSvitch(),this));
+		    }
 		}
 		
 		thread = null;			
@@ -72,7 +91,7 @@ public class VoiceRecognitionScanCheck implements MyThread{
 
 			for(int j = 0; j <  VoiceRecognitionDB.audioScanDB[i].length; j++) {
 							
-				Debug.debug(1,"VoiceRecognitionScanCheck VoiceRecognitionDB.audioScanDB[i][j]"
+				Debug.debug(debud_level_DEBUG,"VoiceRecognitionScanCheck VoiceRecognitionDB.audioScanDB[i][j]"
 					+VoiceRecognitionDB.audioScanDB[i][j].length  +", checkArray[0].length: "
 					+checkArray.length+", checkArray[1].length: "+checkArray.length + ", avg: "+avg);
 				
@@ -83,7 +102,7 @@ public class VoiceRecognitionScanCheck implements MyThread{
 				
 				avg += match;
 				
-				Debug.debug(1,"VoiceRecognitionScanCheck VoiceRecognitionDB result1: "+result +", match: "
+				Debug.debug(debud_level_DEBUG,"VoiceRecognitionScanCheck VoiceRecognitionDB result1: "+result +", match: "
 						+match + ", avg: "+avg);
 				
 				if(match > localBestMatch) {
@@ -105,14 +124,14 @@ public class VoiceRecognitionScanCheck implements MyThread{
 					tempResultVerifier[i][j+3] = i;
 					tempResultVerifier[i][j+4] = localBestPosition;
 					
-					Debug.debug(3, "VoiceRecognitionScanCheck mainVoiceFinder Match Word: "
+					Debug.debug(debud_level_DEBUG, "VoiceRecognitionScanCheck mainVoiceFinder Match Word: "
 						+VoiceRecognitionDB.DB_NAMES.get(i)+", avg: "+(j+1)+ ", Added "
 						+Arrays.toString(tempResultVerifier[i])+ ", Break\n");
 				}			
 			}
 		}
 		
-		Debug.debug(3, "VoiceRecognitionScanCheck mainVoiceFinder Actual bestMatch: " 
+		Debug.debug(debud_level_DEBUG, "VoiceRecognitionScanCheck mainVoiceFinder Actual bestMatch: " 
 			+ VoiceRecognitionDB.DB_NAMES.get(globalBestName)+ ", globalBestPosition: "
 			+globalBestPosition + ", globalBestValue: " + globalBestValue + ", Voice Finder Elapsed Time: " 
 			+(System.currentTimeMillis() - Debug.startTime));
@@ -172,8 +191,8 @@ public class VoiceRecognitionScanCheck implements MyThread{
 	}
 	
 	@Override
-	public String getThreadName() {
-		
-		return THREAD_NAME;
+	public ThreadObjectDetails getThreadObjectDetails() {
+
+		return threadObject;
 	}
 }

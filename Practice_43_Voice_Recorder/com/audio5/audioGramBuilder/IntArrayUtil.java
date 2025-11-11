@@ -7,6 +7,8 @@ public class IntArrayUtil {
 	private static int counter;
 	private static int[] tempArray; 
 	
+	private static int debug_level_INFO = 5;
+	
 	static int[] rebuildIntArray(int[] inputgArray, int arraySize, String arrayName) {
 		
 		tempArray = new int[arraySize];
@@ -14,7 +16,7 @@ public class IntArrayUtil {
 		for(counter = 0 ; counter < arraySize; counter++) 
 			tempArray[counter] =  inputgArray[counter];	
 		
-		Debug.debug(3,"IntArrayUtil rebuildInttArray Array Name: "
+		Debug.debug(debug_level_INFO,"IntArrayUtil rebuildInttArray Array Name: "
 				+arrayName+", old length: "+inputgArray.length+", new length: "
 				+tempArray.length);
 		
@@ -41,7 +43,7 @@ public class IntArrayUtil {
 			}
 		}
 			
-		Debug.debug(3,"IntArrayUtil filterEmptyStringsWithUnknownLength Array Name: "
+		Debug.debug(debug_level_INFO,"IntArrayUtil filterEmptyStringsWithUnknownLength Array Name: "
 			+arrayName+", old length: "+inputgArray.length+", new length: "
 			+tempArray.length);
 		
@@ -59,7 +61,7 @@ public class IntArrayUtil {
 			byte_stram[counter++] = (byte) intStream[i] ;
 		}
 		
-		Debug.debug(2,"IntArrayUtil convertIntArrayToByteArray byte_Sequence.length "
+		Debug.debug(debug_level_INFO,"IntArrayUtil convertIntArrayToByteArray byte_Sequence.length "
 			+byte_stram.length);
 		
 			return byte_stram;

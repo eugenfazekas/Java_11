@@ -8,6 +8,9 @@ public class VoiceRecognitionDBUtil {
 
 	private static int[] tempIntArray;
 
+	private static int debug_level_INFO = 5;
+	private static int debud_level_DEBUG = 5;
+
 	static int[] convertStringArrayToIntArray(String[] input) {
 		
 		tempIntArray = new int[input.length];
@@ -29,14 +32,14 @@ public class VoiceRecognitionDBUtil {
 		
 		String[] sequences = input.split("&");
 		threeDArray = new int[sequences.length][][];
-		Debug.debug(1,"VoiceRecognitionUtil Seq lenght: "+sequences.length);
+		Debug.debug(debug_level_INFO,"VoiceRecognitionUtil Seq lenght: "+sequences.length);
 		
 		for(int i = 0; i < sequences.length; i++) {
 			
 			substrs1 = sequences[i].split("_");
 			substrs2 = substrs1[substrs1.length-1].split(":");			
 			threeDArray[i] = new int[Integer.valueOf(substrs2[0])+1][];
-			Debug.debug(1,"VoiceRecognitionUtili length " +i + ", "+threeDArray[i].length );
+			Debug.debug(debud_level_DEBUG,"VoiceRecognitionUtili length " +i + ", "+threeDArray[i].length );
 			
 			for(int j = 0; j < substrs1.length ; j++) { 
 				
@@ -52,12 +55,10 @@ public class VoiceRecognitionDBUtil {
 				}
 					threeDArray[i][Integer.valueOf(substrs2[0])] = array;
 					
-					Debug.debug(1,"VoiceRecognitionUtil Array i: "+i+ ", j: "+ Integer.valueOf(substrs2[0])
+					Debug.debug(debud_level_DEBUG,"VoiceRecognitionUtil Array i: "+i+ ", j: "+ Integer.valueOf(substrs2[0])
 						+ ", Array "+ Arrays.toString(array) + ", Check: "+substr);
 			}
 		}	
 		return threeDArray;
 	}
-	
-
 }

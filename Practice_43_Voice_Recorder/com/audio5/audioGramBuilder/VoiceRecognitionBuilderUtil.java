@@ -5,13 +5,16 @@ import java.util.Arrays;
 import com.audio8.util.Debug;
 
 public class VoiceRecognitionBuilderUtil {
+	
+	private static int debug_level_INFO = 5;
 
 	static int[]  buildSequenceBorders(int[] input, int  startLimit, int endLimit) {
 		
-		Debug.debug(1,"VoiceRecognitionUtil buildSequenceBorders input Array:  "  
+		Debug.debug(debug_level_INFO,"VoiceRecognitionUtil buildSequenceBorders input Array:  "  
 			+ Arrays.toString(input));
+		
 		int start = 0;
-		int end = 0;
+		int end = input.length;
 		int[] result;
 		for(int i = 0; i < input.length; i++) {
 			
@@ -30,7 +33,7 @@ public class VoiceRecognitionBuilderUtil {
 		}
 		
 		result = new int[] {start,end};
-		Debug.debug(1,"VoiceRecognitionUtil frequency borders: "+ Arrays.toString(result));
+		Debug.debug(debug_level_INFO,"VoiceRecognitionUtil frequency borders: "+ Arrays.toString(result));
 		
 		return result;
 	}
@@ -46,13 +49,13 @@ public class VoiceRecognitionBuilderUtil {
 						stringBuilder.append("_");
 					
 					stringBuilder.append(j+":"+Arrays.toString(inputHeights[i][j]));
-
 			}
+			
 			if(i < inputHeights.length-1)
 				stringBuilder.append("&");
-			}
+		}
 		
-		Debug.debug(1,"VoiceRecognitionUtil buildVoiceRecognitionAreaString: "+stringBuilder.toString() 
+		Debug.debug(debug_level_INFO,"VoiceRecognitionUtil buildVoiceRecognitionAreaString: "+stringBuilder.toString() 
 			+ ", inputHeights.length: "+inputHeights.length + ", [0] "+ Arrays.toString(inputHeights[0][0]));
 			return stringBuilder.toString();
 	}

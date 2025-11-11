@@ -1,5 +1,7 @@
 package com.audio7.threads;
 
+import com.audio7.threads.util.ThreadObjectDetails;
+
 public interface MyThread extends Runnable {
 
 	public Thread getThread();
@@ -15,6 +17,6 @@ public interface MyThread extends Runnable {
 	public boolean isThreadSuspended();
 	
 	public void sleepThread(int mSec);
-	
-	public String getThreadName();	
+
+	public ThreadObjectDetails getThreadObjectDetails();
 }

@@ -2,7 +2,7 @@ package com.audio4.audioGramInitializer.mainInit;
  
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
- 
+
 import com.audio0.main.AppSetup;
 import com.audio0.main.Main;
 import com.audio1.logical.DeleteOrNotActionLogic;
@@ -13,7 +13,9 @@ import com.audio5.audioGramBuilder.MultiAnalysisBuilder;
 import com.audio5.recognition.VoiceRecognitionMain;
 import com.audio6.audioGramSaver.SaveMultiAudioFeatures;
 import com.audio7.threads.MyThread;
+import com.audio7.threads.ThreadAction;
 import com.audio7.threads.ThreadManagement;
+import com.audio7.threads.util.ThreadObjectDetails;
 import com.audio8.util.Debug;
  
 public class AudioAnalysisThread implements MyThread{
@@ -23,19 +25,27 @@ public class AudioAnalysisThread implements MyThread{
 	private boolean threadIsActive;
 	private boolean threadIsSuspended;
 	final private String THREAD_NAME = "AudioAnalysisThread"; 
+	ThreadObjectDetails threadObject; 
 	
 	public static int threadSleepTime;	
 	private static AudioObject audioObject;
 	public static Map<Integer,AudioObject> startedVoiceCheck 
 									= new ConcurrentHashMap<Integer, AudioObject>();
 	
+	private static int debug_level_INFO = 5;
+	private static int debud_level_DEBUG = 5;
+	
 	public AudioAnalysisThread() {
 		
-		if(instanceOf)
-			throw new RuntimeException("RuntimeException AudioAnalysisThread already running!");
+		if(instanceOf) {
+			return;
+			//throw new RuntimeException("RuntimeException AudioAnalysisThread already running!");
+		}
 		
 		instanceOf = true;
-		threadSleepTime = 1000;			
+		threadSleepTime = 1000;	
+		
+		threadObject = new ThreadObjectDetails(THREAD_NAME, false); 
 		threadIsActive = true;
 		threadIsSuspended = false;
 		thread = new Thread(this);		
@@ -44,16 +54,14 @@ public class AudioAnalysisThread implements MyThread{
 	
 	public static void analysisStarter(AudioObject audioObject) {
 		
-		Debug.debug(1, "AudioAnalysisThread New AudioObject id: "+audioObject.getId());
+		Debug.debug(debug_level_INFO, "AudioAnalysisThread New AudioObject id: "+audioObject.getId());
 		startedVoiceCheck.put(audioObject.getId(), audioObject);
 		threadSleepTime = 100; 
 	}
 		
 	private void mainAnalysis() {
- 
-		if(threadIsSuspended) return;
-		
-		Debug.debug(1,"AudioAnalysisThread mainAnalysis startedVoiceCheck.length: "
+
+		Debug.debug(debud_level_DEBUG,"AudioAnalysisThread mainAnalysis startedVoiceCheck.length: "
 				+startedVoiceCheck.size());
 		
 		for(Map.Entry<Integer, AudioObject> objects : startedVoiceCheck.entrySet()) 
@@ -64,24 +72,36 @@ public class AudioAnalysisThread implements MyThread{
 	public void run() {
 			
 		Thread.currentThread().setName(THREAD_NAME);
-		Debug.debug(1,"Starting "+Thread.currentThread().getName() +" Thread!");
-		ThreadManagement.addingThread(this);
+		
+		Debug.debug(debug_level_INFO,"Starting "+Thread.currentThread().getName() +" Thread!");
+		
+		ThreadManagement.threadActions.add(
+				new ThreadAction("addingThread",-1,EntryPointMethods.getSvitch(),this));
  
 		while(threadIsActive) {
 			
 			suspendThread();
-			
-			mainAnalysis();
+						
+		    try {		    
+					mainAnalysis();	
+		    
+		    } catch (Exception ex) {
+		    	
+	            Debug.debug(debud_level_DEBUG,"DebugException in AudioAnalysisThread! " +ex.getMessage());  
+
+	    		ThreadManagement.threadActions.add(
+	    				new ThreadAction("stopAllThreads",-1,EntryPointMethods.getSvitch(),this));
+		    }
 			
 			sleepThread(threadSleepTime);
 		}
 		
-		Debug.debug(5,"Stopping AudioAnalysisThread Thread!");
+		Debug.debug(debug_level_INFO,"Stopping AudioAnalysisThread Thread!");
 	}
  
 	private void saveNamedRecords(int id) {
 		
-    	Debug.debug(2,"AudioAnalysisThread saveNamedRecords inputFileName: "+id);
+    	Debug.debug(debud_level_DEBUG,"AudioAnalysisThread saveNamedRecords inputFileName: "+id);
     	
     	mainAudioTrim(id);
  
@@ -94,7 +114,7 @@ public class AudioAnalysisThread implements MyThread{
 	
 	private void voiceRecognition(int id) {
 		
-    	Debug.debug(2,"AudioAnalysisThread voiceRecognition inputFileName: "+id);
+    	Debug.debug(debud_level_DEBUG,"AudioAnalysisThread voiceRecognition inputFileName: "+id);
     	
     	mainAudioTrim(id);
     	
@@ -105,7 +125,7 @@ public class AudioAnalysisThread implements MyThread{
 	
 	private void voiceRecognitionDebug(int id) {
 		
-    	Debug.debug(2,"AudioAnalysisThread voiceRecognitionDebug inputFileName: "+id);
+    	Debug.debug(debud_level_DEBUG,"AudioAnalysisThread voiceRecognitionDebug inputFileName: "+id);
     	
     	mainAudioTrim(id);
     	
@@ -118,7 +138,7 @@ public class AudioAnalysisThread implements MyThread{
 	
 	private void saveContinueRecords(int id) {	
 		
-    	Debug.debug(2,"AudioAnalysisThread saveContinueRecords inputFileName: "+id);
+    	Debug.debug(debud_level_DEBUG,"AudioAnalysisThread saveContinueRecords inputFileName: "+id);
     	
     	mainAudioTrim(id);
  
@@ -129,7 +149,7 @@ public class AudioAnalysisThread implements MyThread{
 	
 	private void  buildSpektrogramFromAudioFile(int id) {
 		
-    	Debug.debug(2,"AudioAnalysisThread buildSpektrogramFromAudioFile inputFileName: "+id);
+    	Debug.debug(debud_level_DEBUG,"AudioAnalysisThread buildSpektrogramFromAudioFile inputFileName: "+id);
  
 	    mainAnalysisBuilder(id);
 	    
@@ -140,7 +160,7 @@ public class AudioAnalysisThread implements MyThread{
  
 	private void buildSequenceFromFrequncyListFromFile(int id) {
 		
-    	Debug.debug(2,"AudioAnalysisThread buildSequenceFromFrequncyListFromFile inputFileName: "+id);
+    	Debug.debug(debud_level_DEBUG,"AudioAnalysisThread buildSequenceFromFrequncyListFromFile inputFileName: "+id);
     	
 	    mainAnalysisBuilder(id);
 	    
@@ -151,7 +171,7 @@ public class AudioAnalysisThread implements MyThread{
 	
 	private void buildTestAudioSequence(int id) {
 		
-    	Debug.debug(2,"AudioAnalysisThread buildTestSequence inputFileName: "+id 
+    	Debug.debug(debud_level_DEBUG,"AudioAnalysisThread buildTestSequence inputFileName: "+id 
     		+ ", AppSetup.multiAnalysis: " + AppSetup.multiAnalysis);
  
 	    mainAnalysisBuilder(id);
@@ -163,7 +183,7 @@ public class AudioAnalysisThread implements MyThread{
 	
 	private void timeFixedSoundRecorder(int id) {		
 		
-    	Debug.debug(2,"AudioAnalysisThread timeFixedSoundRecorder inputFileName: "+audioObject 
+    	Debug.debug(debud_level_DEBUG,"AudioAnalysisThread timeFixedSoundRecorder inputFileName: "+audioObject 
     			+ ", byteStream.length: " +audioObject);
  
 	    mainAnalysisBuilder(id);
@@ -177,22 +197,21 @@ public class AudioAnalysisThread implements MyThread{
 		
 		switch(EntryPointMethods.getSvitch()) {
 		
-		case "saveNamedRecords" :saveNamedRecords(id);break;
-		
-		case "saveContinueRecords" :saveContinueRecords(id);break;
-		
-		case "voiceRecognition" :voiceRecognition(id);break;
-		
-		case "voiceRecognitionDebug" :voiceRecognitionDebug(id);break;
-		
-		case "buildSequenceFromFile" :buildSequenceFromFrequncyListFromFile(id);break;
-		
-		case "buildTestAudioSequence" :buildTestAudioSequence(id);break;	
-		
-		case "buildSpektrogramFromAudioFile" :buildSpektrogramFromAudioFile(id);break;
-		
-		case "timeFixedSoundRecorder" : timeFixedSoundRecorder(id);break;
-		
+			case "saveNamedRecords" :saveNamedRecords(id);break;
+			
+			case "saveContinueRecords" :saveContinueRecords(id);break;
+			
+			case "voiceRecognition" :voiceRecognition(id);break;
+			
+			case "voiceRecognitionDebug" :voiceRecognitionDebug(id);break;
+			
+			case "buildSequenceFromFile" :buildSequenceFromFrequncyListFromFile(id);break;
+			
+			case "buildTestAudioSequence" :buildTestAudioSequence(id);break;	
+			
+			case "buildSpektrogramFromAudioFile" :buildSpektrogramFromAudioFile(id);break;
+			
+			case "timeFixedSoundRecorder" : timeFixedSoundRecorder(id);break;	
 		}
 	}
 	
@@ -205,7 +224,7 @@ public class AudioAnalysisThread implements MyThread{
 			
 			while(AudioTrimSelector.building.get() == true 
 				&& startedVoiceCheck.get(id).getNextStage().equals("trim")) {	
-		    	Debug.debug(2,"AudioAnalysisThread mainAudioTrim OCCUPAID!");
+		    	Debug.debug(debud_level_DEBUG,"AudioAnalysisThread mainAudioTrim OCCUPAID!");
 				sleepThread(50); 
 			}
 			
@@ -222,7 +241,7 @@ public class AudioAnalysisThread implements MyThread{
 			
 			while(VoiceRecognitionMain.building.get() == true
 				&& startedVoiceCheck.get(id).getNextStage().equals("voiceCheck")) 	 {		
-		    	Debug.debug(2,"AudioAnalysisThread voiceRecognitionMain OCCUPAID!");
+		    	Debug.debug(debud_level_DEBUG,"AudioAnalysisThread voiceRecognitionMain OCCUPAID!");
 				sleepThread(50); 
 			}
 			
@@ -240,7 +259,7 @@ public class AudioAnalysisThread implements MyThread{
 			while(MultiAnalysisBuilder.building.get() == true 
 				&& startedVoiceCheck.get(id).getNextStage().equals("analysis"))	{	
 				
-		    	Debug.debug(2,"AudioAnalysisThread mainAnalysisBuilder OCCUPAID!");
+		    	Debug.debug(debud_level_DEBUG,"AudioAnalysisThread mainAnalysisBuilder OCCUPAID!");
 				sleepThread(50); 
 			}
 			
@@ -258,7 +277,7 @@ public class AudioAnalysisThread implements MyThread{
 			while(SaveMultiAudioFeatures.building.get() == true 
 				&& startedVoiceCheck.get(id).getNextStage().equals("save")) {	
 				
-		    	Debug.debug(2,"AudioAnalysisThread saveMultiAudioFeatures OCCUPAID!");	
+		    	Debug.debug(debud_level_DEBUG,"AudioAnalysisThread saveMultiAudioFeatures OCCUPAID!");	
 				sleepThread(50); 
 			}
 			
@@ -268,7 +287,7 @@ public class AudioAnalysisThread implements MyThread{
 	
 	public static void removeAudioObjct(int id) {
 		
-		Debug.debug(1, "AudioAnalysisThread REMOVING id: "+id);
+		Debug.debug(debug_level_INFO, "AudioAnalysisThread REMOVING id: "+id);
 		
 		AudioAnalysisThread.startedVoiceCheck.remove(id);
 		
@@ -327,8 +346,8 @@ public class AudioAnalysisThread implements MyThread{
 	}
 	
 	@Override
-	public String getThreadName() {
-		
-		return THREAD_NAME;
+	public ThreadObjectDetails getThreadObjectDetails() {
+
+		return threadObject;
 	}
 }

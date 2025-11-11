@@ -16,7 +16,9 @@ public class VoiceRecognitionPointsBuilder {
 	static int lengthLimit = 4;
 	static Point[] newOrderPoints ;
 	static Point[] temp;
-	private static int debugLevel = 5;
+	
+	private static int debug_level_INFO = 5;
+	private static int debud_level_DEBUG = 5;
 	
 	public static int[][] mainPointsBuilder(int[] frequency, int[] amplitude, int[] borders) {
 		
@@ -62,13 +64,13 @@ public class VoiceRecognitionPointsBuilder {
 		
 		for(i = 0; i < temp.length; i++) {
 			
-			Debug.debug(1,"VoiceRecognitionPointsBuilder 2.0 i:"+ i+ ", amp[i]" +amplitude[i] 
+			Debug.debug(debud_level_DEBUG,"VoiceRecognitionPointsBuilder 2.0 i:"+ i+ ", amp[i]" +amplitude[i] 
 					+ ", border[0]: "+ borders[0] +",temp[i].getIndex(): "+temp[i].getIndex());
 			points[1][pointsCounter++] = temp[i].getIndex();
 			points[1][pointsCounter++] = amplitude[temp[i].getIndex()+borders[0]];
 		}
 		
-		Debug.debug(1,"VoiceRecognitionPointsBuilder Freq_Array: "
+		Debug.debug(debug_level_INFO,"VoiceRecognitionPointsBuilder Freq_Array: "
 				+Arrays.toString(points[0])+ ", Ampl_Array: "+Arrays.toString(points[1]));
 		
 			return points;
@@ -95,7 +97,7 @@ public class VoiceRecognitionPointsBuilder {
         Arrays.sort(points, new SortPoints());
         
     	for(int i = 1; i < points.length; i++) 
-    		Debug.debug(debugLevel,"VoiceRecognitionPointsBuilder Sorted i: "+i+", Point: "
+    		Debug.debug(debud_level_DEBUG,"VoiceRecognitionPointsBuilder Sorted i: "+i+", Point: "
     			+points[i].toString());
         
 		newOrderPoints = new Point[1];
@@ -109,13 +111,13 @@ public class VoiceRecognitionPointsBuilder {
 
             	for(int j = 0; j < points.length; j++) {
             		
-            		Debug.debug(debugLevel,"\nVoiceRecognitionPointsBuilder i: "+i+", j: "+j 
+            		Debug.debug(debud_level_DEBUG,"\nVoiceRecognitionPointsBuilder i: "+i+", j: "+j 
             			+", newOrderPoints[i]: "+newOrderPoints[i].toString()+", points[j]: "
             			+points[j].toString());
             		
             		if(points[j].getIndex() < newOrderPoints[0].getIndex()-lengthLimit) {
             			
-            			Debug.debug(debugLevel,"VoiceRecognitionPointsBuilder Phase 1.0 i: "+i+", j: "+j 
+            			Debug.debug(debud_level_DEBUG,"VoiceRecognitionPointsBuilder Phase 1.0 i: "+i+", j: "+j 
             					+ ", nop length: " +newOrderPoints.length+", newOrderPoints[0]: "
             					+newOrderPoints[0].toString()+", points[j]: "+points[j].toString());
 	        			
@@ -127,7 +129,7 @@ public class VoiceRecognitionPointsBuilder {
 
 					if(points[j].getIndex() >  newOrderPoints[newOrderPoints.length-1].getIndex()+lengthLimit) {
 						
-						Debug.debug(debugLevel,"VoiceRecognitionPointsBuilder Phase 2.0 i: "+i+", j: "+j
+						Debug.debug(debud_level_DEBUG,"VoiceRecognitionPointsBuilder Phase 2.0 i: "+i+", j: "+j
 								+ ", nop length: " +newOrderPoints.length +", newOrderPoints[length - 1]: "
 								+newOrderPoints[newOrderPoints.length-1].toString()+", points[j]: "
 								+points[j].toString());
@@ -140,7 +142,7 @@ public class VoiceRecognitionPointsBuilder {
 					if(i > 0 && newOrderPoints[i-1].getIndex() < points[j].getIndex()-lengthLimit &&
 							newOrderPoints[i].getIndex() > points[j].getIndex()+lengthLimit) {
 						
-						Debug.debug(debugLevel,"VoiceRecognitionPointsBuilder Phase 3.0 i: "+i+", j: "
+						Debug.debug(debud_level_DEBUG,"VoiceRecognitionPointsBuilder Phase 3.0 i: "+i+", j: "
 								+j+ ", nop length: " +newOrderPoints.length +", newOrderPoints[i-1]: "
 								+newOrderPoints[i-1].toString()+", points[j]: "+points[j].toString()
 								+", newOrderPoints[i+1]: "+newOrderPoints[i].toString());
@@ -159,7 +161,7 @@ public class VoiceRecognitionPointsBuilder {
         }
         
         for(int i = 0 ; i < newOrderPoints.length; i++)
-        	Debug.debug(debugLevel,"VoiceRecognitionPointsBuilder newOrderPoints: "
+        	Debug.debug(debud_level_DEBUG,"VoiceRecognitionPointsBuilder newOrderPoints: "
         		+newOrderPoints[i].toString());
         
         return newOrderPoints;
@@ -172,12 +174,12 @@ public class VoiceRecognitionPointsBuilder {
 		int baseCounter = 0;
 		for(int i = 0; i < newPoints.length; i++) {
 			
-			Debug.debug(debugLevel,"VoiceRecognitionPointsBuilder addPoints i: " +i + ", index: "+index
+			Debug.debug(debud_level_DEBUG,"VoiceRecognitionPointsBuilder addPoints i: " +i + ", index: "+index
 				+ ", Point: "+point.toString());
 			
 			if(index == i) {
 				
-				Debug.debug(debugLevel,"VoiceRecognitionPointsBuilder addPoints addedPoint: " 
+				Debug.debug(debud_level_DEBUG,"VoiceRecognitionPointsBuilder addPoints addedPoint: " 
 						+point.toString());
 				newPoints[arrayCounter++] = point;
 
@@ -186,7 +188,7 @@ public class VoiceRecognitionPointsBuilder {
 		
 			newPoints[arrayCounter++] = inputPoints[baseCounter++];
 			
-			Debug.debug(debugLevel,"VoiceRecognitionPointsBuilder addPoints normal point: " 
+			Debug.debug(debud_level_DEBUG,"VoiceRecognitionPointsBuilder addPoints normal point: " 
 					+newPoints[arrayCounter-1]);	
 		}	
 			return newPoints;
@@ -199,7 +201,8 @@ public class VoiceRecognitionPointsBuilder {
 		for(int i = 0; i <  input.length; i = i+3) {
 			
 			points[i/3] = new Point(input[i],input[i+1],input[i+2]);
-			Debug.debug(debugLevel,"VoiceRecognitionPointsBuilder Point i: "+ (i/3) +", Point: "+ points[i/3]);
+			
+			Debug.debug(debud_level_DEBUG,"VoiceRecognitionPointsBuilder Point i: "+ (i/3) +", Point: "+ points[i/3]);
 		}
 		
 		return points;

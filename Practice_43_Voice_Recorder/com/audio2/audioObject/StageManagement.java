@@ -9,7 +9,10 @@ public class StageManagement {
 	private static String[] temp1;
 	private static String[] temp2;
 	
-	static String[] buildStages(ObjectSetup setups) {
+	private static int debug_level_INFO = 5;
+	private static int debud_level_DEBUG = 5;
+	
+	static String[] buildStages(ObjectSetup setups, String mainProfile) {
 		
 		temp1 = new String[0]; 
 		
@@ -19,7 +22,8 @@ public class StageManagement {
 		if(setups.isMultiAnalysis())
 			temp1 = addToArray(temp1, "analysis");
 		
-		if(setups.isVoiceRecognition())
+		if(setups.isVoiceRecognition() && mainProfile.equals("voiceRecognition") 
+			|| setups.isVoiceRecognition() && mainProfile.equals("voiceRecognitionDebug"))
 			temp1 = addToArray(temp1, "voiceCheck");
 		
 		if(setups.isSave())
@@ -27,7 +31,7 @@ public class StageManagement {
 	
 		temp1 = addToArray(temp1, "end");
 		
-		Debug.debug(1, "StageManagement buildStages: "+ Arrays.toString(temp1));
+		Debug.debug(debug_level_INFO, "StageManagement buildStages: "+ Arrays.toString(temp1));
 				
 		return temp1;
 	}
@@ -41,7 +45,7 @@ public class StageManagement {
 		
 		temp2[input.length] = addString;
 		
-		Debug.debug(1, "StageManagement addToArray old length: " + input.length +", old Array: "
+		Debug.debug(debud_level_DEBUG, "StageManagement addToArray old length: " + input.length +", old Array: "
 				+ Arrays.toString(input) + ", new array: "+ Arrays.toString(temp2));
 		
 		return temp2;

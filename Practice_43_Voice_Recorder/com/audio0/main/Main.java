@@ -2,6 +2,7 @@ package com.audio0.main;
 
 
 import com.audio1.logical.AllFeaturesEntryPoint;
+import com.audio7.threads.ThreadAction;
 import com.audio7.threads.ThreadManagement;
 import com.audio8.util.Debug;
 
@@ -33,7 +34,8 @@ public class Main {
 			
 			Debug.debug(6, "Main Threads Count: " + ThreadManagement.getThreadsCount());
 		}	
-			ThreadManagement.stopAllThreads();	
+		
+		ThreadManagement.threadActions.add(new ThreadAction("stopAllThreads",-1,null,null));
 	}
 	
 	public static void setStopAllThreads() {

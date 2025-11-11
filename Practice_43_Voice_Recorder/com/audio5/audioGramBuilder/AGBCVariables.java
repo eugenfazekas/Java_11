@@ -25,6 +25,8 @@ public class AGBCVariables {
 	static int avgMilisecCounter;
 	static int amplitudeHighest1;
 	static int amplitudeHighest2;
+	
+	private static int debug_level_INFO = 5;
 			
 	static void resetVariables(int id) {
 
@@ -47,7 +49,7 @@ public class AGBCVariables {
 		AGBCVariables.middle = new AudioGramObject(AGBCVariables.AVG_MILISEC_LENGTH);
 		AGBCVariables.last = new AudioGramObject(AGBCVariables.AVG_MILISEC_LENGTH); 
 		
-		Debug.debug(2,"AGBCVariables initAmplitudeDetaisl! AVG_MILISEC_LENGTH: " +AVG_MILISEC_LENGTH);
+		Debug.debug(debug_level_INFO,"AGBCVariables initAmplitudeDetaisl! AVG_MILISEC_LENGTH: " +AVG_MILISEC_LENGTH);
 	}
 }
 

@@ -10,6 +10,9 @@ public class StringArrayUtil {
 	private static String[] tempStringArray; 
 	private static StringBuilder stringBuilder;
 	
+	private static int debug_level_INFO = 5;
+	private static int debud_level_DEBUG = 5;
+	
 	static String[] convertIntArrayToStringArray(int[] intArray) {
 		
 		String[] stringArray = new String[intArray.length];
@@ -22,7 +25,8 @@ public class StringArrayUtil {
 	
 	static String[] convertInt2DToStringArray(int[][] int_2D_Array) {
 		
-		Debug.debug(3," 2d length: " +int_2D_Array.length);
+		Debug.debug(debug_level_INFO,"StringArrayUtil convertIntArrayToStringArray 2d length: " 
+				+int_2D_Array.length);
 		
 		StringBuilder builder =  new StringBuilder();
 		String[] returnArray = new String[544];
@@ -46,10 +50,11 @@ public class StringArrayUtil {
 				lastLength = lastLength+1;
 			}
 			
-			Debug.debug(3,"FileUtil convertInt2DToStringArray "
+			Debug.debug(debud_level_DEBUG,"FileUtil convertInt2DToStringArray "
 				+Arrays.toString(int_2D_Array[i]));
 		}
-		Debug.debug(3,"FileUtil convertInt2DToStringArray returnArray: "
+		
+		Debug.debug(debug_level_INFO,"FileUtil convertInt2DToStringArray returnArray: "
 			+returnArray.length +" arr[0] "+ returnArray[0]);
 		
 			return returnArray;
@@ -74,6 +79,7 @@ public class StringArrayUtil {
 		}
 		
 		mergedString = new String[counter1+ counter2];
+		
 		counter=0;
 		
 		for(int i = 0; i < counter1 ; i++ )
@@ -82,8 +88,8 @@ public class StringArrayUtil {
 		for(int i = 0; i < counter2 ; i++ ) 
 			mergedString[counter++] = b[i];			
 				
-		Debug.debug(3,"a.length: "+a.length + ", b.length: "+ b.length+ " new length: "
-			+mergedString.length);
+		Debug.debug(debug_level_INFO,"AudioBuilderUtil mergeStringsAndFilterNull a.length: "
+			+a.length + ", b.length: "+ b.length+ " new length: "+mergedString.length);
 		
 			return mergedString;
 	}
@@ -96,9 +102,8 @@ public class StringArrayUtil {
 		for (int i = 0; i < arraySize ; i++)
 			tempStringArray[i] = inputStringArray[i];
 		
-		Debug.debug(3,"AudioBuilderUtil filterEmptyStringsWithUnknownLength Array Name: "
-			+arrayNam+", old length: "+inputStringArray.length+", new length: "
-			+tempStringArray.length);
+		Debug.debug(debug_level_INFO,"AudioBuilderUtil filterEmptyStringsWithUnknownLength Array Name: "
+			+arrayNam+", old length: "+inputStringArray.length+", new length: "+tempStringArray.length);
 		
 			return tempStringArray;		
 	}
@@ -123,9 +128,8 @@ public class StringArrayUtil {
 		for(i = 0; i < counter; i++ )
 			tempStringArray[i] = inputStringArray[i]; 
 		
-		Debug.debug(3,"AudioBuilderUtil filterEmptyStringsWithUnknownLength Array Name: "
-				+arrayNam+", old length: "+inputStringArray.length+", new length: "
-				+tempStringArray.length);
+		Debug.debug(debug_level_INFO,"AudioBuilderUtil filterEmptyStringsWithUnknownLength Array Name: "
+			+arrayNam+", old length: "+inputStringArray.length+", new length: " +tempStringArray.length);
 		
 			return tempStringArray;
 	}
@@ -142,5 +146,4 @@ public class StringArrayUtil {
 		
 		return stringBuilder.toString();
 	}
-
 }

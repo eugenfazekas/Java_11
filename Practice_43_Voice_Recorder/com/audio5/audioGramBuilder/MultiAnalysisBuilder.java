@@ -13,6 +13,9 @@ public class MultiAnalysisBuilder {
 	private static int i;
 	private static int id;
 	public static AtomicBoolean building = new AtomicBoolean(false);
+	
+	private static int debug_level_INFO = 5;
+	private static int debud_level_DEBUG = 5;
     
 	private static void buildMultiWaveMap(int id) {
 				
@@ -36,7 +39,7 @@ public class MultiAnalysisBuilder {
 		
 		id = Id;
 
-		Debug.debug(3,"MultiAnalysisBuilder mainAnalysisBuilder started: " 
+		Debug.debug(debug_level_INFO,"MultiAnalysisBuilder mainAnalysisBuilder started: " 
 				+AudioAnalysisThread.startedVoiceCheck.get(id).getBuild()+" "
 				+AudioAnalysisThread.startedVoiceCheck.get(id).getNextStage().equals("analysis")+" "
 				+AppSetup.multiAnalysis);
@@ -48,7 +51,7 @@ public class MultiAnalysisBuilder {
 		
 		building.set(true);
 		
-		Debug.debug(3,"MultiAnalysisBuilder mainAnalysisBuilder started: ");
+		Debug.debug(debug_level_INFO,"MultiAnalysisBuilder mainAnalysisBuilder started: ");
 		Debug.startTime = System.currentTimeMillis();
 		
 		new AudioAnalysisPhaseBuilder();
@@ -61,7 +64,7 @@ public class MultiAnalysisBuilder {
 		
 		AudioAnalysisThread.startedVoiceCheck.get(id).setNextStage();
 
-		Debug.debug(3,"MultiAnalysisBuilder mainBuilder Elapsed Time: "
+		Debug.debug(debug_level_INFO,"MultiAnalysisBuilder mainBuilder Elapsed Time: "
 			+(System.currentTimeMillis() - Debug.startTime));	
 		
 		building.set(false);
@@ -82,7 +85,7 @@ public class MultiAnalysisBuilder {
 					AudioAnalysisThread.startedVoiceCheck.get(id).getIntStream()[i]);						
 		}
 		
-		Debug.debug(3,"MultiAnalysisBuilder first getPosCounter: "+AGBCVariables.first.getPosCounter()
+		Debug.debug(debug_level_INFO,"MultiAnalysisBuilder first getPosCounter: "+AGBCVariables.first.getPosCounter()
 			+",AGBCVariables.first.addNegCounter:  "+AGBCVariables.first.getNegCounter()
 			+", AGBCVariables.midddle.addPosCounter"
 			+ AGBCVariables.middle.getPosCounter() +", AGBCVariables.midddle.addNegCounter:"
@@ -112,10 +115,10 @@ public class MultiAnalysisBuilder {
 				AmplitudeDetails.calculateAVGAmplitude(
 						AGBCVariables.first, AGBCVariables.middle, AGBCVariables.last ),id);	
 		
-		Debug.debug(5, "MultiAnalysisBuilder phase_2_AmplitudeCheck AGBCVariables.first "
-				+ AGBCVariables.first.getPosAmplitude()+
-					" AGBCVariables.middle "+ AGBCVariables.middle.getPosAmplitude()+
-					  " AGBCVariables.last "+ AGBCVariables.last.getPosAmplitude());
+		Debug.debug(debud_level_DEBUG, "MultiAnalysisBuilder phase_2_AmplitudeCheck AGBCVariables.first "
+			+ AGBCVariables.first.getPosAmplitude()+" AGBCVariables.middle "
+			+ AGBCVariables.middle.getPosAmplitude()+" AGBCVariables.last "
+			+ AGBCVariables.last.getPosAmplitude());
 	}
 	
 	static void phase_2_FrequencyCheck() {  
@@ -157,7 +160,7 @@ public class MultiAnalysisBuilder {
 						, "amplitudeWaveMap");
 		
 		AudioAnalysisThread.startedVoiceCheck.get(id).setAmplitudeWaveMap(AGBCVariables.amplitudeWaveMap);
-		Debug.debug(2,"MultiAnalysisBuilder mainbuilder filtered amplitudeWaveMap Array: "
+		Debug.debug(debug_level_INFO,"MultiAnalysisBuilder mainbuilder filtered amplitudeWaveMap Array: "
 			+ Arrays.toString(AudioAnalysisThread.startedVoiceCheck.get(id).getAmplitudeWaveMap()));	
 	}
 	 
@@ -167,7 +170,7 @@ public class MultiAnalysisBuilder {
 			AGBCVariables.frequencyWaveMap
 			,AGBCVariables.frequencyWaveMapCounter,"frequencyWaveMap");
 		
-		Debug.debug(2,"MultiAnalysisBuilder mainbuilder filtered frequencyWaveMap Array: "
+		Debug.debug(debug_level_INFO,"MultiAnalysisBuilder mainbuilder filtered frequencyWaveMap Array: "
 
 			+ Arrays.toString(AGBCVariables.frequencyWaveMap));
 		
@@ -185,11 +188,11 @@ public class MultiAnalysisBuilder {
 			AudioGramUtil.removeSpikes(
 				AudioAnalysisThread.startedVoiceCheck.get(id).getFrequencyWaveMap(),1));	
 		
-		Debug.debug(2,"MultiAnalysisBuilder mainbuilder phase_4_Amplitude spykeRemove Array: "
+		Debug.debug(debug_level_INFO,"MultiAnalysisBuilder mainbuilder phase_4_Amplitude spykeRemove Array: "
 
 			+ Arrays.toString(AGBCVariables.amplitudeWaveMap));
 		
-		Debug.debug(2,"MultiAnalysisBuilder mainbuilder phase_4_Frequency spykeRemove Array: "
+		Debug.debug(debug_level_INFO,"MultiAnalysisBuilder mainbuilder phase_4_Frequency spykeRemove Array: "
 
 			+ Arrays.toString(AGBCVariables.mappedFrequencyArray));				
 	}
@@ -200,7 +203,7 @@ public class MultiAnalysisBuilder {
 			AudioGramUtil.optimezeAmplitudeMapHeight(
 				AudioAnalysisThread.startedVoiceCheck.get(id).getAmplitudeWaveMap()));
 		
-		Debug.debug(2,"MultiAnalysisBuilder mainbuilder AmplitudeOptimizing amplitudeWaveMap Array: "
+		Debug.debug(debug_level_INFO,"MultiAnalysisBuilder mainbuilder AmplitudeOptimizing amplitudeWaveMap Array: "
 			+ Arrays.toString(AudioAnalysisThread.startedVoiceCheck.get(id).getAmplitudeWaveMap()));
 	}
 
@@ -214,12 +217,10 @@ public class MultiAnalysisBuilder {
 				AudioGramUtil.buildAvgArray(
 					AudioAnalysisThread.startedVoiceCheck.get(id).getFrequencyWaveMap(),AppSetup.avglength));
 		
-		Debug.debug(2,"MultiAnalysisBuilder mainbuilder phase_4_Amplitude buildAvgMaps Array: "
-
+		Debug.debug(debug_level_INFO,"MultiAnalysisBuilder mainbuilder phase_4_Amplitude buildAvgMaps Array: "
 			+ Arrays.toString(AudioAnalysisThread.startedVoiceCheck.get(id).getAmplitudeWaveMap()));
 		
-		Debug.debug(2,"MultiAnalysisBuilder mainbuilder phase_4_Frequency buildAvgMaps Array: "
-
+		Debug.debug(debug_level_INFO,"MultiAnalysisBuilder mainbuilder phase_4_Frequency buildAvgMaps Array: "
 			+ Arrays.toString(AudioAnalysisThread.startedVoiceCheck.get(id).getFrequencyWaveMap()));
 	}
 			
@@ -232,7 +233,7 @@ public class MultiAnalysisBuilder {
 		AudioAnalysisThread.startedVoiceCheck.get(id)
 			.setMySpektrogramMap(MySpketrogramDetails.spektrogramMap);
 		
-		Debug.debug(2,"MultiAnalysisBuilder mainbuilder filtered spektrogramMap Array Length: " 
+		Debug.debug(debug_level_INFO,"MultiAnalysisBuilder mainbuilder filtered spektrogramMap Array Length: " 
 			+ MySpketrogramDetails.spektrogramMap.length 
 			+ " Array: "+ Arrays.toString(MySpketrogramDetails.spektrogramMap));
 	}

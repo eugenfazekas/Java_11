@@ -4,7 +4,9 @@ import com.audio0.main.AppSetup;
 import com.audio4.audioGramInitializer.mainInit.AudioAnalysisThread;
 import com.audio8.util.Debug;
 
-public class AmplitudeDetails {	 
+public class AmplitudeDetails {	
+	
+	private static int debud_level_DEBUG = 5;
 	 
 	static void addToAmplitudeWaveMap(int amplitude, int id ) {	 	
 			 
@@ -12,7 +14,7 @@ public class AmplitudeDetails {
 			getPercentAmplitude(AudioAnalysisThread
 					.startedVoiceCheck.get(id).getAverageAmplitude(),amplitude);
 
-		 Debug.debug(5,"AmplitudeDetails addToAmplitudeWaveMap amplitudeBuffer total: "
+		 Debug.debug(debud_level_DEBUG,"AmplitudeDetails addToAmplitudeWaveMap amplitudeBuffer total: "
 			+ " avg: "+amplitude
 			+" ,AnalysisInitializer.waveCounter: "+AGBCVariables.amplitudeWaveMapCounter+", amplitude: "
 			+ AGBCVariables.amplitudeWaveMap[AGBCVariables.amplitudeWaveMapCounter-1]);		
@@ -23,7 +25,7 @@ public class AmplitudeDetails {
 		AGBCVariables.percentAmplitudeResult 
 				=(int) (input/((average/100)* AppSetup.AMPLITUDE_AVERAGE_CORRECTION_KONSTANT))+1; 
 		
-		Debug.debug(5,"AmplitudeDetails getPercentAmplitude avg: "+average + ", input: "+input 
+		Debug.debug(debud_level_DEBUG,"AmplitudeDetails getPercentAmplitude avg: "+average + ", input: "+input 
 				+ ", percentAmplitudeResult: "+AGBCVariables.percentAmplitudeResult);
 		
 			return AGBCVariables.percentAmplitudeResult;

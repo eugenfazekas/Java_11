@@ -31,7 +31,7 @@ public class VRPMainLogic {
 		fakeBuffer = 1;
 		fakeBufferMultiplier = 1;
 		
-		Debug.debug(1,"VRPMainLogic checkInput.length: "+checkInput.length + ", dbInput.length: "
+		Debug.debug(debugLevel,"VRPMainLogic checkInput.length: "+checkInput.length + ", dbInput.length: "
 			+dbInput.length);
 		
 		for(i = 0; i < checkInput.length; i = i+2) {
@@ -89,7 +89,7 @@ public class VRPMainLogic {
 		
 		result = (float) resultBuffer/(resultBufferCounter + fakeBuffer);
 		
-		Debug.debug(1,"VRPMainLogic final result: "+ result + ", resultBuffer: " +resultBuffer 
+		Debug.debug(debugLevel,"VRPMainLogic final result: "+ result + ", resultBuffer: " +resultBuffer 
 			+ ", resultBufferCounter: " +resultBufferCounter+ ", fakeBuffer: "+fakeBuffer 
 			+", fakeBufferMultiplier: "+fakeBufferMultiplier);
 		

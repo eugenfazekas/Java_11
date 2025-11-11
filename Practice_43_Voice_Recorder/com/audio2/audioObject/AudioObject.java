@@ -35,6 +35,9 @@ public class AudioObject {
 	private int[][] voiceReconitionCheckSlopesArray;
 	private int[][][] voiceReconitionCheckAreaArray;
 	private int[] voiceReconitionCheckScanArray;
+	
+	private static int debug_level_INFO = 1;
+	private static int debud_level_DEBUG = 5;
 			
 	public AudioObject(byte[] byteStream, int[] intStream, int[] ampMap, int[] freqMap,
 			String speechName, AudioFormat audioFormat, int averageAmplitude, String mainProfile) {
@@ -50,10 +53,10 @@ public class AudioObject {
 		this.build = true;
 		this.mainProfile = mainProfile;
 		this.objectSetup = new ObjectSetup();
-		this.stages = StageManagement.buildStages(objectSetup);
+		this.stages = StageManagement.buildStages(objectSetup , this.mainProfile);
 		this.nextStage = this.stages[0];
 
-		Debug.debug(1,toString());
+		Debug.debug(debug_level_INFO,toString());
 	}
 
 	public int getId() {
@@ -107,7 +110,7 @@ public class AudioObject {
 				break;			
 			}	
 		
-		Debug.debug(1, "AudioObject id: "+getId() + ", next Stage: "+ getNextStage());
+		Debug.debug(debud_level_DEBUG, "AudioObject id: "+getId() + ", next Stage: "+ getNextStage());
 		return this;
 	}
 

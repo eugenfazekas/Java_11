@@ -9,6 +9,8 @@ public class VoiceCheckModel {
 	public float [][][] sortedResults;
 	private int baseTestsCounter;
 	private int finishedTestsCounter;
+
+	private static int debud_level_DEBUG = 5;
 	
 	public VoiceCheckModel(int Id , int testsCounter) {
 		
@@ -36,7 +38,7 @@ public class VoiceCheckModel {
 	
 	public void setSortResult(float[][] sortResult, int setIndex) {	
 		
-		Debug.debug(1, "VoiceCheckModel setSortResult: "+ setIndex);
+		Debug.debug(debud_level_DEBUG, "VoiceCheckModel setSortResult: "+ setIndex);
 		this.sortedResults[setIndex] = sortResult;
 	}
 	

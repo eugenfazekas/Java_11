@@ -99,7 +99,7 @@ public class AppSetup {
 		
 	    amplitudeRefinary = true;  frequencyRefinary = false;  preTrim = true; amplitudeTrim = true;
 	    frequencyTrim = false; continueWithNoTrim = false;amplitudeGram = true;frequencyGram = true;
-	    multiAnalysis = true; mySpektrogram = true; spektrogram = true;
+	    multiAnalysis = true; mySpektrogram = true; spektrogram = true; voiceRecognition = true;
 	    buildSequenceArray = true; rawAudioData = true; voiceRecognitionData = true; wave = true;
 	    deleteCheck = true; voiceRecognitionPointsData = true; voiceRecognitionSlopesData = true;
 	    voiceRecognitionAreaData = true; voiceRecognitionScanData = true; save = true;
@@ -113,7 +113,7 @@ public class AppSetup {
 	    spektrogram = false; buildSequenceArray = false; rawAudioData = false; voiceRecognitionData = true;
 	    wave = false; voicePointsRecognition = true; voiceSlopesRecognition = true; voiceAreaRecognition = true;
 	    voiceScanRecognition = true; voiceRecognitionPointsData = true; voiceRecognitionSlopesData = true; 
-	    voiceRecognitionAreaData = true; voiceRecognitionScanData = true; 
+	    voiceRecognitionAreaData = true; voiceRecognitionScanData = true; save = false;
 	}
 	
 	public static void activateVoiceRecognitionDebugProfile(){
@@ -135,7 +135,7 @@ public class AppSetup {
 		save = true;
 	}
 	
-	public static void activateBuildSequenceFromFrequncyListFromFileProfile(){
+	public static void activateBuildSequenceFromFileProfile(){
 		
 		amplitudeGram = true; frequencyGram = true; multiAnalysis = true; mySpektrogram = true;
 		spektrogram = true; buildSequenceArray = true; rawAudioData = true;

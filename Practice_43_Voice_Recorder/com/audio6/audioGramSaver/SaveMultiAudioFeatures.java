@@ -23,11 +23,13 @@ public class SaveMultiAudioFeatures {
 	public static LinkedList<DeleteLastDataModel> deleteList = new LinkedList<>();
 	public static AtomicBoolean building = new AtomicBoolean(false);
 	
+	private static int debug_level_INFO = 5;
+	
 	public static void mainSave(String Main_path, int Id) {
 
         id = Id;
         
-		Debug.debug(1,"SaveMultiAudioFeatures id: " +id
+		Debug.debug(debug_level_INFO,"SaveMultiAudioFeatures id: " +id
 			+", Build: "+AudioAnalysisThread.startedVoiceCheck.get(id).getBuild()+", equals save: "
 			+ AudioAnalysisThread.startedVoiceCheck.get(id).getNextStage().equals("save") 
 			+", MultiAnalysis:  " + AppSetup.multiAnalysis +" "
@@ -52,7 +54,7 @@ public class SaveMultiAudioFeatures {
         SUB_PATH =  SaveMultiAudioFeaturesUtil.getSubPath(); 
 		speechName = AudioAnalysisThread.startedVoiceCheck.get(id).getSpeechName();
 		
-		Debug.debug(1,"SaveMultiAudioFeatures mainSave: "+MAIN_PATH+SUB_PATH+speechName);
+		Debug.debug(debug_level_INFO,"SaveMultiAudioFeatures mainSave: "+MAIN_PATH+SUB_PATH+speechName);
 		
 		DeleteLastAnalysisBuilder.resetSavedData();
 		
@@ -71,7 +73,7 @@ public class SaveMultiAudioFeatures {
 		
 		AudioAnalysisThread.startedVoiceCheck.get(id).setNextStage();
 
-		Debug.debug(1,"SaveMultiAudioFeatures mainSave cycle time: "
+		Debug.debug(debug_level_INFO,"SaveMultiAudioFeatures mainSave cycle time: "
 				+(System.currentTimeMillis()-Debug.startTime));
 		
 		building.set(false);
@@ -119,7 +121,7 @@ public class SaveMultiAudioFeatures {
 	
 	private static void saveMySpektroGramm() {
 		
-		Debug.debug(1,"SaveMultiAudioFeatures mainSave spek id "+ id+","
+		Debug.debug(debug_level_INFO,"SaveMultiAudioFeatures mainSave spek id "+ id+","
 				+Arrays.toString(AudioAnalysisThread.startedVoiceCheck.get(id).getMySpektrogramMap()));
 		
 		if(AudioAnalysisThread.startedVoiceCheck.get(id).getMySpektrogramMap() != null && AppSetup.mySpektrogram) {
@@ -244,7 +246,7 @@ public class SaveMultiAudioFeatures {
 		if(AudioAnalysisThread.startedVoiceCheck.get(id).getIntStream() == null &&
 				AudioAnalysisThread.startedVoiceCheck.get(id).getByteStream() ==  null	) {
 			
-			Debug.debug(1,"SaveMultiAudioFeatures mainSave spek id "+ id
+			Debug.debug(debug_level_INFO,"SaveMultiAudioFeatures mainSave spek id "+ id
 				+", saveAudioStream  NO STREAM TO WRITE! ");
 			
 			return;

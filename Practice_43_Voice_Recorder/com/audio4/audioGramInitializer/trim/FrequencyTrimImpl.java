@@ -24,7 +24,8 @@ public class FrequencyTrimImpl implements AudioTrim{
 	static int counter;
 	static int i;
 	static int amplitude;
-	final static int debugLevel = 3;
+	
+	private static int debug_level_INFO = 5;
 	
 	public FrequencyTrimImpl (int id,int[] inputIntArray) {
 
@@ -46,7 +47,7 @@ public class FrequencyTrimImpl implements AudioTrim{
 				(int)AudioAnalysisThread.startedVoiceCheck.get(id).getAudioFormat().getSampleRate()
 					,AppSetup.AUDIO_BUFFER_MILISEC_LENGTH);
 
-		Debug.debug(3,"FrequencyTrimImpl buildTrimSequenceBorders id: "+id + ", AVG_MILISEC_LENGTH: " 
+		Debug.debug(debug_level_INFO,"FrequencyTrimImpl buildTrimSequenceBorders id: "+id + ", AVG_MILISEC_LENGTH: " 
 				+ AVG_MILISEC_LENGTH);
 		
 		if(AudioAnalysisThread.startedVoiceCheck.get(id).getFrequencyWaveMap() != null) {
@@ -67,9 +68,9 @@ public class FrequencyTrimImpl implements AudioTrim{
 		
 		 AudioTrimSelector.setZeroMultiTrimVariables();
 		
-		Debug.debug(3,"FrequencyTrimImpl buildTrimSequenceBorders id: "+id+", Array old Length: " 
+		Debug.debug(debug_level_INFO,"FrequencyTrimImpl buildTrimSequenceBorders id: "+id+", Array old Length: " 
 				+inputIntArray.length);		
-		Debug.debug(3,"FrequencyTrimImpl buildTrimSequenceBorders id: "+id+", Array new Length: " 
+		Debug.debug(debug_level_INFO,"FrequencyTrimImpl buildTrimSequenceBorders id: "+id+", Array new Length: " 
 				+ ((borders[4]*AVG_MILISEC_LENGTH) - (borders[1]*AVG_MILISEC_LENGTH)) );
 		
 		if(AppSetup.voiceAreaRecognition && AppSetup.frequencyTrim ) {
@@ -85,21 +86,21 @@ public class FrequencyTrimImpl implements AudioTrim{
 				frequencysTemp[counter++] = frequencys[i];		
 			}
 			
-			Debug.debug(3,"FrequencyTrimImpl buildTrimSequenceBorders voiceAreaRecognition id: "+id+
+			Debug.debug(debug_level_INFO,"FrequencyTrimImpl buildTrimSequenceBorders voiceAreaRecognition id: "+id+
 				", Amplitude Array old Length: " +amplitudes.length + ", Amplitude Array: " 
 				+ Arrays.toString(amplitudes));
 			
-			Debug.debug(3,"FrequencyTrimImpl buildTrimSequenceBorders voiceAreaRecognition id: "+id+
-					", Amplitude Array new Length: " +amplitudesTemp.length+ ", Amplitude Array: " 
-					+ Arrays.toString(amplitudesTemp));
+			Debug.debug(debug_level_INFO,"FrequencyTrimImpl buildTrimSequenceBorders voiceAreaRecognition id: "+id+
+				", Amplitude Array new Length: " +amplitudesTemp.length+ ", Amplitude Array: " 
+				+ Arrays.toString(amplitudesTemp));
 			
-			Debug.debug(3,"FrequencyTrimImpl buildTrimSequenceBorders voiceAreaRecognition id: "+id
-					+", Frequency Array old Length: " +frequencys.length+ ", Amplitude Array: " 
-					+ Arrays.toString(frequencys));
+			Debug.debug(debug_level_INFO,"FrequencyTrimImpl buildTrimSequenceBorders voiceAreaRecognition id: "+id
+				+", Frequency Array old Length: " +frequencys.length+ ", Amplitude Array: " 
+				+ Arrays.toString(frequencys));
 			
-			Debug.debug(3,"FrequencyTrimImpl buildTrimSequenceBorders voiceAreaRecognition id: "+id
-					+", Frequency Array new Length: " +frequencysTemp.length
-					+ ", Amplitude Array: " + Arrays.toString(frequencysTemp));
+			Debug.debug(debug_level_INFO,"FrequencyTrimImpl buildTrimSequenceBorders voiceAreaRecognition id: "+id
+				+", Frequency Array new Length: " +frequencysTemp.length
+				+ ", Amplitude Array: " + Arrays.toString(frequencysTemp));
 			
 			AudioAnalysisThread.startedVoiceCheck.get(id).setAmplitudeWaveMap(amplitudesTemp);
 			AudioAnalysisThread.startedVoiceCheck.get(id).setFrequencyWaveMap(frequencysTemp);

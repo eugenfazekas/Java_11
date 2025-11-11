@@ -27,6 +27,9 @@ public class VoiceRecognitionMain {
 	private static int readedVoiceArrrayCounter = 0;
 	public static AtomicBoolean building = new AtomicBoolean(false);
 	
+	private static int debug_level_INFO = 5;
+	private static int debud_level_DEBUG = 5;
+	
 	public static void main(int id) {
 		
 		if(AudioAnalysisThread.startedVoiceCheck.get(id).getBuild() == false 
@@ -78,7 +81,7 @@ public class VoiceRecognitionMain {
 		if(AppSetup.voiceScanRecognition)
 			testsLength++;
 		
-		Debug.debug(1, "VoiceRecognitionMain setVoiceRecognitionTestsLength: " +testsLength+ "!");
+		Debug.debug(debug_level_INFO, "VoiceRecognitionMain setVoiceRecognitionTestsLength: " +testsLength+ "!");
 		
 			return testsLength;
 	}
@@ -106,7 +109,7 @@ public class VoiceRecognitionMain {
 					AppSetup.VOICE_RECOGNITION_POINTS_CORRECTION_KONSTANT
 					* (startedVoiceCheck.get(id).sortedResults[0][0][startedVoiceCheck.get(id).sortedResults[0][0].length-sortParam] / 
 					   startedVoiceCheck.get(id).sortedResults[0][1][startedVoiceCheck.get(id).sortedResults[0][1].length-sortParam] );
-			Debug.debug(1, "VoiceRecognitionMain 1 " 
+			Debug.debug(debug_level_INFO, "VoiceRecognitionMain 1 " 
 					   +startedVoiceCheck.get(id).sortedResults[0][0][startedVoiceCheck.get(id).sortedResults[0][0].length-sortParam] 
 				+ ", 2: "+ startedVoiceCheck.get(id).sortedResults[0][1][startedVoiceCheck.get(id).sortedResults[0][1].length-sortParam]);
 			mainResult[1] = startedVoiceCheck.get(id).sortedResults[0][0][startedVoiceCheck.get(id).sortedResults[0][0].length-2];
@@ -156,11 +159,13 @@ public class VoiceRecognitionMain {
 		
 		AudioAnalysisThread.startedVoiceCheck.get(id).setNextStage();
 		
-		if(VoiceRecognitionDB.DB_NAMES.get((int)tempResult[1])!=null)
+		if(VoiceRecognitionDB.DB_NAMES.get((int)tempResult[1])!= null)
 		readedVoiceArrray.put(readedVoiceArrrayCounter++, VoiceRecognitionDB.DB_NAMES.get((int)tempResult[1]));
 		
 		Debug.debug(1, "VoiceRecognitionMain buildMainResultBuilder MatchPercent: "+ tempResult[0] 
 			+ ", Match Name-: "+ VoiceRecognitionDB.DB_NAMES.get((int)tempResult[1]));
+		
+		startedVoiceCheck.remove(id);
 	}
 
 	private static void sortResults(int id) {
@@ -186,7 +191,7 @@ public class VoiceRecognitionMain {
     	int counter = 0;
 		for(int i = 0; i < sortResult.length; i++) {
 			
-			Debug.debug(3, "VoiceRecognitionMain sort i: "+i +", result[i][result[i].length-sortParam-1] "
+			Debug.debug(debud_level_DEBUG, "VoiceRecognitionMain sort i: "+i +", result[i][result[i].length-sortParam-1] "
 					+sortResult[i][sortResult[i].length-sortParam]+ ", Array: "+Arrays.toString(sortResult[i]));
 			if(sortResult[i][sortResult[i].length-sortParam] > highest[highest.length-sortParam]) {	
 						highest = sortResult[i];
@@ -194,7 +199,7 @@ public class VoiceRecognitionMain {
 			}
 					
 			if(i == sortResult.length-1) {
-				Debug.debug(3, "VoiceRecognitionMain sort i: "+i +", highest: "+Arrays.toString(highest) +", counter: "+counter 
+				Debug.debug(debud_level_DEBUG, "VoiceRecognitionMain sort i: "+i +", highest: "+Arrays.toString(highest) +", counter: "+counter 
 					+  ", array[counter]: "+ Arrays.toString(sortResult[counter]));
 				sortResult[highestpos] = sortResult[counter];
 				sortResult[counter++] = highest;
@@ -202,8 +207,7 @@ public class VoiceRecognitionMain {
 				highest = sortResult[counter];
 				highestpos = counter;
 			}
-		}
-		
-		return sortResult;
+		}		
+			return sortResult;
 	}	
 }

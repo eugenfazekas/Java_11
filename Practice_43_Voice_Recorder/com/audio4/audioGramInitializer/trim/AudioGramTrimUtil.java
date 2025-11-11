@@ -25,7 +25,8 @@ public class AudioGramTrimUtil {
 	private static float mag_buffer;
 //	private static Frequency[] frequencys;
 //	private static Frequency[] tempFrequencys;
-	private static int debugLevel = 5;
+	private static int debug_level_INFO = 5;
+	private static int debud_level_DEBUG = 5;
 	
 	private static void buildDoubleArray(int[] intStream) {
 		
@@ -36,7 +37,7 @@ public class AudioGramTrimUtil {
         }
 		
         normalizedStream = new double[paddedLength];
-        Debug.debug(debugLevel,"AudioGramTrimUtil buildDoubleArray normalizedStream.length: "
+        Debug.debug(debug_level_INFO,"AudioGramTrimUtil buildDoubleArray normalizedStream.length: "
         		+normalizedStream.length + ", intStream.length: " + intStream.length);
         for (i = 0; i < paddedLength; i++) {
             normalizedStream[i] = intStream[i] / 32768.0;
@@ -56,7 +57,7 @@ public class AudioGramTrimUtil {
         i=0;
        // i = (paddedLength - (3*intStream1.length))/2 ;
         
-        Debug.debug(debugLevel,"AudioGramTrimUtil buildDoubleArray i: "+i+ ", intStream1.length: "
+        Debug.debug(debug_level_INFO,"AudioGramTrimUtil buildDoubleArray i: "+i+ ", intStream1.length: "
         +intStream1.length+", i+ data: "+(i+(3 *intStream1.length))+", paddedLength: "+paddedLength);
         
         counter = 0;
@@ -81,7 +82,7 @@ public class AudioGramTrimUtil {
         	normalizedStream[i++] = intStream3[counter++] / 32768.0;
         }
         
-        Debug.debug(debugLevel,"AudioGramTrimUtil buildDoubleArray i: "+i + ", paddedLength: "
+        Debug.debug(debug_level_INFO,"AudioGramTrimUtil buildDoubleArray i: "+i + ", paddedLength: "
         		+paddedLength);
 	}
 	
@@ -108,14 +109,14 @@ public class AudioGramTrimUtil {
         	mag_buffer += magnitude; 
         	counter++;
          
-            Debug.debug(debugLevel,"AudioGramTrimUtil getFrecvencys Frequency: " + frequency 
+            Debug.debug(debud_level_DEBUG,"AudioGramTrimUtil getFrecvencys Frequency: " + frequency 
             		+ " Hz, Magnitude: " + magnitude);
         }
        
     	result = mag_buffer / counter > AppSetup.FFT_MAGNITUDE_LIMIT ?  new int[] 
     			{0, (int)(mag_x_freqbuffer / mag_buffer) } : new int[]{0,20};
 
-    	Debug.debug(debugLevel,"AudioGramTrimUtil getFrecvencys result: "+ result[1]);
+    	Debug.debug(debug_level_INFO,"AudioGramTrimUtil getFrecvencys result: "+ result[1]);
         return result;
 	}
 	
@@ -145,15 +146,15 @@ public class AudioGramTrimUtil {
     
     static byte[] buildAudiodDataFromInt(int[] intStream)	{
 		
-		Debug.debug(3,"AudioGramTrimUtil buildAudiodDataFromInt intSream.Length: "
+		Debug.debug(debug_level_INFO,"AudioGramTrimUtil buildAudiodDataFromInt intSream.Length: "
 			+intStream.length);
 		
 		return convertIntArrayToByteArray(intStream);
 	}
     
-	static int[]  buildSequenceBorders(int[] input, int length, int  startLimit, int endLimit) {
+	static int[] buildSequenceBorders(int[] input, int length, int  startLimit, int endLimit) {
 		
-		Debug.debug(1,"AudioGramUtil buildSequenceBorders input Array:  "  + Arrays.toString(input));
+		Debug.debug(debug_level_INFO,"AudioGramUtil buildSequenceBorders input Array:  "  + Arrays.toString(input));
 		int start = 0;
 		int end = 0;
 		int[] result;
@@ -174,7 +175,7 @@ public class AudioGramTrimUtil {
 		}
 		
 		result = new int[] {1,start,input[start], -1,end,input[end]};
-		Debug.debug(1,"AudioGramUtil buildSequenceBorders "+ Arrays.toString(result));
+		Debug.debug(debug_level_INFO,"AudioGramUtil buildSequenceBorders "+ Arrays.toString(result));
 		
 		return result;
 	}
@@ -190,7 +191,7 @@ public class AudioGramTrimUtil {
 			byte_stram[counter++] = (byte) intStream[i] ;
 		}
 		
-		Debug.debug(2,"AudioGramTrimUtil convertIntArrayToByteArray byte_Sequence.length "
+		Debug.debug(debug_level_INFO,"AudioGramTrimUtil convertIntArrayToByteArray byte_Sequence.length "
 			+byte_stram.length);
 		
 			return byte_stram;

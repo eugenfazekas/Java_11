@@ -2,10 +2,13 @@ package com.audio5.recognition.area;
 
 import java.util.Arrays;
 
+import com.audio1.logical.EntryPointMethods;
 import com.audio5.recognition.VoiceRecognitionDB;
 import com.audio5.recognition.VoiceRecognitionMain;
 import com.audio7.threads.MyThread;
+import com.audio7.threads.ThreadAction;
 import com.audio7.threads.ThreadManagement;
+import com.audio7.threads.util.ThreadObjectDetails;
 import com.audio8.util.Debug;
 
 
@@ -16,6 +19,7 @@ public class VoiceRecognitionAreaCheck implements MyThread {
 	public static boolean threadIsActive;
 	public boolean threadIsSuspended;
 	final private static String THREAD_NAME = "VoiceRecognitionAreaCheck"; 
+	ThreadObjectDetails threadObject; 
 	
 	private static int checkArray[][][];
 	private static float[][] tempResultVerifier;
@@ -27,11 +31,15 @@ public class VoiceRecognitionAreaCheck implements MyThread {
 	private static int globalBestPosition;
 	private static float globalBestValue;
 	
+	private static int debug_level_INFO = 5;
+	private static int debud_level_DEBUG = 5;
+	
 	public VoiceRecognitionAreaCheck (int Id, int[][][] Check) {
 		
 		id = Id;
 		checkArray = Check;
 		
+		threadObject = new ThreadObjectDetails(THREAD_NAME, true);
 		threadIsActive = true;
 		threadIsSuspended = false;
 		thread = new Thread(this);
@@ -41,16 +49,27 @@ public class VoiceRecognitionAreaCheck implements MyThread {
 	@Override
 	public void run() {
 
-		Thread.currentThread().setName(THREAD_NAME);		
-		ThreadManagement.addingThread(this);
+		Thread.currentThread().setName(THREAD_NAME);
+		
+		ThreadManagement.threadActions.add(
+				new ThreadAction("addingThread",-1,EntryPointMethods.getSvitch(),this));
 
-		Debug.debug(1,"Starting "+Thread.currentThread().getName() +" Thread!");
+		Debug.debug(debug_level_INFO,"Starting "+Thread.currentThread().getName() +" Thread!");
 		
 		while(threadIsActive) {
 			
 			suspendThread();
 			
-			mainVoiceFinder(checkArray);
+			 try {		    
+					mainVoiceFinder(checkArray);
+		    
+		    } catch (Exception ex) {
+		    	
+	            Debug.debug(debud_level_DEBUG,"DebugException in VoiceRecognitionAreaCheck! " +ex.getMessage());  
+
+	    		ThreadManagement.threadActions.add(
+	    				new ThreadAction("stopAllThreads",-1,EntryPointMethods.getSvitch(),this));
+		    }
 		}
 					
 		thread = null;	
@@ -97,19 +116,19 @@ public class VoiceRecognitionAreaCheck implements MyThread {
 					tempResultVerifier[i][j+3] = i;
 					tempResultVerifier[i][j+4] = localBestPosition;
 					
-					Debug.debug(3, "VoiceRecognitionAreaCheck mainVoiceFinder Match Word: "
+					Debug.debug(debud_level_DEBUG, "VoiceRecognitionAreaCheck mainVoiceFinder Match Word: "
 						+VoiceRecognitionDB.DB_NAMES.get(i)+", avg: "+(j+1)+ ", Added "
 						+Arrays.toString(tempResultVerifier[i])+ ", Break\n");
 				}						
 			}
 		}
 		
-		Debug.debug(3, "VoiceRecognitionAreaCheck mainVoiceFinder Actual bestMatch: " 
+		Debug.debug(debud_level_DEBUG, "VoiceRecognitionAreaCheck mainVoiceFinder Actual bestMatch: " 
 			+ VoiceRecognitionDB.DB_NAMES.get(globalBestName)+ ", globalBestPosition: "
 			+globalBestPosition+", globalBestValue: "+globalBestValue+", Voice Finder Elapsed Time: " 
 			+(System.currentTimeMillis() - Debug.startTime));
 		
-		Debug.debug(3, "VoiceRecognitionAreaCheck tempResultVerifier.length: " + tempResultVerifier.length);
+		Debug.debug(debud_level_DEBUG, "VoiceRecognitionAreaCheck tempResultVerifier.length: " + tempResultVerifier.length);
 		
 		VoiceRecognitionMain.addToCheckResult(id, 2, tempResultVerifier);
 		
@@ -166,9 +185,9 @@ public class VoiceRecognitionAreaCheck implements MyThread {
 	}
 	
 	@Override
-	public String getThreadName() {
-		
-		return THREAD_NAME;
+	public ThreadObjectDetails getThreadObjectDetails() {
+
+		return threadObject;
 	}
 }
 

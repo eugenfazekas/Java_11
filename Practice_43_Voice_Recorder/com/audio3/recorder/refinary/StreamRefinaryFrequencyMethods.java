@@ -36,9 +36,9 @@ public class StreamRefinaryFrequencyMethods {
     private static AudioGramObject firstBuffer;
     private static AudioGramObject middleBuffer;
     private static AudioGramObject lastBuffer;
-
-    
-	//public static float[] frequencySampleLengths;
+   
+	private static int debug_level_INFO = 5;
+	private static int debud_level_DEBUG = 5;
     	
 	public StreamRefinaryFrequencyMethods () {
 			
@@ -106,7 +106,7 @@ public class StreamRefinaryFrequencyMethods {
 			if(middleBuffer != null)
 				lastBuffer = new AudioGramObject(F_AVG_MILISEC_LENGTH);
 			
-			Debug.debug(5,"StreamRefinaryFrequencyMethods prebuildMsecCheck fBuff: "+
+			Debug.debug(debud_level_DEBUG,"StreamRefinaryFrequencyMethods prebuildMsecCheck fBuff: "+
 					(firstBuffer == null) + ", mBuff: " +(middleBuffer == null)+ ", lBuff: "
 					+ (firstBuffer == null));
 		}
@@ -149,7 +149,7 @@ public class StreamRefinaryFrequencyMethods {
 			freqMap[freqMapCounter++] = inputFrecMap[i];
 		}
 
-		Debug.debug(5,"StreamRefinaryFrequencyMethods addToFrequencyMap oldLength: "
+		Debug.debug(debug_level_INFO,"StreamRefinaryFrequencyMethods addToFrequencyMap oldLength: "
 			+(freqMapCounter-inputLength)+", New frequencyMap Length: "+freqMapCounter);
 	}
 	
@@ -185,9 +185,9 @@ public class StreamRefinaryFrequencyMethods {
 		
 		for(int i = 0; i < tempFreqMapCounter; i = i+2) {
 			
-			Debug.debug(5, "StreamRefinaryFrequencyMethods validVoiceCheck i "+ i 
+			Debug.debug(debug_level_INFO, "StreamRefinaryFrequencyMethods validVoiceCheck i "+ i 
 					+ ", tempAmpFreqMap[i]: "+tempFreqMap[i]);
-			Debug.debug(5, "StreamRefinaryFrequencyMethods validVoiceCheck i "+ i 
+			Debug.debug(debug_level_INFO, "StreamRefinaryFrequencyMethods validVoiceCheck i "+ i 
 					+ ", tempAmpFreqMap[i+1]: "+tempFreqMap[i+1]);
 			
 			if(tempFreqMap[i+1] >30) 

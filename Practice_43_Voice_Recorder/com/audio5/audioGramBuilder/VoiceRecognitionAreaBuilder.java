@@ -13,7 +13,8 @@ public class VoiceRecognitionAreaBuilder {
 	static int edgeH;
 	static int lengthV;
 	static int twoD[][];
-	static int debugLevel = 5;
+	private static int debug_level_INFO = 5;
+	private static int debud_level_DEBUG = 5;
 
 	public static int[][][] mainAreaBuilder(int[] amplitde, int[] frequnecys,int[] borders) {
 		
@@ -54,7 +55,8 @@ public class VoiceRecognitionAreaBuilder {
 		for( i = 0; i < inputOneD.length; i++)
 			if(inputOneD[i] > edgeH )
 				edgeH = inputOneD[i];
-		Debug.debug(debugLevel,"Edge: "+ edgeH);
+		
+		Debug.debug(debug_level_INFO,"VoiceRecognitionAreaBuilder buildTwoDFromOneD Edge: "+ edgeH);
 		
 		twoD = new int[edgeH+1][];
 		
@@ -64,7 +66,10 @@ public class VoiceRecognitionAreaBuilder {
 		for(int index = startIndex; index < endIndex; index++) {
 			
 			for(i = 0; i < twoD.length; i++) {
-			//	Debug.debug(debugLevel,"H: "+index +", V: "+i);
+				
+			//	Debug.debug(debugLevel,"VoiceRecognitionAreaBuilder buildTwoDFromOneD H: "
+			//+index +", V: "+i);
+				
 				if(i == inputOneD[index])
 					break;
 				
@@ -74,7 +79,7 @@ public class VoiceRecognitionAreaBuilder {
 		}
 		
 		for(int test = twoD.length-1; test > 0 ; test --)
-			Debug.debug(debugLevel,"H :"+ test + " "+Arrays.toString(twoD[test]));
+			Debug.debug(debud_level_DEBUG,"H :"+ test + " "+Arrays.toString(twoD[test]));
 		
 		return twoD;
 	}
@@ -86,7 +91,7 @@ public class VoiceRecognitionAreaBuilder {
 		int[] result;
 		int resultCounter = 0;
 		
-		Debug.debug(debugLevel,"VoiceRecognitionAreaBuilder buildLineBorders input "
+		Debug.debug(debug_level_INFO,"VoiceRecognitionAreaBuilder buildLineBorders input "
 			+ Arrays.toString(input));
 		
 		temp[resultCounter++] = 0;
@@ -106,7 +111,7 @@ public class VoiceRecognitionAreaBuilder {
 		for(int i = 0; i < result.length; i++)
 			result[resultCounter++] = temp[i];
 		
-		Debug.debug(debugLevel,"VoiceRecognitionAreaBuilder buildLineBorders Arr"
+		Debug.debug(debug_level_INFO,"VoiceRecognitionAreaBuilder buildLineBorders Arr"
 				+Arrays.toString(result));
 		
 		return result;

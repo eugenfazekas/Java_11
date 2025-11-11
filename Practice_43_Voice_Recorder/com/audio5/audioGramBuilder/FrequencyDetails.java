@@ -5,12 +5,15 @@ import java.util.Arrays;
 import com.audio8.util.Debug;
 
 public class FrequencyDetails {
+	
+	private static int debug_level_INFO = 5;
+	private static int debud_level_DEBUG = 5;
 
 	static void addToFrequencyWaveMap(int frequency) {
 		 
 		AGBCVariables.frequencyWaveMap[AGBCVariables.frequencyWaveMapCounter++] = frequency; 
 
-		 Debug.debug(5,"FrequencyDetails addToFrequencyWaveMap frequencyTotalbuffer: "
+		 Debug.debug(debud_level_DEBUG,"FrequencyDetails addToFrequencyWaveMap frequencyTotalbuffer: "
 			+ " frequency: "+ frequency
 			+" ,AnalysisInitializer.waveCounter: "+AGBCVariables.frequencyWaveMapCounter+", frequency: "
 			+ AGBCVariables.frequencyWaveMap[AGBCVariables.frequencyWaveMapCounter-1]);		
@@ -20,7 +23,7 @@ public class FrequencyDetails {
 		
 		int freq = sapmleRate / cycleSamples;
 		
-		Debug.debug(5,"1. freq: "+freq);
+		Debug.debug(debud_level_DEBUG,"1. freq: "+freq);
 		
 		return freq;
 	}
@@ -32,7 +35,7 @@ public class FrequencyDetails {
 		for(int i = 0 ; i < AGBCVariables.frequencyWaveMap.length; i++)
 			AGBCVariables.mappedFrequencyArray[i]=getMappedFrequency25( AGBCVariables.frequencyWaveMap[i]);
 		  
-		Debug.debug(5,"FrequencyDetailsV1 buildMappedArray: "
+		Debug.debug(debug_level_INFO,"FrequencyDetailsV1 buildMappedArray: "
 			+ Arrays.toString(AGBCVariables.mappedFrequencyArray));
 	 }
 	 	 
@@ -154,6 +157,5 @@ public class FrequencyDetails {
 		
 		return (int)((((frequency-1000) * 20)/10000)+80);
 	}
-	*/
-	
+	*/	
 }

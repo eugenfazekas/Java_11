@@ -19,6 +19,8 @@ public class VoiceRecognitionDB {
 	public static Map<Integer, String> DB_NAMES = new HashMap<>();
 
 	private static String[] tempStringArray1;
+
+	private static int debug_level_INFO = 5;
 	
 	public static void buildAudioDB() {
 		
@@ -106,7 +108,7 @@ public class VoiceRecognitionDB {
 				audioScanDB[i][j] = VoiceRecognitionDBUtil.convertStringArrayToIntArray(
 						buildVoiceSlopeArray(readedScanFile.get(j)));
 				 
-				Debug.debug(3,"VoiceRecognition DB_NAMES: " +DB_NAMES.get(i) + ", Arr: "
+				Debug.debug(debug_level_INFO,"VoiceRecognition DB_NAMES: " +DB_NAMES.get(i) + ", Arr: "
 					+Arrays.toString(audioPointsDB[i][j]));
 			}
 		}

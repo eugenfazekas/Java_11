@@ -8,13 +8,17 @@ public class BuildMySpektrogramImage {
 	
 	public static BufferedImage audioGram; 
 	
+	private static int debug_level_INFO = 5;
+	private static int debud_level_DEBUG = 5;
+	
 	public static BufferedImage buildMySpectrogramImage(int[] map,int width, int height) {
 
 		int spektroGramColor = 0;
 		
-		Debug.debug(2,"AudioGramSaver buildImage getRoundToOneHundred(waveMap.length) "
-				+SaveMultiAudioFeaturesUtil.getRoundTo(20,width)+ " waveMap.length "+map.length
-				+ " height: "+height);
+		Debug.debug(debug_level_INFO,
+			" BuildMySpektrogramImage buildMySpectrogramImage getRoundToOneHundred(waveMap.length) "
+			+ SaveMultiAudioFeaturesUtil.getRoundTo(20,width)+ " waveMap.length "+map.length
+			+ " height: "+height);
 		
 		audioGram = new BufferedImage(SaveMultiAudioFeaturesUtil.getRoundTo(20,width),height
 																	,BufferedImage.TYPE_INT_ARGB);	  
@@ -22,15 +26,15 @@ public class BuildMySpektrogramImage {
 		    	
 		    spektroGramColor = getMySpektrogramColor(Math.abs(map[x]));
 
-		    Debug.debug(5,"AudioGramSaver buildMySpectrogramImage Amplitude: "+ map[x] + ", frequency: "
-		    	+map[x+1]);
+		    Debug.debug(debud_level_DEBUG,"AudioGramSaver buildMySpectrogramImage Amplitude: "+ map[x]
+		    		+ ", frequency: " + map[x+1]);
 		    
 		    for (int  y = audioGram.getHeight(); y > 0; y--) {
 		    		
 		    	if(x < map.length && y <= map[x+1]) {
 		    		
 		    		audioGram.setRGB(x/2, Math.abs(y-audioGram.getHeight()), spektroGramColor);
-		    		Debug.debug(5,"buildImage x: "+x + " waveMap[x] "+map[x]+ " waveMap.length: "
+		    		Debug.debug(debud_level_DEBUG,"buildImage x: "+x + " waveMap[x] "+map[x]+ " waveMap.length: "
 		    			+map.length);
 		    	}
 		    	

@@ -7,7 +7,7 @@ public class DeleteLastDataModel {
 	private  String[] fileSavePaths;
 	private  String[] directorySavePaths;	
 	private  Map<String, byte[]> addedSavedFiles;
-	
+
 	public DeleteLastDataModel(String[] fileSavePaths, String[] directorySavePaths,
 			Map<String, byte[]> addedSavedFiles) {
 		

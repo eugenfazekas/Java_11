@@ -3,14 +3,16 @@ package com.audio2.recorder;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.TargetDataLine;
 
 import com.audio0.main.AppSetup;
+import com.audio1.logical.EntryPointMethods;
 import com.audio7.threads.MyThread;
+import com.audio7.threads.ThreadAction;
 import com.audio7.threads.ThreadManagement;
+import com.audio7.threads.util.ThreadObjectDetails;
 import com.audio8.util.Debug;
 
 public class AudioListener implements MyThread {
@@ -21,23 +23,27 @@ public class AudioListener implements MyThread {
     public static int bufferLengthInBytes=(int) ((format.getFrameSize()*format.getSampleRate()/1000) 
     	* AppSetup.RECORDER_MILISEC_BUFFER_LENGTH);
     public static int recorderBufferLength = bufferLengthInBytes/2;
-	public static AtomicBoolean bufferSizeNonZero = new AtomicBoolean(false);
     private static boolean InstanceOf;
+    
 	private boolean threadIsActive;
 	private boolean threadIsSuspended;
-	final private String THREAD_NAME = "AudioListener"; 
 	private Thread thread;
+	final private String THREAD_NAME = "AudioListener";
+	ThreadObjectDetails threadObject;
+
+	private static int debug_level_INFO = 5;
+	private static int debud_level_DEBUG = 5;
     
     public AudioListener() {
     	
     	if(!InstanceOf) {
     		
+    		threadObject = new ThreadObjectDetails(THREAD_NAME, true);
     		threadIsActive = true;
     		threadIsSuspended = false;
     		thread = new Thread(this);		
     		thread.start();
 
-	    	bufferSizeNonZero.set(false);
 	    	InstanceOf = true;
 			
 			Debug.debug(1,"AudioListener frameSizeInBytes: "+frameSizeInBytes
@@ -49,8 +55,11 @@ public class AudioListener implements MyThread {
     public void run() {
 		
 		Thread.currentThread().setName(THREAD_NAME);
-		Debug.debug(1,"Starting "+Thread.currentThread().getName() +" Thread!");		
-		ThreadManagement.addingThread(this);
+		
+		Debug.debug(debug_level_INFO,"Starting "+Thread.currentThread().getName() +" Thread!");	
+		
+		ThreadManagement.threadActions.add(
+				new ThreadAction("addingThread",-1,EntryPointMethods.getSvitch(),this));
 		
 		while(threadIsActive) {
 			
@@ -68,13 +77,13 @@ public class AudioListener implements MyThread {
 	            return;
 	        }
 		}	
-		Debug.debug(5,"Stopping AudioListener Thread!");
+		Debug.debug(debug_level_INFO,"Stopping AudioListener Thread!");
     }
 
     private void buildByteOutputStream(final ByteArrayOutputStream out, final TargetDataLine line, 
     		int frameSizeInBytes, final int bufferLengthInBytes) throws IOException {
         	
-        Debug.debug(5,"AudioListener buildByteOutputStream LengthInBytes: "+bufferLengthInBytes
+        Debug.debug(debud_level_DEBUG,"AudioListener buildByteOutputStream LengthInBytes: "+bufferLengthInBytes
         		+ " frameSizeInBytes: " +frameSizeInBytes);
     	
     	byte[] data = new byte[bufferLengthInBytes];
@@ -89,13 +98,12 @@ public class AudioListener implements MyThread {
 
 	            audioBuffers.add(data);
 	            
-	            Debug.debug(5,"AudioListener added to Buffer, audioBuffers.size() "
+	            Debug.debug(debud_level_DEBUG,"AudioListener added to Buffer, audioBuffers.size() "
 	            	+ audioBuffers.size() +" Data length: "+data.length);
 	            
-		    	bufferSizeNonZero.set(true);
 	            data = new byte[bufferLengthInBytes];
 	            
-	            Debug.debug(5,"AudioListeneRrecorder time mSec: "+ (System.currentTimeMillis()
+	            Debug.debug(debud_level_DEBUG,"AudioListeneRrecorder time mSec: "+ (System.currentTimeMillis()
 	            		- Debug.startTime) );          
         }
         
@@ -155,10 +163,10 @@ public class AudioListener implements MyThread {
 			e.printStackTrace();
 		}	
 	}
-	
+
 	@Override
-	public String getThreadName() {
-		
-		return THREAD_NAME;
+	public ThreadObjectDetails getThreadObjectDetails() {
+
+		return threadObject;
 	}
 }

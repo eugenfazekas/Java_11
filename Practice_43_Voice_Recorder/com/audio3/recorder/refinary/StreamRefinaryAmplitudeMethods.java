@@ -5,6 +5,7 @@ import java.util.Arrays;
 import javax.sound.sampled.AudioFormat;
 
 import com.audio0.main.AppSetup;
+import com.audio0.main.Main;
 import com.audio1.logical.EntryPointMethods;
 import com.audio2.audioObject.AudioObject;
 import com.audio2.recorder.AudioListener;
@@ -14,7 +15,7 @@ import com.audio8.util.Debug;
 public class StreamRefinaryAmplitudeMethods {
 	
 	static AudioFormat audioFormat; 
-   static String speechName;
+
 //	private static int lastValidCounter;
 
 //	private static int totalValidCounter;
@@ -73,13 +74,16 @@ public class StreamRefinaryAmplitudeMethods {
 	private static int validCounterLimit;
 	private static int validLimit;
 	private static int counter;
+	private static int null_Counter;
+	
+	private static int debug_level_INFO = 5;
+	private static int debud_level_DEBUG = 5;
 
     public StreamRefinaryAmplitudeMethods() {
     	
 		audioFormat = AudioListener.format;
 		cycle = 0;
 		build = false;
-		speechName = EntryPointMethods.speechName;
 		
 		sleepTime = AppSetup.RECORDER_MILISEC_BUFFER_LENGTH;
 		bufferLength = AudioListener.recorderBufferLength;
@@ -105,6 +109,7 @@ public class StreamRefinaryAmplitudeMethods {
 		audioByteStream = new byte[10][];
 		audioIntStream = new int[10][];
 		sequences = 0;
+		null_Counter = 0;
 		
 		Debug.debug(1,"StreamRefinaryAmplitudeMethods Start, bufferLength: "+bufferLength
 			+", minValidSampleSize: "+minValidSampleSize + " waveHeightlimit: "+startAmplitudeLimit
@@ -112,6 +117,14 @@ public class StreamRefinaryAmplitudeMethods {
 	}
 
 	static void initBaseBufferVariables(byte[] inputBuffer) {
+		
+		if(null_Counter > inputBuffer.length/8) {
+			
+			Debug.debug(1,"StreamRefinaryAmplitudeMethods initBaseBufferVariables"+
+					"APPLICATION STOPPING! NO MICROPHONE DETECTED!");
+			
+		    Main.setStopAllThreads();
+		}
 		
 		RECORDED_MILISEC += AppSetup.RECORDER_MILISEC_BUFFER_LENGTH;
 		loopStart = 0;
@@ -126,6 +139,7 @@ public class StreamRefinaryAmplitudeMethods {
 		actualHighestAvg = 0;
 		highestAmplitudeBuffer = 0;
 		highestAmplitudeBufferCounter = 0;	
+		null_Counter = 0;
 	}
 	
 	static void buildSampleValue(int i) {
@@ -134,8 +148,8 @@ public class StreamRefinaryAmplitudeMethods {
         sample = (short)  StreamRefinaryUtil.getEndian(audioFormat.isBigEndian()
         		,byteBuffer[i],byteBuffer[i+1]);
         
-        Debug.debug(5,"StreamRefinaryAmplitudeMethods i: "+i+", byteBuffer[i]: "+byteBuffer[i]
-        	+", iplus1"+byteBuffer[i] +", sample "+sample);
+        Debug.debug(debud_level_DEBUG,"StreamRefinaryAmplitudeMethods i: "+i+", byteBuffer[i]: "+byteBuffer[i]
+        	+", [i + 1]: "+byteBuffer[i+1] +", sample "+sample);
 	}
 	
 	static void addToIntBuffer() {
@@ -143,7 +157,7 @@ public class StreamRefinaryAmplitudeMethods {
 		intBuffer[intBufferCounter++] = sample;
 	}	
 	
-	static void amplitudeOptimizationMeasure() {
+	static void amplitudeOptimizationMeasure(int i) {
 		
 		highestAmplitudeBuffer += Math.abs(sample);
 		highestAmplitudeBufferCounter++;
@@ -160,6 +174,9 @@ public class StreamRefinaryAmplitudeMethods {
 			highestAmplitudeBuffer = 0;
 			highestAmplitudeBufferCounter = 0;
 		}
+		
+		if(byteBuffer[i+1]> -5 && byteBuffer[i+1] < 5)
+			null_Counter++;
 	}
 	
 	static void validAmplitudeCounter() {
@@ -172,7 +189,7 @@ public class StreamRefinaryAmplitudeMethods {
 		if(highestAverage > averageAmplitude)
 			averageAmplitude = highestAverage;
 				
-		Debug.debug(3,"StreamRefinaryAmplitudeMethods addToAmplitudeAvg; "+averageAmplitude);
+		Debug.debug(debud_level_DEBUG,"StreamRefinaryAmplitudeMethods addToAmplitudeAvg; "+averageAmplitude);
 	}
 	
 	static void optimizeAmplitudeLimit() {
@@ -182,7 +199,7 @@ public class StreamRefinaryAmplitudeMethods {
 			amplitude1 = amplitude2;
 			amplitude2 = amplitude3;
 			amplitude3 = highestAverage;
-			Debug.debug(4,"StreamRefinaryAmplitudeMethods Optimizing amplitude1: "+ amplitude1
+			Debug.debug(debud_level_DEBUG,"StreamRefinaryAmplitudeMethods Optimizing amplitude1: "+ amplitude1
 				+", amplitude2: "+ amplitude2+ ", amplitude3: "+amplitude3);
 			
 			endAmplitudeLimit = (int) (((amplitude1+amplitude2+amplitude3)/3) 
@@ -200,7 +217,7 @@ public class StreamRefinaryAmplitudeMethods {
 		for(int i = lastByteBuffersCounter - BEFORE_LOOP_LENGTH; i  < lastByteBuffersCounter; i++) 
 			addToStream(lastByteBuffers[i], lastIntBuffers[i]);	
 		
-		Debug.debug(4,"StreamRefinaryAmplitudeMethods addBeforeIntStream BUFFER_MILISEC_BEFORE_LENGTH: "
+		Debug.debug(debug_level_INFO,"StreamRefinaryAmplitudeMethods addBeforeIntStream BUFFER_MILISEC_BEFORE_LENGTH: "
 				+BUFFER_MILISEC_BEFORE_LENGTH+", BEFORE_LOOP_LENGTH: "+BEFORE_LOOP_LENGTH);
 	}
 	
@@ -215,7 +232,7 @@ public class StreamRefinaryAmplitudeMethods {
 				StreamRefinaryFrequencyMethods.mapsLengthCounter[i]);
 		}
 		
-		Debug.debug(4,"StreamRefinaryAmplitudeMethods addBeforeFrequnecyStream" 
+		Debug.debug(debug_level_INFO,"StreamRefinaryAmplitudeMethods addBeforeFrequnecyStream" 
 			+" BUFFER_MILISEC_BEFORE_LENGTH: "+BUFFER_MILISEC_BEFORE_LENGTH
 			+", BEFORE_LOOP_LENGTH: "+BEFORE_LOOP_LENGTH);
 	}
@@ -225,7 +242,7 @@ public class StreamRefinaryAmplitudeMethods {
 		audioByteStream[sequences] = byteStream;
 		audioIntStream[sequences++] = intStream;		
 		addToAmplitudeAvg();
-		Debug.debug(3,"StreamRefinaryAmplitudeMethods AddToStream Continue Adding Streams, valid_C: " 
+		Debug.debug(debug_level_INFO,"StreamRefinaryAmplitudeMethods AddToStream Continue Adding Streams, valid_C: " 
 			+ ", sequences: "+sequences+", wave_H_L: "+startAmplitudeLimit
 			+ ", valVoice: "+validVoiceDetection);
 	}
@@ -256,7 +273,7 @@ public class StreamRefinaryAmplitudeMethods {
 	   			addedBeforeFrequencyStream = true;	   			
 	   		}
 	   		
-			Debug.debug(3,"StreamRefinaryAmplitudeMethods StreamRefinaryFrequencyMethods.validVoiceDetection: "
+			Debug.debug(debug_level_INFO,"StreamRefinaryAmplitudeMethods StreamRefinaryFrequencyMethods.validVoiceDetection: "
 					+StreamRefinaryFrequencyMethods.validVoiceDetection );
 	   		
 	   		addToStream(byteBuffer,intBuffer); 
@@ -280,7 +297,7 @@ public class StreamRefinaryAmplitudeMethods {
         		
         		recordEndSet = true;
         		
-        		Debug.debug(3,"StreamRefinaryAmplitudeMethods RECORDED_MILISEC: "+RECORDED_MILISEC
+        		Debug.debug(debug_level_INFO,"StreamRefinaryAmplitudeMethods RECORDED_MILISEC: "+RECORDED_MILISEC
         				+", BUFFER_MILISEC_AFTER_LENGTH_END: "+BUFFER_MILISEC_AFTER_LENGTH_END);
         	}
         	
@@ -291,17 +308,17 @@ public class StreamRefinaryAmplitudeMethods {
         		
         		if(RECORDED_MILISEC > BUFFER_MILISEC_AFTER_LENGTH_END) {
         			
-            		Debug.debug(3,"StreamRefinaryAmplitudeMethods saveAmplitudeStreamToExamine"
+            		Debug.debug(debug_level_INFO,"StreamRefinaryAmplitudeMethods saveAmplitudeStreamToExamine"
             			+" added endStream!");
 
-                	Debug.debug(4,"StreamRefinaryAmplitudeMethods saveAmplitudeStreamToExamine"
+                	Debug.debug(debug_level_INFO,"StreamRefinaryAmplitudeMethods saveAmplitudeStreamToExamine"
                 		+" Voice Stream Build Finished" +", sequences: " +sequences+ ", wave_H_L: "
                 		+startAmplitudeLimit);
                 	
                 	convert2DArrrayTo1DArray();
                 	
             		forwardDataToStartAudioAnalysis(saveByteStream,saveIntStream,null,null,
-            			speechName,audioFormat,averageAmplitude);
+            				EntryPointMethods.getSpeechName(),audioFormat,averageAmplitude);
 
             		resetSaveStream();
         		}
@@ -320,7 +337,7 @@ public class StreamRefinaryAmplitudeMethods {
         		
         		recordEndSet = true;
         		
-        		Debug.debug(3,"StreamRefinaryAmplitudeMethods RECORDED_MILISEC: "+RECORDED_MILISEC
+        		Debug.debug(debug_level_INFO,"StreamRefinaryAmplitudeMethods RECORDED_MILISEC: "+RECORDED_MILISEC
             			+", BUFFER_MILISEC_AFTER_LENGTH_END: "+BUFFER_MILISEC_AFTER_LENGTH_END);
         	}
         	
@@ -334,7 +351,7 @@ public class StreamRefinaryAmplitudeMethods {
         	   				StreamRefinaryFrequencyMethods.tempFreqMap,
         	   				StreamRefinaryFrequencyMethods.tempAmpMapCounter);
         	   		
-            		Debug.debug(3,"StreamRefinaryAmplitudeMethods Adding Ending RECORDED_MILISEC: "
+            		Debug.debug(debug_level_INFO,"StreamRefinaryAmplitudeMethods Adding Ending RECORDED_MILISEC: "
             		+RECORDED_MILISEC+", BUFFER_MILISEC_AFTER_LENGTH_END: "+BUFFER_MILISEC_AFTER_LENGTH_END);
         		}
         		
@@ -345,9 +362,8 @@ public class StreamRefinaryAmplitudeMethods {
 		        	StreamRefinaryFrequencyMethods.freqeuncyArrayFilterEmptyElemnts();
 		        	
 		        	forwardDataToStartAudioAnalysis(saveByteStream,saveIntStream    				
-						,StreamRefinaryFrequencyMethods.ampMap
-						,StreamRefinaryFrequencyMethods.freqMap
-		   				,speechName,audioFormat,averageAmplitude);
+						,StreamRefinaryFrequencyMethods.ampMap,StreamRefinaryFrequencyMethods.freqMap
+		   				,EntryPointMethods.getSpeechName(),audioFormat,averageAmplitude);
 		    		
 		    		resetSaveStream();
 		    		
@@ -391,7 +407,7 @@ public class StreamRefinaryAmplitudeMethods {
 			}
 		}	
 		
-		Debug.debug(3,"StreamRefinaryAmplitudeMethods convert2DArrrayTo1DArray saveByteStream.length " 
+		Debug.debug(debug_level_INFO,"StreamRefinaryAmplitudeMethods convert2DArrrayTo1DArray saveByteStream.length " 
 			+ saveByteStream.length+" saveIntStream.length: "+saveIntStream.length
 			+ " sequences: "+sequences + " audioByteStream[0].length: "+audioByteStream[0].length 
 			+ " audioIntStream[0].length: " +audioIntStream[0].length );
@@ -399,7 +415,7 @@ public class StreamRefinaryAmplitudeMethods {
 	
 	 static void forwardDataToStartAudioAnalysis(byte []saveByteStream, int []saveIntStream
 		,int[] ampMap,int[] freqMap, String speechName,AudioFormat audioFormat,int averageAmplitude) {
-		Debug.debug(3,"StreamRefinaryAmplitudeMethods forwardDataToStartAudioAnalysis: " 
+		Debug.debug(debug_level_INFO,"StreamRefinaryAmplitudeMethods forwardDataToStartAudioAnalysis: " 
 			+ Arrays.toString(freqMap));	
 		
 		AudioAnalysisThread.analysisStarter(new AudioObject(saveByteStream,saveIntStream,ampMap,freqMap,
@@ -411,7 +427,7 @@ public class StreamRefinaryAmplitudeMethods {
 		cycle++;
 		
 		if( AppSetup.amplitudeRefinary)
-			Debug.debug(3,"StreamRefinaryAmplitudeMethods INFO cycle: "+cycle + ", c.legth: "+cycleLength
+			Debug.debug(debud_level_DEBUG,"StreamRefinaryAmplitudeMethods INFO cycle: "+cycle + ", c.legth: "+cycleLength
 				+ " mSec"+ ", Wave_Idle: "+AppSetup.IDLE_AMPLITUDE_VOLUME
       			+ ", OP_L: "+ endAmplitudeLimit + ", Wave_H_L: "+startAmplitudeLimit );		
 		
@@ -430,17 +446,17 @@ public class StreamRefinaryAmplitudeMethods {
 			validCounter++;
 		
 		if(counter == validCounterLimit) {
-			Debug.debug(3,"StreamRefinaryAmplitudeMethods sample "+Math.abs(sample) 
+			Debug.debug(debud_level_DEBUG,"StreamRefinaryAmplitudeMethods sample "+Math.abs(sample) 
 				+ ", endAmplitudeLimit "+endAmplitudeLimit);
 			
 			if(validCounter >= validLimit) {
 				validVoiceDetection = true;
 			
-			Debug.debug(3,"StreamRefinaryAmplitudeMethods valid voice DETECTED, validLimit: " +validLimit
+			Debug.debug(debud_level_DEBUG,"StreamRefinaryAmplitudeMethods valid voice DETECTED, validLimit: " +validLimit
 					+", check: "+ validCounter + ", startAmplitudeLimit "+startAmplitudeLimit);
 			}
 			
-			Debug.debug(3,"StreamRefinaryAmplitudeMethods valid voice NOT DETECTED, validLimit: " +validLimit
+			Debug.debug(debud_level_DEBUG,"StreamRefinaryAmplitudeMethods valid voice NOT DETECTED, validLimit: " +validLimit
 					+", check: "+ validCounter + ", startAmplitudeLimit "+startAmplitudeLimit);
 			
 			validCounter = 0;

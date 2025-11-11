@@ -1,8 +1,11 @@
 package com.audio3.recorder.refinary;
 
+import com.audio1.logical.EntryPointMethods;
 import com.audio2.recorder.AudioListener;
 import com.audio7.threads.MyThread;
+import com.audio7.threads.ThreadAction;
 import com.audio7.threads.ThreadManagement;
+import com.audio7.threads.util.ThreadObjectDetails;
 import com.audio8.util.Debug;
 
 
@@ -11,7 +14,10 @@ public class IntFrequencyRefinary implements MyThread, StreamRefinary{
 	private boolean threadIsActive;
 	private boolean threadIsSuspended;
 	private Thread thread;
-	final private static String THREAD_NAME = "IntFrequencyRefinary"; 
+	final private String THREAD_NAME = "IntFrequencyRefinary"; 
+	ThreadObjectDetails threadObject; 
+	
+	private static int debug_level_INFO = 5;
 	
 	public IntFrequencyRefinary () {
 						
@@ -19,6 +25,7 @@ public class IntFrequencyRefinary implements MyThread, StreamRefinary{
 		new StreamRefinaryAmplitudeMethods();	
 		new StreamRefinaryFrequencyMethods();
 		
+		threadObject = new ThreadObjectDetails(THREAD_NAME, true);	
 		threadIsActive = true;
 		threadIsSuspended = false;		
 		thread = new Thread(this);	
@@ -26,22 +33,27 @@ public class IntFrequencyRefinary implements MyThread, StreamRefinary{
 	}
 	
 	private void readAudioBuffer() {
-		
-	    Debug.debug(5,"IntStreamRefinary StreamRefinaryAmplitudeMethods.bufferSizeNonZero: "
-	    		+ AudioListener.bufferSizeNonZero);
 
-		bufferCheck(AudioListener.audioBuffers.poll());	
-		
-		AudioListener.bufferSizeNonZero.set(false);		
+	    try {		    
+	    		bufferCheck(AudioListener.audioBuffers.poll());	
+	    
+	    } catch (Exception ex) {
+	    	
+            Debug.debug(debug_level_INFO,"DebugException in IntFrequencyRefinary! " +ex.getMessage());  
+
+    		ThreadManagement.threadActions.add(new ThreadAction("stopAllThreads",-1,null,this));
+	    }			
 	}
 	
 	@Override
 	public void run() {
 		
 		Thread.currentThread().setName(THREAD_NAME);	
-		ThreadManagement.addingThread(this);
+		
+		ThreadManagement.threadActions.add(
+				new ThreadAction("addingThread",-1,EntryPointMethods.getSvitch(),this));
 	
-		Debug.debug(1,"Starting "+Thread.currentThread().getName() +" Thread!");
+		Debug.debug(debug_level_INFO,"Starting "+Thread.currentThread().getName() +" Thread!");
 
 		while(threadIsActive) {
 
@@ -49,7 +61,7 @@ public class IntFrequencyRefinary implements MyThread, StreamRefinary{
 			
 			sleepThread(StreamRefinaryAmplitudeMethods.sleepTime/2);	
 			
-			if(AudioListener.bufferSizeNonZero.get()) 	
+			if(!AudioListener.audioBuffers.isEmpty()) 
 				readAudioBuffer();
 		}		
 	}
@@ -69,7 +81,7 @@ public class IntFrequencyRefinary implements MyThread, StreamRefinary{
 	        
         	StreamRefinaryAmplitudeMethods.addToIntBuffer();
         	
-        	StreamRefinaryAmplitudeMethods.amplitudeOptimizationMeasure();  
+        	StreamRefinaryAmplitudeMethods.amplitudeOptimizationMeasure(i);  
         	
         	StreamRefinaryFrequencyMethods.builTempAmpFreqMap(i,StreamRefinaryAmplitudeMethods.sample);
         }
@@ -138,12 +150,12 @@ public class IntFrequencyRefinary implements MyThread, StreamRefinary{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}	
-	}
+	}	
 	
 	@Override
-	public String getThreadName() {
-		
-		return THREAD_NAME;
+	public ThreadObjectDetails getThreadObjectDetails() {
+
+		return threadObject;
 	}
 	
 	@Override

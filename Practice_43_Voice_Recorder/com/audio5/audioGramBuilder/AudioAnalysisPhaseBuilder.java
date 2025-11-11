@@ -12,6 +12,8 @@ public class AudioAnalysisPhaseBuilder {
 	static Task[] multiAnalysisPhase3 = new Task[0];
 	static Task[] tempsTasks;
 	
+	private static int debug_level_INFO = 5;;
+	
 	public AudioAnalysisPhaseBuilder() {
 		
 		if(!instanceOf) {
@@ -24,7 +26,7 @@ public class AudioAnalysisPhaseBuilder {
 	
 	static void mainAnalysisPhaseBuilder() {
 		
-		Debug.debug(4,"AudioAnalysisPhaseBuilder mainAnalysisPhaseBuilder iniated! ");
+		Debug.debug(debug_level_INFO,"AudioAnalysisPhaseBuilder mainAnalysisPhaseBuilder iniated! ");
 		
 		buildMultiAnalysisPhase1();
 		
@@ -49,7 +51,7 @@ public class AudioAnalysisPhaseBuilder {
 			multiAnalysisPhase1 = addTask(multiAnalysisPhase1,task) ;
 		}	
 			
-		Debug.debug(3,"AudioAnalysisPhaseBuilder multiAnalysisPhase1: "+multiAnalysisPhase1.length);
+		Debug.debug(debug_level_INFO,"AudioAnalysisPhaseBuilder multiAnalysisPhase1: "+multiAnalysisPhase1.length);
 	}
 		
 	private static void buildMultiAnalysisPhase2() {
@@ -82,7 +84,7 @@ public class AudioAnalysisPhaseBuilder {
 			multiAnalysisPhase2 = addTask(multiAnalysisPhase2,task);
 		}
 	
-		Debug.debug(3,"AudioAnalysisPhaseBuilder multiAnalysisPhase2: "+multiAnalysisPhase2.length);
+		Debug.debug(debug_level_INFO,"AudioAnalysisPhaseBuilder multiAnalysisPhase2: "+multiAnalysisPhase2.length);
 	} 
 	
 	private static void buildMultiAnalysisPhase3() {
@@ -190,7 +192,7 @@ public class AudioAnalysisPhaseBuilder {
 			multiAnalysisPhase3 = addTask(multiAnalysisPhase3,task) ;
 		}
 				
-		Debug.debug(3,"AudioAnalysisPhaseBuilder multiAnalysisPhase3: "+multiAnalysisPhase3.length);
+		Debug.debug(debug_level_INFO,"AudioAnalysisPhaseBuilder multiAnalysisPhase3: "+multiAnalysisPhase3.length);
 	}
 	
 	static Task[] addTask(Task[] tasks, Task task) {
@@ -207,7 +209,7 @@ public class AudioAnalysisPhaseBuilder {
 		} else 
 			tempsTasks = new Task[] {task};
 		
-		Debug.debug(5,"AudioAnalysisPhaseBuilder addtask tasks.length: "
+		Debug.debug(debug_level_INFO,"AudioAnalysisPhaseBuilder addtask tasks.length: "
 			+tasks.length+ ", Return Tasks.length: "+tempsTasks.length);
 		
 			return tempsTasks;

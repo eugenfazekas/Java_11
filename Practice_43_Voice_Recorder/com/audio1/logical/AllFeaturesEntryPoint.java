@@ -13,7 +13,7 @@ public class AllFeaturesEntryPoint {
 		
 	//  EntryPointMethods.mainOptionRun("saveNamedRecords", "Teszt");
 	
-	//	EntryPointMethods.mainOptionRun("voiceRecognition", "Teszt");
+		EntryPointMethods.mainOptionRun("voiceRecognition", "Teszt");
 		
 	 // EntryPointMethods.mainOptionRun("voiceRecognitionDebug", "Teszt");
 		
@@ -25,7 +25,7 @@ public class AllFeaturesEntryPoint {
 	 
 	// EntryPointMethods.mainOptionRun("buildSpektrogramFromAudioFile", "igen.wav");
 		
-	 EntryPointMethods.mainOptionRun("timeFixedSoundRecorder", "PathForFixedRecord");
+	// EntryPointMethods.mainOptionRun("timeFixedSoundRecorder", "PathForFixedRecord");
 		
 	}
 }

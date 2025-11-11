@@ -8,6 +8,8 @@ public class AudioGramUtil {
 	
 	static int[] useArray;
 	static int counter;
+	private static int debug_level_INFO = 5;
+	private static int debud_level_DEBUG = 5;
 	
 	static int[] optimezeAmplitudeMapHeight(int[] inputArray) {
 		
@@ -39,14 +41,14 @@ public class AudioGramUtil {
 			sum = (float) Math.pow(root ,multiplier);
 
 			if(sum >90)  {
-				Debug.debug(3,"AudioGramUtil optimezeAmplitudeMapHeight sum "+sum);	
+				Debug.debug(debud_level_DEBUG,"AudioGramUtil optimezeAmplitudeMapHeight sum "+sum);	
 				break;
 			}
 			
 		}
-		Debug.debug(3,"AudioGramUtil optimezeAmplitudeMapHeight Array: "
+		Debug.debug(debug_level_INFO,"AudioGramUtil optimezeAmplitudeMapHeight Array: "
 				+ Arrays.toString(inputArray));
-		Debug.debug(3,"AudioGramUtil optimezeAmplitudeMapHeight highest: " + highest+ ", root: " 
+		Debug.debug(debug_level_INFO,"AudioGramUtil optimezeAmplitudeMapHeight highest: " + highest+ ", root: " 
 				+root+", sum: "+sum +", multiplier "+multiplier);
 		
 		for(i = 0; i < inputArray.length; i++) {
@@ -122,12 +124,10 @@ public class AudioGramUtil {
 	
 	static boolean angleCheckIsOk(int lastAngle, int thisAngle, int check) {
 		
-		//System.out.println("lastAngle: "+lastAngle+", thisAngle: "+thisAngle+", check: "+check);
-		
 		if((thisAngle < lastAngle && thisAngle < 0 && lastAngle <  0) 
 				|| (thisAngle > lastAngle && thisAngle > 0 && lastAngle > 0) ) {
 			
-			Debug.debug(1,"AudioGramUtil 1.0 lastAngle: "+lastAngle+", thisAngle: "+thisAngle
+			Debug.debug(debud_level_DEBUG,"AudioGramUtil 1.0 lastAngle: "+lastAngle+", thisAngle: "+thisAngle
 					+", check: "+check);
 			
 			return true;
@@ -136,14 +136,14 @@ public class AudioGramUtil {
 		if((thisAngle < 0 && lastAngle < 0 &&  lastAngle + thisAngle < check ) 
 				|| (thisAngle > 0 && lastAngle > 0 && lastAngle - thisAngle < check  )) {
 			
-			Debug.debug(1,"AudioGramUtil 2.0 lastAngle: "+lastAngle+", thisAngle: "+thisAngle
+			Debug.debug(debud_level_DEBUG,"AudioGramUtil 2.0 lastAngle: "+lastAngle+", thisAngle: "+thisAngle
 					+", check: "+check);
 			
 			return true;
 		}
 		
 		else 
-			Debug.debug(1,"AudioGramUtil 3.0 lastAngle: "+lastAngle+", thisAngle: "+thisAngle
+			Debug.debug(debud_level_DEBUG,"AudioGramUtil 3.0 lastAngle: "+lastAngle+", thisAngle: "+thisAngle
 					+", check: "+check);
 		
 		return false;
@@ -156,7 +156,7 @@ public class AudioGramUtil {
 	
 	static int[]  buildSequenceBorders(int[] input, int length, int  startLimit, int endLimit) {
 		
-		Debug.debug(1,"AudioGramUtil buildSequenceBorders input Array:  "  + Arrays.toString(input));
+		Debug.debug(debug_level_INFO,"AudioGramUtil buildSequenceBorders input Array:  "  + Arrays.toString(input));
 		int start = 0;
 		int end = 0;
 		int[] result;
@@ -177,7 +177,7 @@ public class AudioGramUtil {
 		}
 		
 		result = new int[] {1,start,input[start], -1,end,input[end]};
-		Debug.debug(1,"AudioGramUtil buildSequenceBorders "+ Arrays.toString(result));
+		Debug.debug(debug_level_INFO,"AudioGramUtil buildSequenceBorders "+ Arrays.toString(result));
 		
 		return result;
 	}

@@ -14,8 +14,8 @@ import com.audio2.recorder.TimeFixedSoundRecorder;
 import com.audio3.recorder.refinary.StreamRefinarySelector;
 import com.audio4.audioGramInitializer.mainInit.AudioAnalysisThread;
 import com.audio5.recognition.VoiceRecognitionDB;
-import com.audio5.recognition.VoiceRecognitionMain;
 import com.audio6.audioGramSaver.AudioInputStreamUtil;
+import com.audio7.threads.ThreadManagement;
 import com.audio8.util.Debug;
 
 /*
@@ -26,6 +26,8 @@ public class EntryPointMethods {
 	public static String  speechName;
 	private static String  svitch;
 	private static boolean instanceOf;
+	public static ThreadManagement threadManagement;
+	private static AudioAnalysisThread audioAnalysisThread;
 		
 	public static void  mainOptionRun(String option, String inputName) {
 	
@@ -36,16 +38,17 @@ public class EntryPointMethods {
 		}
 		
 		if(svitch == null || option.equals(svitch)) {
+			
 			svitch = option;
 			instanceOf = true;
 		}
 		
+		if(threadManagement == null)
+			threadManagement = new ThreadManagement();
+		
+		if(audioAnalysisThread == null)
+			audioAnalysisThread = new AudioAnalysisThread();
 
-		new AudioAnalysisThread();
-		
-		if(AppSetup.voiceRecognition)			
-			new VoiceRecognitionMain();		
-		
 		setMainProfile(option,inputName);		
 	}
 	
@@ -55,29 +58,52 @@ public class EntryPointMethods {
 		
 		switch(svitch) {
 				
-		case "saveNamedRecords" :saveNamedRecords(inputName);break;
+			case "saveNamedRecords" :saveNamedRecords(inputName);break;
+			
+			case "voiceRecognition" :voiceRecognition(inputName);break;
+			
+			case "voiceRecognitionDebug" :voiceRecognitionDebug(inputName);break;
+			
+			case "saveContinueRecords" :saveContinueRecords();break;
+			
+			case "buildSequenceFromFile" :buildSequenceFromFrequncyListFromFile(inputName);break;
+						
+			case "buildTestAudioSequence" :buildTestAudioSequence();break;	
+			
+			case "buildSpektrogramFromAudioFile" :buildSpektrogaramFromAudioFile(inputName);break;
+			
+			case "timeFixedSoundRecorder" : timeFixedSoundRecorder(inputName);break;			
+		}
+	}
+	
+	public static void loadProfileSetup(String Profile) {
 		
-		case "voiceRecognition" :voiceRecognition(inputName);break;
+		String profile = Profile;
 		
-		case "voiceRecognitionDebug" :voiceRecognitionDebug(inputName);break;
-		
-		case "saveContinueRecords" :saveContinueRecords();break;
-		
-		case "buildSequenceFromFile" :buildSequenceFromFrequncyListFromFile(inputName);break;
-					
-		case "buildTestAudioSequence" :buildTestAudioSequence();break;	
-		
-		case "buildSpektrogramFromAudioFile" :buildSpektrogaramFromAudioFile(inputName);break;
-		
-		case "timeFixedSoundRecorder" : timeFixedSoundRecorder(inputName);break;	
-		
+		switch(profile) {
+				
+			case "saveNamedRecords" :AppSetup.activateSaveNamedRecordsProfile();break;
+			
+			case "voiceRecognition" :AppSetup.activateVoiceRecognitionProfile();break;
+			
+			case "voiceRecognitionDebug" :AppSetup.activateVoiceRecognitionDebugProfile();break;
+			
+			case "saveContinueRecords" :AppSetup.activateSaveContinueRecordsProfile();break;
+			
+			case "buildSequenceFromFile" :AppSetup.activateBuildSequenceFromFileProfile();break;
+						
+			case "buildTestAudioSequence" :AppSetup.activateBuildTestAudioSequenceProfile();break;	
+			
+			case "buildSpektrogramFromAudioFile" :AppSetup.activateBuildSpektrogaramFromAudioFileProfile();break;
+			
+			case "timeFixedSoundRecorder" : AppSetup.activateTimeFixedSoundRecorderProfile();break;			
 		}
 	}
 	
 	// Only one refinary option must used.
 	private static void saveNamedRecords(String inputName) {
 		
-		AppSetup.activateSaveNamedRecordsProfile();
+		loadProfileSetup(svitch);
 		
 		setSpeechName(inputName);
 		
@@ -88,7 +114,7 @@ public class EntryPointMethods {
 	
 	private static void voiceRecognition(String inputName) {
 		
-		AppSetup.activateVoiceRecognitionProfile();
+		loadProfileSetup(svitch);
 		
 		setSpeechName(inputName);
         
@@ -99,7 +125,7 @@ public class EntryPointMethods {
 	
 	private static void voiceRecognitionDebug(String inputName) {
 		
-		AppSetup.activateVoiceRecognitionDebugProfile();
+		loadProfileSetup(svitch);
 		
 		setSpeechName(inputName);
         
@@ -110,7 +136,7 @@ public class EntryPointMethods {
 	
 	private static void saveContinueRecords() {
 		
-		AppSetup.activateSaveContinueRecordsProfile();
+		loadProfileSetup(svitch);
 
 		setSpeechName(Debug.getTimeStamp());
 		
@@ -119,7 +145,7 @@ public class EntryPointMethods {
 	
 	private static void buildSequenceFromFrequncyListFromFile(String fileName) {
 		
-		AppSetup.activateBuildSequenceFromFrequncyListFromFileProfile();
+		loadProfileSetup(svitch);
 		
 		int[] readedSequenceInfo = WavesArrayBuilderFromFile.mainBuilder(AppSetup.BASE_AUDIO_PATH 
 				                     +"SequencePathLocation/"+fileName);
@@ -131,9 +157,21 @@ public class EntryPointMethods {
 					,AudioSequenceBuilder.averageAmplitude,getSvitch()));
 	}
 	
+	private static void buildTestAudioSequence() {	
+		
+		loadProfileSetup(svitch);
+		
+		AudioAnalysisThread.analysisStarter(new AudioObject(null,
+				AudioSequenceBuilder.mainBuilder(TestSequence.getTestSequence(),
+						(int)AudioUtil.getAudioFormat("AudioListener").getSampleRate()),null,null
+				, "builded-" + LocalDateTime.now().getHour()+ "-"+LocalDateTime.now().getMinute()
+			+ "- " + LocalDateTime.now().getSecond(),AudioUtil.getAudioFormat("MainRecord")
+				,AudioSequenceBuilder.averageAmplitude,getSvitch()));
+	}
+	
 	private static void buildSpektrogaramFromAudioFile(String fileName) {
 		
-		AppSetup.activateBuildSpektrogaramFromAudioFileProfile();
+		loadProfileSetup(svitch);
 		
 		AudioInputStream audioInputStream = 
 				AudioInputStreamUtil.buildAudioInputStreamFromFile(AppSetup.BASE_AUDIO_PATH 
@@ -148,21 +186,9 @@ public class EntryPointMethods {
 			"Spektrogram Ruilded",audioInputStream.getFormat(),intStream[0],getSvitch()));
 	}
 	
-	private static void buildTestAudioSequence() {	
-		
-		AppSetup.activateBuildTestAudioSequenceProfile();
-		
-		AudioAnalysisThread.analysisStarter(new AudioObject(null,
-				AudioSequenceBuilder.mainBuilder(TestSequence.getTestSequence(),
-						(int)AudioUtil.getAudioFormat("AudioListener").getSampleRate()),null,null
-				, "builded-" + LocalDateTime.now().getHour()+ "-"+LocalDateTime.now().getMinute()
-			+ "- " + LocalDateTime.now().getSecond(),AudioUtil.getAudioFormat("MainRecord")
-				,AudioSequenceBuilder.averageAmplitude,getSvitch()));
-	}
-	
 	private static void timeFixedSoundRecorder(String fileName) {
 		
-		AppSetup.activateTimeFixedSoundRecorderProfile();
+		loadProfileSetup(svitch);
 		
 		new TimeFixedSoundRecorder(fileName,AppSetup.FIXED_RECORD_LENGTH_IN_MILISEC);
 	}
@@ -186,4 +212,9 @@ public class EntryPointMethods {
 		
 		EntryPointMethods.svitch = svitch;
 	} 
+	
+	public static void setInstanceFalse() {
+		
+		instanceOf = false;
+	}
 }

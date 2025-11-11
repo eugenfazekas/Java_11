@@ -1,6 +1,8 @@
 package com.audio6.audioGramSaver;
 
 
+import java.util.Arrays;
+
 import com.audio0.main.AppSetup;
 import com.audio8.util.Debug;
 
@@ -8,6 +10,8 @@ public class BuildAudioAnalysisFilesPaths {
 	
 	private static String[] paths;
 	private static String[] tempPaths;
+
+	private static int debud_level_DEBUG = 5;
 		
 	public static String[] buildAudioAnalysisFilesPaths() {
 		
@@ -15,16 +19,14 @@ public class BuildAudioAnalysisFilesPaths {
 		tempPaths = null;
 		
 		if(AppSetup.amplitudeGram) 		
-			paths = addStringToPath(paths,"amplitudeGram") ;
-		
+			paths = addStringToPath(paths,"amplitudeGram") ;		
 		
 		if(AppSetup.frequencyGram) 			
 			paths = addStringToPath(paths,"frequencyGram") ;
 		
 		if((AppSetup.amplitudeGram && AppSetup.frequencyGram && AppSetup.rawAudioData)) 		
 			paths = addStringToPath(paths,"rawAudioData") ;
-		
-		
+				
 		if(AppSetup.amplitudeGram && AppSetup.frequencyGram && AppSetup.spektrogram)
 		
 			paths = addStringToPath(paths,"spektroGram") ;
@@ -36,12 +38,10 @@ public class BuildAudioAnalysisFilesPaths {
 		if(AppSetup.amplitudeGram && AppSetup.frequencyGram && AppSetup.mySpektrogram)
 
 			paths = addStringToPath(paths,"buildMixedWaveStreamPoints") ;
-		
-		
+				
 		if(AppSetup.amplitudeGram && AppSetup.frequencyGram && AppSetup.buildSequenceArray) 		
 			paths = addStringToPath(paths,"buildSequenceArray");
-		
-		
+			
 		if(AppSetup.amplitudeGram && AppSetup.frequencyGram && AppSetup.voiceRecognitionPointsData)			
 			paths = addStringToPath(paths,"voicePointsRecognition");
 		
@@ -56,6 +56,8 @@ public class BuildAudioAnalysisFilesPaths {
 			
 		if(AppSetup.wave) 
 			paths = addStringToPath(paths,"wave");
+				
+		Debug.debug(debud_level_DEBUG,"BuildAudioAnalysisFilesPaths paths: "+ Arrays.toString(paths));
 		
 			return paths;
 	}
@@ -74,7 +76,7 @@ public class BuildAudioAnalysisFilesPaths {
 			
 			tempPaths = new String[] {path};
 		
-		Debug.debug(5,"AudioAnalysisPhaseBuilder addtask return tempPaths.length: "
+		Debug.debug(debud_level_DEBUG,"BuildAudioAnalysisFilesPaths addtask return tempPaths.length: "
 			+tempPaths.length);
 		
 			return tempPaths;

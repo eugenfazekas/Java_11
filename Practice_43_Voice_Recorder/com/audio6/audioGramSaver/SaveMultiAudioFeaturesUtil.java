@@ -7,6 +7,8 @@ import com.audio1.logical.EntryPointMethods;
 import com.audio8.util.Debug;
 
 public class SaveMultiAudioFeaturesUtil {
+	
+	private static int debug_level_INFO = 5;
 
 	static double getMaxMagnitude(double[][] spectrogram) {
 		   
@@ -38,7 +40,7 @@ public class SaveMultiAudioFeaturesUtil {
     
 	static byte[] buildAudiodDataFromInt(int[] intStream)	{
 		
-		Debug.debug(3,"AnalysisInitializer buildAudiodDataFromInt intSream.Length: "
+		Debug.debug(debug_level_INFO,"AnalysisInitializer buildAudiodDataFromInt intSream.Length: "
 			+intStream.length);
 		
 		return convertIntArrayToByteArray(intStream);
@@ -55,7 +57,7 @@ public class SaveMultiAudioFeaturesUtil {
 			byte_stram[counter++] = (byte) intStream[i] ;
 		}
 		
-		Debug.debug(2,"SoundBuilder convertIntArrayToByteArray byte_Sequence.length "
+		Debug.debug(debug_level_INFO,"SoundBuilder convertIntArrayToByteArray byte_Sequence.length "
 			+byte_stram.length);
 		
 			return byte_stram;
@@ -63,8 +65,9 @@ public class SaveMultiAudioFeaturesUtil {
 	
 	static String sequenceArrayToString (String[] inputArray) {
 		
-		Debug.debug(2,"SoundBuilder sequenceArrayToString old length: " +inputArray.length 
+		Debug.debug(debug_level_INFO,"SoundBuilder sequenceArrayToString old length: " +inputArray.length 
 				+",  InputArray: "+Arrays.toString(inputArray));
+		
 		StringBuilder string = new StringBuilder();
 		string.append(inputArray[0]);
 		
@@ -76,7 +79,9 @@ public class SaveMultiAudioFeaturesUtil {
 			if(inputArray != null)
 				string.append(","+inputArray[i]);
 		}
-		Debug.debug(2,"SoundBuilder sequenceArrayToString New array: "+ string.toString());
+		
+		Debug.debug(debug_level_INFO,"SoundBuilder sequenceArrayToString New array: "+ string.toString());
+		
 			return string.toString();	
 	}
 	

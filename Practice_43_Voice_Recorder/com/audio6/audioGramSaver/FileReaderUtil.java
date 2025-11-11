@@ -8,6 +8,8 @@ import java.util.List;
 import com.audio8.util.Debug;
 
 public class FileReaderUtil {
+	
+	private static int debug_level_INFO = 5;
 
 	public static List<String>  buildStringLinesFromInputStream(FileInputStream stream) {
 
@@ -36,9 +38,7 @@ public class FileReaderUtil {
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			} 
-	        //Debug.debug(3,"FileReaderUtil buildStringLines Get 0: "+lines.get(0));
-	        
+			} 	        
 	        	return lines;
 	}
 	
@@ -50,11 +50,11 @@ public class FileReaderUtil {
 			
 			fin = new FileInputStream(filePath);
 			
-			Debug.debug(3,"FileReaderUtil buildFileStreamFromFile: "+filePath 
+			Debug.debug(debug_level_INFO,"FileReaderUtil buildFileStreamFromFile: "+filePath 
 				+", available"+fin.available());
 	
 		} catch (Exception e) {
-			Debug.debug(3,"FileReaderUtil buildFileStreamFromFile READ ERRROORR");
+			Debug.debug(debug_level_INFO,"FileReaderUtil buildFileStreamFromFile READ ERRROORR");
 			e.printStackTrace();
 		}		
 			return fin;

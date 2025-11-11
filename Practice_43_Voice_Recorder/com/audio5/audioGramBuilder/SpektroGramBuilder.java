@@ -8,8 +8,8 @@ import com.audio8.util.Debug;
 
 public class SpektroGramBuilder {
 	
-
-	   
+	private static int debug_level_INFO = 5;
+		   
 	static double[][] mainBuilder(int id) {
 		   
 	    if(!AppSetup.spektrogram) return null;
@@ -48,7 +48,7 @@ public class SpektroGramBuilder {
             }
         }
         
-        Debug.debug(2,"SpektroGramBuilder buildFFT spectrogram length: "+spectrogram.length 
+        Debug.debug(debug_level_INFO,"SpektroGramBuilder buildFFT spectrogram length: "+spectrogram.length 
         	+ " spectrogram[0].length: "+spectrogram[0].length );
         
         return spectrogram; 

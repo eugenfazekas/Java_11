@@ -14,7 +14,10 @@ import javax.sound.sampled.AudioSystem;
 import com.audio8.util.Debug;
 
 public class FileWriterUtil {
+	
 	private static int counter;
+	
+	private static int debug_level_INFO = 5;
 	
 	public static void writeImageFile(BufferedImage image,String fileName) {
 		
@@ -24,7 +27,6 @@ public class FileWriterUtil {
 			ImageIO.write(image, "png", outputImage);
 			DeleteLastAnalysisBuilder.addPathToFileSavedList(fileName+".png");
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -37,11 +39,10 @@ public class FileWriterUtil {
 			AudioSystem.write(audioInputStream, AudioFileFormat.Type.WAVE, myFile);
 			DeleteLastAnalysisBuilder.addPathToFileSavedList(fileName+".wav");
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
         
-        Debug.debug(4,"FileUtil Saved " + myFile.getAbsolutePath());
+        Debug.debug(debug_level_INFO,"FileUtil Saved " + myFile.getAbsolutePath());
 	}
 	
 	public static void fileWriter(byte[][] byteData,String[] stringData, String filePath ) {

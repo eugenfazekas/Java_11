@@ -27,22 +27,24 @@ public class StreamRefinaryUtil {
 	private static int lsb;
 	private static short endian = 0;
 //	private static short sample;
-	private static int debugLevel = 5;
+	
+	private static int debug_level_INFO = 5;
+	private static int debud_level_DEBUG = 5;
 	
 	private static void buildDoubleArray(int[] intStream) {
 		
         paddedLength = 1;
         
-        while (paddedLength * 2 < intStream.length) {
+        while (paddedLength * 2 < intStream.length) 
             paddedLength *= 2;
-        }
-		
+        		
         normalizedStream = new double[paddedLength];
-        Debug.debug(debugLevel,"StreamRefinaryUtil buildDoubleArray normalizedStream.length: "
+        
+        Debug.debug(debug_level_INFO,"StreamRefinaryUtil buildDoubleArray normalizedStream.length: "
         		+normalizedStream.length + ", intStream.length: " + intStream.length);
-        for (i = 0; i < paddedLength; i++) {
-            normalizedStream[i] = intStream[i] / 32768.0;
-        }
+        
+        for (i = 0; i < paddedLength; i++) 
+            normalizedStream[i] = intStream[i] / 32768.0;        
 	}
 	
 	private static void buildDoubleArray(int[] intStream1, int[] intStream2, int[] intStream3) {
@@ -50,40 +52,33 @@ public class StreamRefinaryUtil {
 		streamLength = intStream1.length * 10;
         paddedLength = 1;
         
-        while (paddedLength * 2 < streamLength) {
+        while (paddedLength * 2 < streamLength) 
             paddedLength *= 2;
-        }
-		
-        normalizedStream = new double[paddedLength];    
-        i=0;
+        		
+        normalizedStream = new double[paddedLength];
+        
+        i = 0;
        // i = (paddedLength - (3*intStream1.length))/2 ;
         
-        Debug.debug(debugLevel,"StreamRefinaryUtil buildDoubleArray i: "+i+ ", intStream1.length: "+
-        intStream1.length+", i+ data: "+(i+(3*intStream1.length))+", paddedLength: "+paddedLength);
+        Debug.debug(debug_level_INFO,"StreamRefinaryUtil buildDoubleArray i: "+i+ ", intStream1.length: "+
+        		intStream1.length+", i+ data: "+(i+(3*intStream1.length))+", paddedLength: "+paddedLength);
         
         counter = 0;
         
-        while(counter < intStream1.length && i < paddedLength) {  
-        	
+        while(counter < intStream1.length && i < paddedLength)         	
         	normalizedStream[i++] = intStream1[counter++] / 32768.0;
-        	
-        }
-        
+        	      
         counter = 0;
         
-        while(counter < intStream2.length && i < paddedLength )  {   
-        	
+        while(counter < intStream2.length && i < paddedLength )          	
         	normalizedStream[i++] = intStream2[counter++] / 32768.0;
-        }
-    
+
         counter = 0;
+               
+        while(counter < intStream3.length && i < paddedLength )     
+        	normalizedStream[i++] = intStream3[counter++] / 32768.0;       
         
-        
-        while(counter < intStream3.length && i < paddedLength )     {
-        	normalizedStream[i++] = intStream3[counter++] / 32768.0;
-        }
-        
-        Debug.debug(debugLevel,"StreamRefinaryUtil buildDoubleArray i: "+i + ", paddedLength: "
+        Debug.debug(debug_level_INFO,"StreamRefinaryUtil buildDoubleArray i: "+i + ", paddedLength: "
         		+paddedLength);
 	}
 	
@@ -109,15 +104,16 @@ public class StreamRefinaryUtil {
         	mag_buffer += magnitude; 
         	counter++;
          
-            Debug.debug(debugLevel,"StreamRefinaryUtil getFrecvencys Frequency: " + frequency 
+            Debug.debug(debud_level_DEBUG,"StreamRefinaryUtil getFrecvencys Frequency: " + frequency 
             	+ " Hz, Magnitude: " + magnitude);
         }
        
     	result = mag_buffer / counter > AppSetup.FFT_MAGNITUDE_LIMIT ?  new int[] 
     		{0, (int)(mag_x_freqbuffer / mag_buffer) } : new int[]{0,20};
 
-    	Debug.debug(debugLevel,"StreamRefinaryUtil getFrecvencys result: "+ result[1]);
-        return result;
+    	Debug.debug(debug_level_INFO,"StreamRefinaryUtil getFrecvencys result: "+ result[1]);
+    	
+    		return result;
 	}
 	
 	private static void buildDoubleArraySelector (int[] stream1,int[] stream2, int[] stream3) {

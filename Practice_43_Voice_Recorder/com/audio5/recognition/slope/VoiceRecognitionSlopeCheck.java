@@ -2,10 +2,13 @@ package com.audio5.recognition.slope;
 
 import java.util.Arrays;
 
+import com.audio1.logical.EntryPointMethods;
 import com.audio5.recognition.VoiceRecognitionDB;
 import com.audio5.recognition.VoiceRecognitionMain;
 import com.audio7.threads.MyThread;
+import com.audio7.threads.ThreadAction;
 import com.audio7.threads.ThreadManagement;
+import com.audio7.threads.util.ThreadObjectDetails;
 import com.audio8.util.Debug;
 
 public class VoiceRecognitionSlopeCheck implements MyThread{
@@ -15,6 +18,7 @@ public class VoiceRecognitionSlopeCheck implements MyThread{
 	public static boolean threadIsActive;
 	public boolean threadIsSuspended;
 	final private static String THREAD_NAME = "VoiceRecognitionSlopeCheck"; 
+	ThreadObjectDetails threadObject; 
 	
 	private static int checkArray[][];
 	private static float[][] tempResultVerifier;
@@ -28,11 +32,15 @@ public class VoiceRecognitionSlopeCheck implements MyThread{
 	private static int globalBestPosition;
 	private static float globalBestValue;
 	
+	private static int debug_level_INFO = 5;
+	private static int debud_level_DEBUG = 5;
+	
 	public VoiceRecognitionSlopeCheck(int Id ,int[][] inputArray) {
 		
 		id = Id;
 		checkArray = inputArray;
 		
+		threadObject = new ThreadObjectDetails(THREAD_NAME, true);
 		threadIsActive = true;
 		threadIsSuspended = false;
 		thread = new Thread(this);
@@ -42,16 +50,27 @@ public class VoiceRecognitionSlopeCheck implements MyThread{
 	@Override
 	public void run() {
 		
-		Thread.currentThread().setName(THREAD_NAME);		
-		ThreadManagement.addingThread(this);
+		Thread.currentThread().setName(THREAD_NAME);	
 		
-		Debug.debug(1,"Starting "+Thread.currentThread().getName() +" Thread!");
+		ThreadManagement.threadActions.add(
+				new ThreadAction("addingThread",-1,EntryPointMethods.getSvitch(),this));
+		
+		Debug.debug(debug_level_INFO,"Starting "+Thread.currentThread().getName() +" Thread!");
 		
 		while(threadIsActive) {
 			
 			suspendThread();
 			
-			mainVoiceFinder(checkArray);
+		    try {		    
+					mainVoiceFinder(checkArray);
+		    
+		    } catch (Exception ex) {
+		    	
+	            Debug.debug(debud_level_DEBUG,"DebugException in VoiceRecognitionSlopeCheck! " +ex.getMessage());  
+
+	    		ThreadManagement.threadActions.add(
+	    				new ThreadAction("stopAllThreads",-1,EntryPointMethods.getSvitch(),this));
+		    }
 		}
 		
 		thread = null;			
@@ -73,7 +92,7 @@ public class VoiceRecognitionSlopeCheck implements MyThread{
 
 			for(int j = 0; j <  VoiceRecognitionDB.audioSlopeDB[i].length; j++) {
 							
-				Debug.debug(1,"VoiceRecognitionDB.audioSlopeDB[i][j][0]"
+				Debug.debug(debud_level_DEBUG,"VoiceRecognitionDB.audioSlopeDB[i][j][0]"
 					+VoiceRecognitionDB.audioSlopeDB[i][j][0].length 
 					+", VoiceRecognitionDB.audioSlopeDB[i][j][1]: "+VoiceRecognitionDB.audioSlopeDB[i][j][1].length
 					+", checkArray[0].length: "+checkArray[0].length+", checkArray[1].length: "+checkArray[1].length 
@@ -90,7 +109,7 @@ public class VoiceRecognitionSlopeCheck implements MyThread{
 				
 				avg += match;
 				
-				Debug.debug(1,"VoiceRecognitionDB result1: "+result1+ ", result2: "+ result2 
+				Debug.debug(debud_level_DEBUG,"VoiceRecognitionDB result1: "+result1+ ", result2: "+ result2 
 					+", match: "+match + ", avg: "+avg);
 				
 				if(match > localBestMatch) {
@@ -112,14 +131,14 @@ public class VoiceRecognitionSlopeCheck implements MyThread{
 					tempResultVerifier[i][j+3] = i;
 					tempResultVerifier[i][j+4] = localBestPosition;
 					
-					Debug.debug(3, "VoiceRecognitionSlopeCheck mainVoiceFinder Match Word: "
+					Debug.debug(debud_level_DEBUG, "VoiceRecognitionSlopeCheck mainVoiceFinder Match Word: "
 						+VoiceRecognitionDB.DB_NAMES.get(i)+", avg: "+(j+1)+ ", Added "
 						+Arrays.toString(tempResultVerifier[i])+ ", Break\n");
 				}			
 			}
 		}
 		
-		Debug.debug(3, "VoiceRecognitionSlopeCheck mainVoiceFinder Actual bestMatch: " 
+		Debug.debug(debud_level_DEBUG, "VoiceRecognitionSlopeCheck mainVoiceFinder Actual bestMatch: " 
 			+ VoiceRecognitionDB.DB_NAMES.get(globalBestName)+ ", globalBestPosition: "
 			+globalBestPosition+ ", globalBestValue: "+globalBestValue+", Voice Finder Elapsed Time: " 
 			+(System.currentTimeMillis() - Debug.startTime));
@@ -179,8 +198,8 @@ public class VoiceRecognitionSlopeCheck implements MyThread{
 	}
 	
 	@Override
-	public String getThreadName() {
-		
-		return THREAD_NAME;
+	public ThreadObjectDetails getThreadObjectDetails() {
+
+		return threadObject;
 	}
 }

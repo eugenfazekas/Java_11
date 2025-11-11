@@ -24,7 +24,9 @@ public class VoiceRecognitionSlopeBuilder {
 	
 	static int i;
 	static int j;
-	private static int debugLevel = 5;
+	
+	private static int debug_level_INFO = 5;
+	private static int debud_level_DEBUG = 5;
 
 	public static int[] mainSlopeBuilder(int[] input, int[] borders) {
 	
@@ -35,7 +37,7 @@ public class VoiceRecognitionSlopeBuilder {
 		for(i = 1; i < input.length-1; i++) {
 			
 			thisAngle = getLocalAngle(input);
-			Debug.debug(debugLevel,"VoiceRecognitionSlopeBuilder mainSlopeBuilder i: " + i
+			Debug.debug(debud_level_DEBUG,"VoiceRecognitionSlopeBuilder mainSlopeBuilder i: " + i
 				+ ", input[i]: "+input[i] +", input[i+1]: "+input[i+1] + ", thisAngle: "+thisAngle);
 			
 			if(positive) {
@@ -72,7 +74,7 @@ public class VoiceRecognitionSlopeBuilder {
 			}
 		}
 		
-		Debug.debug(debugLevel,"VoiceRecognitionSlopeBuilder mainSlopeBuilder End V: " + input[i-1]
+		Debug.debug(debug_level_INFO,"VoiceRecognitionSlopeBuilder mainSlopeBuilder End V: " + input[i-1]
 			+ ", H: " + (i - startH));
 		
 		if(startH != 0 && (input[i-1] + (i-1 - startH)) >  10)
@@ -111,7 +113,7 @@ public class VoiceRecognitionSlopeBuilder {
 		
 		testAngle = getAngle(input[i] - startV, i - startH);
 		
-		Debug.debug(debugLevel,"VoiceRecognitionSlopeBuilder angleEndCheck testAngle: " + testAngle 
+		Debug.debug(debud_level_DEBUG,"VoiceRecognitionSlopeBuilder angleEndCheck testAngle: " + testAngle 
 			+", thisAngle: "+thisAngle + ", V: "+Math.abs(input[i] - startV)+", H: " + (i - startH));
 		
 		if( Math.abs ( (testAngle + 180) - (thisAngle + 180)  ) > 25  &&
@@ -145,7 +147,7 @@ public class VoiceRecognitionSlopeBuilder {
 		for(i = 0; i < tempSlopes.length; i++)
 			tempSlopes[i] = input[i];
 		
-		Debug.debug(debugLevel,"VoiceRecognitionSlopeBuilder filterEmptyElements old length"
+		Debug.debug(debug_level_INFO,"VoiceRecognitionSlopeBuilder filterEmptyElements old length"
 				+ input.length + ", new length: "+lentgh);
 		
 		return tempSlopes;

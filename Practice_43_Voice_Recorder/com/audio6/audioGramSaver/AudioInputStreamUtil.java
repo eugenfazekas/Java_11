@@ -13,7 +13,8 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import com.audio8.util.Debug;
 
 public class AudioInputStreamUtil {
-
+	
+	private static int debug_level_INFO = 5;
 	
 	public static AudioInputStream buildAudioInputStream(byte[]byteStream,AudioFormat audioFormat){
 		
@@ -21,7 +22,7 @@ public class AudioInputStreamUtil {
         AudioInputStream audioOutStream = new AudioInputStream(bais, audioFormat, byteStream.length
         															/audioFormat.getFrameSize());
         
-        Debug.debug(2,"SaveAudioFeatures buildAudioInputStream byteStream.length: "
+        Debug.debug(debug_level_INFO,"SaveAudioFeatures buildAudioInputStream byteStream.length: "
         	+audioOutStream.getFrameLength());  
         
         	return audioOutStream;
@@ -46,8 +47,7 @@ public class AudioInputStreamUtil {
 	public static byte[] buildAudiodDataFromAudioStream(AudioInputStream audioInputStream) {
 			   
 		byte[] audioData = new byte[(int) audioInputStream.getFrameLength() 
-		                            			* audioInputStream.getFormat().getFrameSize()];
-		 
+		                            			* audioInputStream.getFormat().getFrameSize()];		 
         try {
 			audioInputStream.read(audioData);
 		} catch (IOException e) {
@@ -55,7 +55,8 @@ public class AudioInputStreamUtil {
 			e.printStackTrace();
 		}
         
-	    Debug.debug(3,"AudioUtil buildAudiodDataFromAudioStream");
+	    Debug.debug(debug_level_INFO,"AudioUtil buildAudiodDataFromAudioStream length: "
+	    		+audioData.length);
 	    
 	    	return audioData;
 	}

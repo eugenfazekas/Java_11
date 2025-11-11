@@ -13,6 +13,8 @@ public class FileUtil {
 	
 	public static String fileName = "";
 	private static byte[][] fileOutputByteArray;	
+	
+	private static int debug_level_INFO = 5;
 
 	public static void addImageFileToLibrary(BufferedImage image,String speechName, String path) {
 
@@ -31,7 +33,7 @@ public class FileUtil {
 	
 	public static void createTextFile(String[] data, String pathWithFileName) {
 		
-		Debug.debug(4,"CreateTextFile pathWithFileName:"+pathWithFileName 
+		Debug.debug(debug_level_INFO,"FileUtil CreateTextFile pathWithFileName:"+pathWithFileName 
 			+ " data.length:"+ data.length);
 		DeleteLastAnalysisBuilder.addPathToFileSavedList(pathWithFileName);
 		FileWriterUtil.fileWriter(null,data,pathWithFileName);
@@ -43,7 +45,7 @@ public class FileUtil {
 		int count =	FileCheckUtil.countExistingFiles(path);		  
 		fileName = rawType+"-"+speechName+"-"+count+".txt";
 		createTextFile(data, path+"/"+fileName);
-		Debug.debug(2,"FileUtil buildRawAudioDataTextFile "+ path+"/"+rawType+fileName);
+		Debug.debug(debug_level_INFO,"FileUtil buildRawAudioDataTextFile "+ path+"/"+rawType+fileName);
 	}
 
 	public static void addStreamToFile( String addLine, String filePath) {
@@ -55,7 +57,7 @@ public class FileUtil {
 		try {
 		    targetArray = new byte[inputStream.available()];			  
 			inputStream.read(targetArray); 
-			Debug.debug(2,"targetArray.length: "+targetArray.length +", inputStream.available(): "
+			Debug.debug(debug_level_INFO,"targetArray.length: "+targetArray.length +", inputStream.available(): "
 				+inputStream.available());
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -72,7 +74,7 @@ public class FileUtil {
 		
 		FileWriterUtil.fileWriter(fileOutputByteArray,null,filePath);
 		
-		Debug.debug(3,"FileUtil addStreamToFile addedLine: "+addLine + " to Path: "+filePath 
+		Debug.debug(debug_level_INFO,"FileUtil addStreamToFile addedLine: "+addLine + " to Path: "+filePath 
 			+", targetArray.length: "+targetArray.length + ", addLine.getBytes().length: "
 			+addLine.getBytes().length);					
 	}
