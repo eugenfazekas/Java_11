@@ -18,7 +18,7 @@ public class VoiceRecognitionSlopeCheck implements MyThread{
 	public static boolean threadIsActive;
 	public boolean threadIsSuspended;
 	final private static String THREAD_NAME = "VoiceRecognitionSlopeCheck"; 
-	ThreadObjectDetails threadObject; 
+	private ThreadObjectDetails threadObject; 
 	
 	private static int checkArray[][];
 	private static float[][] tempResultVerifier;
@@ -53,7 +53,8 @@ public class VoiceRecognitionSlopeCheck implements MyThread{
 		Thread.currentThread().setName(THREAD_NAME);	
 		
 		ThreadManagement.threadActions.add(
-				new ThreadAction("addingThread",-1,EntryPointMethods.getSvitch(),this));
+				new ThreadAction("addingThread",-1,EntryPointMethods.getSvitch(),this,
+						"addingThread VoiceRecognitionSlopeCheck"));
 		
 		Debug.debug(debug_level_INFO,"Starting "+Thread.currentThread().getName() +" Thread!");
 		
@@ -66,10 +67,11 @@ public class VoiceRecognitionSlopeCheck implements MyThread{
 		    
 		    } catch (Exception ex) {
 		    	
-	            Debug.debug(debud_level_DEBUG,"DebugException in VoiceRecognitionSlopeCheck! " +ex.getMessage());  
+	            Debug.debug(1,"DebugException in VoiceRecognitionSlopeCheck! " +ex.getMessage());  
 
 	    		ThreadManagement.threadActions.add(
-	    				new ThreadAction("stopAllThreads",-1,EntryPointMethods.getSvitch(),this));
+	    				new ThreadAction("stopAllThreads",-1,EntryPointMethods.getSvitch(),this,
+	    						"stopAllThreads VoiceRecognitionSlopeCheck"));
 		    }
 		}
 		

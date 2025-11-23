@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import com.audio0.main.AppSetup;
 import com.audio6.audioGramSaver.FileCheckUtil;
 import com.audio6.audioGramSaver.FileReaderUtil;
@@ -24,7 +25,9 @@ public class VoiceRecognitionDB {
 	
 	public static void buildAudioDB() {
 		
-		if(!AppSetup.voiceRecognition || instanceOf) return;
+		if(!AppSetup.voiceRecognition || instanceOf ||
+			!FileCheckUtil.pathExist(AppSetup.BASE_AUDIO_PATH+"spektrum/")) 
+				return;
 		
 		instanceOf = true;
 			

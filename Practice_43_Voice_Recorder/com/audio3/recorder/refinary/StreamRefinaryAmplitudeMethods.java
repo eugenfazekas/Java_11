@@ -101,9 +101,9 @@ public class StreamRefinaryAmplitudeMethods {
 		validLimit = validCounterLimit/10;
 		validVoiceDetection = false;
 		
-		lastByteBuffers = new byte [200][];
+		lastByteBuffers = new byte [AppSetup.RECORD_BUFFER_LENGTH * 2][];
 		lastByteBuffersCounter = 0;
-		lastIntBuffers = new int[100][];
+		lastIntBuffers = new int[AppSetup.RECORD_BUFFER_LENGTH][];
 		lastIntBuffersCounter = 0;
 		
 		audioByteStream = new byte[10][];
@@ -123,7 +123,15 @@ public class StreamRefinaryAmplitudeMethods {
 			Debug.debug(1,"StreamRefinaryAmplitudeMethods initBaseBufferVariables"+
 					"APPLICATION STOPPING! NO MICROPHONE DETECTED!");
 			
-		    Main.setStopAllThreads();
+		    Main.setStopAllThreads("StreamRefinaryAmplitudeMethods");
+		}
+		
+		if(lastIntBuffersCounter == AppSetup.RECORD_BUFFER_LENGTH) {
+			
+			lastByteBuffers = new byte [AppSetup.RECORD_BUFFER_LENGTH * 2][];
+			lastByteBuffersCounter = 0;
+			lastIntBuffers = new int[AppSetup.RECORD_BUFFER_LENGTH][];
+			lastIntBuffersCounter = 0;
 		}
 		
 		RECORDED_MILISEC += AppSetup.RECORDER_MILISEC_BUFFER_LENGTH;

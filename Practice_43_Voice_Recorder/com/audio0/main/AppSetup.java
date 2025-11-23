@@ -31,7 +31,7 @@ public class AppSetup {
 	public final static int AUDIO_BUFFER_MILISEC_BEFORE_LENGTH = 300;
 	public final static int AUDIO_BUFFER_MILISEC_AFTER_LENGTH = 600;
 	public final static int START_OPTIMIZATION_CYCLES = 3;
-		
+	public final static int RECORD_BUFFER_LENGTH = 100;	
 	// PRETRIM common	
 	public final static int START_LENGTH_CHECK = 50;
 	public final static int END_LENGTH_CHECK = 200;

@@ -1,0 +1,4 @@
+Manifest-Version: 1.0
+Main-Class: com.audio0.main.Main
+Class-Path: . jar_files/commons-math3-3.5.jar jar_files/JLargeArrays-1.5.jar jar_files/JTransforms-3.1.jar jar_files/TarsosDSP-2.4.1.jar
+Created-By: 1.7.0_06 (Oracle Corporation)

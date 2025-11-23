@@ -20,7 +20,7 @@ public class DeleteOrNotActionLogic implements MyThread {
 	private boolean threadIsSuspended;
 	private Thread thread;	
 	final private static String THREAD_NAME = "DeleteOrNotActionLogic"; 
-	ThreadObjectDetails threadObject = new ThreadObjectDetails(THREAD_NAME, true); 
+	private ThreadObjectDetails threadObject = new ThreadObjectDetails(THREAD_NAME, true); 
 
 	private static Scanner scanner ;
 	public static boolean checking;
@@ -47,7 +47,7 @@ public class DeleteOrNotActionLogic implements MyThread {
 		threadObject.setApplicationName("DeleteOrNotActionLogic");
 		
 		ThreadManagement.threadActions.add(
-				new ThreadAction("addingThread",-1,EntryPointMethods.getSvitch(),this));
+				new ThreadAction("addingThread",-1,EntryPointMethods.getSvitch(),this,"addingThread DeleteOrNotActionLogic"));
 		
 		Debug.debug(debug_level_INFO,"Starting "+Thread.currentThread().getName() +" Thread!");
 
@@ -108,9 +108,11 @@ public class DeleteOrNotActionLogic implements MyThread {
 		}
 
 		ThreadManagement.threadActions.add(
-				new ThreadAction("stopThreadsByApplicationName",-1,"voiceRecognition",this));
+				new ThreadAction("stopThreadsByApplicationName",-1,"voiceRecognition",this,
+						"stopThreadsByApplicationName voiceRecognition DeleteOrNotActionLogic"));
 		ThreadManagement.threadActions.add(
-				new ThreadAction("stopThreadsByApplicationName",-1,"DeleteOrNotActionLogic",this));
+				new ThreadAction("stopThreadsByApplicationName",-1,"DeleteOrNotActionLogic",this,
+						"stopThreadsByApplicationName DeleteOrNotActionLogic DeleteOrNotActionLogic"));
 
 		EntryPointMethods.setInstanceFalse();
 	}
@@ -136,7 +138,8 @@ public class DeleteOrNotActionLogic implements MyThread {
 		svitch = EntryPointMethods.getSvitch();
 		speechName = EntryPointMethods.getSpeechName();
 		ThreadManagement.threadActions.add(
-				new ThreadAction("suspendThreadsByApplicationName",-1,svitch,this));
+				new ThreadAction("suspendThreadsByApplicationName",-1,svitch,this,
+						"suspendThreadsByApplicationName DeleteOrNotActionLogic"));
  
 		lastDelete = SaveMultiAudioFeatures.deleteList.poll();
 		input = null;
@@ -150,7 +153,8 @@ public class DeleteOrNotActionLogic implements MyThread {
 		EntryPointMethods.setSpeechName(speechName);
 		
 		ThreadManagement.threadActions.add(
-				new ThreadAction("enableAllThreads",-1,null,this));  
+				new ThreadAction("enableAllThreads",-1,null,this, 
+						"enableAllThreads DeleteOrNotActionLogic"));  
 	}
 	
 	private boolean makeCheckAction(String readedInput) {

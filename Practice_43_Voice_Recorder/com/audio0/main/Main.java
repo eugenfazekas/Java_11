@@ -29,17 +29,21 @@ public class Main {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
 				
+				Debug.debug(1, "Main InterruptedException " + e.getMessage());
 				e.printStackTrace();
 			}	
 			
 			Debug.debug(6, "Main Threads Count: " + ThreadManagement.getThreadsCount());
 		}	
 		
-		ThreadManagement.threadActions.add(new ThreadAction("stopAllThreads",-1,null,null));
+		ThreadManagement.threadActions.add(new ThreadAction("stopAllThreads",-1,null,null,
+				"stopAllThreads main"));
 	}
 	
-	public static void setStopAllThreads() {
+	public static void setStopAllThreads(String initializer) {
 		
+		
+		Debug.debug(1, "Main setStopAllThreads initializer: " + initializer);
 		threadIsActive = false;
 	}
 }

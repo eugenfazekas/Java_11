@@ -29,7 +29,7 @@ public class AudioListener implements MyThread {
 	private boolean threadIsSuspended;
 	private Thread thread;
 	final private String THREAD_NAME = "AudioListener";
-	ThreadObjectDetails threadObject;
+	private ThreadObjectDetails threadObject;
 
 	private static int debug_level_INFO = 5;
 	private static int debud_level_DEBUG = 5;
@@ -46,7 +46,7 @@ public class AudioListener implements MyThread {
 
 	    	InstanceOf = true;
 			
-			Debug.debug(1,"AudioListener frameSizeInBytes: "+frameSizeInBytes
+			Debug.debug(debug_level_INFO,"AudioListener frameSizeInBytes: "+frameSizeInBytes
 					+" bufferLengthInBytes: " +bufferLengthInBytes);
     	}
     }
@@ -59,7 +59,8 @@ public class AudioListener implements MyThread {
 		Debug.debug(debug_level_INFO,"Starting "+Thread.currentThread().getName() +" Thread!");	
 		
 		ThreadManagement.threadActions.add(
-				new ThreadAction("addingThread",-1,EntryPointMethods.getSvitch(),this));
+				new ThreadAction("addingThread",-1,EntryPointMethods.getSvitch(),this,
+						"addingThread AudioListener"));
 		
 		while(threadIsActive) {
 			
@@ -107,7 +108,7 @@ public class AudioListener implements MyThread {
 	            		- Debug.startTime) );          
         }
         
-        Debug.debug(5,"AudioListener ByteArrayOutputStream size: "+ out.size());
+        Debug.debug(debud_level_DEBUG,"AudioListener ByteArrayOutputStream size: "+ out.size());
     }
 
 	public static boolean isInstanceOf() {

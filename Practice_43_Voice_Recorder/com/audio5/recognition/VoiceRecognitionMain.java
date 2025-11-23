@@ -33,8 +33,10 @@ public class VoiceRecognitionMain {
 	public static void main(int id) {
 		
 		if(AudioAnalysisThread.startedVoiceCheck.get(id).getBuild() == false 
-			|| !AudioAnalysisThread.startedVoiceCheck.get(id).getNextStage().equals("voiceCheck")) 
+			|| !AudioAnalysisThread.startedVoiceCheck.get(id).getNextStage().equals("voiceCheck")
+			|| VoiceRecognitionDB.audioPointsDB == null) 
 				return;
+		
 		building.set(true);
 
 		VoiceCheckModel vcModel = new VoiceCheckModel(id,getVoiceRecognitionTestsLength());
@@ -150,8 +152,8 @@ public class VoiceRecognitionMain {
 		for(int i = 0; i < startedVoiceCheck.get(id).getBaseTestsCounter() * 2; i = i + 2) {
 						
 			Debug.debug(1, "VoiceRecognitionMain buildMainResultBuilder  mainResult[i] " + mainResult[i]
-					+ ", mainResult[i+1] "+mainResult[i+1]);
-			if(mainResult[i] > tempResult[0] && mainResult[i] < 100000) {
+					+ ", mainResult[i+1] "+ VoiceRecognitionDB.DB_NAMES.get((int)mainResult[i+1]));
+			if(mainResult[i] > tempResult[0] && mainResult[i] < 1000000) {
 				tempResult[0] = mainResult[i];
 				tempResult[1] = mainResult[i+1];
 			}

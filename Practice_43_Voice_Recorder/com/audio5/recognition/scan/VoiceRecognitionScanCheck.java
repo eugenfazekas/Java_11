@@ -18,7 +18,7 @@ public class VoiceRecognitionScanCheck implements MyThread{
 	public static boolean threadIsActive;
 	public boolean threadIsSuspended;
 	final private static String THREAD_NAME = "VoiceRecognitionScanCheck"; 
-	ThreadObjectDetails threadObject; 
+	private ThreadObjectDetails threadObject; 
 	
 	private static int checkArray[];
 	private static float[][] tempResultVerifier;
@@ -52,7 +52,8 @@ public class VoiceRecognitionScanCheck implements MyThread{
 		Thread.currentThread().setName(THREAD_NAME);	
 		
 		ThreadManagement.threadActions.add(
-				new ThreadAction("addingThread",-1,EntryPointMethods.getSvitch(),this));
+				new ThreadAction("addingThread",-1,EntryPointMethods.getSvitch(),this,
+						"addingThread VoiceRecognitionScanCheck"));
 		
 		Debug.debug(debug_level_INFO,"Starting "+Thread.currentThread().getName() +" Thread!");
 		
@@ -65,10 +66,11 @@ public class VoiceRecognitionScanCheck implements MyThread{
 		    
 		    } catch (Exception ex) {
 		    	
-	            Debug.debug(debud_level_DEBUG,"DebugException in VoiceRecognitionScanCheck! " +ex.getMessage());  
+	            Debug.debug(1,"DebugException in VoiceRecognitionScanCheck! " +ex.getMessage());  
 
 	    		ThreadManagement.threadActions.add(
-	    				new ThreadAction("stopAllThreads",-1,EntryPointMethods.getSvitch(),this));
+	    				new ThreadAction("stopAllThreads",-1,EntryPointMethods.getSvitch(),this,
+	    						"stopAllThreads VoiceRecognitionScanCheck"));
 		    }
 		}
 		

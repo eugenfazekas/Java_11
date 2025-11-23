@@ -15,6 +15,7 @@ import com.audio3.recorder.refinary.StreamRefinarySelector;
 import com.audio4.audioGramInitializer.mainInit.AudioAnalysisThread;
 import com.audio5.recognition.VoiceRecognitionDB;
 import com.audio6.audioGramSaver.AudioInputStreamUtil;
+import com.audio6.audioGramSaver.FileCheckUtil;
 import com.audio7.threads.ThreadManagement;
 import com.audio8.util.Debug;
 
@@ -49,7 +50,9 @@ public class EntryPointMethods {
 		if(audioAnalysisThread == null)
 			audioAnalysisThread = new AudioAnalysisThread();
 
-		setMainProfile(option,inputName);		
+		setMainProfile(option,inputName);	
+		
+		checkMainPath();
 	}
 	
 	private static void setMainProfile(String option, String inputName) {
@@ -191,6 +194,12 @@ public class EntryPointMethods {
 		loadProfileSetup(svitch);
 		
 		new TimeFixedSoundRecorder(fileName,AppSetup.FIXED_RECORD_LENGTH_IN_MILISEC);
+	}
+	
+	private static void checkMainPath() {
+		
+		if(!FileCheckUtil.pathExist(AppSetup.BASE_AUDIO_PATH))
+			FileCheckUtil.buildDirectory(AppSetup.BASE_AUDIO_PATH);
 	}
 			
 	public static String getSpeechName() {

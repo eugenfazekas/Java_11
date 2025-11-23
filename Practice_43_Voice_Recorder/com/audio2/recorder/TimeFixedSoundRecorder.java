@@ -27,7 +27,7 @@ public class TimeFixedSoundRecorder implements MyThread {
 	private boolean threadIsSuspended;
 	private Thread thread;
 	final private String THREAD_NAME = "TimeFixedSoundRecorder"; 
-	ThreadObjectDetails threadObject; 
+	private ThreadObjectDetails threadObject; 
     
     public TimeFixedSoundRecorder(String SpeechName, int RecordLength) {
     	
@@ -49,7 +49,8 @@ public class TimeFixedSoundRecorder implements MyThread {
 		Thread.currentThread().setName(THREAD_NAME);
 		Debug.debug(1,"Starting "+Thread.currentThread().getName() +" Thread!");	
 		ThreadManagement.threadActions.add(
-				new ThreadAction("addingThread",-1,EntryPointMethods.getSvitch(),this));
+				new ThreadAction("addingThread",-1,EntryPointMethods.getSvitch(),this,
+						"addingThread TimeFixedSoundRecorder"));
 		
 		buffer = new byte[calculateBufferLength(recordLength)];
 		bufferCounter = 0;
@@ -68,7 +69,8 @@ public class TimeFixedSoundRecorder implements MyThread {
 						
 			if(System.currentTimeMillis() > endTime)
 				ThreadManagement.threadActions.add(new ThreadAction(
-				"stopAndRemoveThreadById",threadObject.getId(),EntryPointMethods.getSvitch(),this));
+				"stopAndRemoveThreadById",threadObject.getId(),EntryPointMethods.getSvitch(),this,
+				"stopAndRemoveThreadById TimeFixedSoundRecorder"));
 		}
 		
 		intStream = AudioUtil.buildIntStreamFromByteStream(buffer,format);

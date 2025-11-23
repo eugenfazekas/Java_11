@@ -15,7 +15,7 @@ public class IntFrequencyRefinary implements MyThread, StreamRefinary{
 	private boolean threadIsSuspended;
 	private Thread thread;
 	final private String THREAD_NAME = "IntFrequencyRefinary"; 
-	ThreadObjectDetails threadObject; 
+	private ThreadObjectDetails threadObject; 
 	
 	private static int debug_level_INFO = 5;
 	
@@ -39,9 +39,10 @@ public class IntFrequencyRefinary implements MyThread, StreamRefinary{
 	    
 	    } catch (Exception ex) {
 	    	
-            Debug.debug(debug_level_INFO,"DebugException in IntFrequencyRefinary! " +ex.getMessage());  
+            Debug.debug(1,"DebugException in IntFrequencyRefinary! " +ex.getMessage());  
 
-    		ThreadManagement.threadActions.add(new ThreadAction("stopAllThreads",-1,null,this));
+    		ThreadManagement.threadActions.add(new ThreadAction("stopAllThreads",-1,null,this,
+    				"stopAllThreads IntFrequencyRefinary"));
 	    }			
 	}
 	
@@ -51,7 +52,8 @@ public class IntFrequencyRefinary implements MyThread, StreamRefinary{
 		Thread.currentThread().setName(THREAD_NAME);	
 		
 		ThreadManagement.threadActions.add(
-				new ThreadAction("addingThread",-1,EntryPointMethods.getSvitch(),this));
+				new ThreadAction("addingThread",-1,EntryPointMethods.getSvitch(),this,
+						"addingThread IntFrequencyRefinary"));
 	
 		Debug.debug(debug_level_INFO,"Starting "+Thread.currentThread().getName() +" Thread!");
 

@@ -47,7 +47,7 @@ public class FileCheckUtil {
 			return check;
 	}
 	
-	private static void buildDirectory(String path) {
+	public static void buildDirectory(String path) {
 
 		try {
 			

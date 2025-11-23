@@ -67,7 +67,8 @@ public class ThreadManagement implements MyThread{
 	            Debug.debug(1,"DebugException in ThreadManagement! " +ex.getMessage());  
 
 	    		ThreadManagement.threadActions.add(
-	    				new ThreadAction("stopAllThreads",-1,EntryPointMethods.getSvitch(),this));
+	    				new ThreadAction("stopAllThreads",-1,EntryPointMethods.getSvitch(),this,
+	    						"stopAllThreads ThreadManagement"));
 		    }
 						
 			sleepThread(AppSetup.RECORDER_MILISEC_BUFFER_LENGTH);					

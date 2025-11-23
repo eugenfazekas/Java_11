@@ -25,7 +25,7 @@ public class AudioAnalysisThread implements MyThread{
 	private boolean threadIsActive;
 	private boolean threadIsSuspended;
 	final private String THREAD_NAME = "AudioAnalysisThread"; 
-	ThreadObjectDetails threadObject; 
+	private ThreadObjectDetails threadObject; 
 	
 	public static int threadSleepTime;	
 	private static AudioObject audioObject;
@@ -64,8 +64,9 @@ public class AudioAnalysisThread implements MyThread{
 		Debug.debug(debud_level_DEBUG,"AudioAnalysisThread mainAnalysis startedVoiceCheck.length: "
 				+startedVoiceCheck.size());
 		
-		for(Map.Entry<Integer, AudioObject> objects : startedVoiceCheck.entrySet()) 
-			initSwitch(objects.getKey());	
+		if(startedVoiceCheck.size() > 0)
+			for(Map.Entry<Integer, AudioObject> objects : startedVoiceCheck.entrySet()) 
+				initSwitch(objects.getKey());	
 	}
  
 	@Override
@@ -76,7 +77,8 @@ public class AudioAnalysisThread implements MyThread{
 		Debug.debug(debug_level_INFO,"Starting "+Thread.currentThread().getName() +" Thread!");
 		
 		ThreadManagement.threadActions.add(
-				new ThreadAction("addingThread",-1,EntryPointMethods.getSvitch(),this));
+				new ThreadAction("addingThread",-1,EntryPointMethods.getSvitch(),this,
+						"addingThread AudioAnalysisThread"));
  
 		while(threadIsActive) {
 			
@@ -87,10 +89,11 @@ public class AudioAnalysisThread implements MyThread{
 		    
 		    } catch (Exception ex) {
 		    	
-	            Debug.debug(debud_level_DEBUG,"DebugException in AudioAnalysisThread! " +ex.getMessage());  
+	            Debug.debug(1,"DebugException in AudioAnalysisThread! " +ex.getMessage());  
 
 	    		ThreadManagement.threadActions.add(
-	    				new ThreadAction("stopAllThreads",-1,EntryPointMethods.getSvitch(),this));
+	    				new ThreadAction("stopAllThreads",-1,EntryPointMethods.getSvitch(),this,
+	    						"stopAllThreads AudioAnalysisThread"));
 		    }
 			
 			sleepThread(threadSleepTime);
@@ -155,7 +158,7 @@ public class AudioAnalysisThread implements MyThread{
 	    
 	    saveMultiAudioFeatures(id);
 	    
-	    Main.setStopAllThreads();
+	    Main.setStopAllThreads("AudioAnalysisThread buildSpektrogramFromAudioFile");
 	}
  
 	private void buildSequenceFromFrequncyListFromFile(int id) {
@@ -166,7 +169,7 @@ public class AudioAnalysisThread implements MyThread{
 	    
 	    saveMultiAudioFeatures(id);	
 	    
-	    Main.setStopAllThreads();
+	    Main.setStopAllThreads("AudioAnalysisThread buildSequenceFromFrequncyListFromFile");
 	}
 	
 	private void buildTestAudioSequence(int id) {
@@ -178,7 +181,7 @@ public class AudioAnalysisThread implements MyThread{
 	    
 	    saveMultiAudioFeatures(id);
 	    
-	    Main.setStopAllThreads();
+	    Main.setStopAllThreads("AudioAnalysisThread buildTestAudioSequence");
 	}
 	
 	private void timeFixedSoundRecorder(int id) {		
@@ -190,7 +193,7 @@ public class AudioAnalysisThread implements MyThread{
 	    
 	    saveMultiAudioFeatures(id);
 
-	    Main.setStopAllThreads();
+	    Main.setStopAllThreads("AudioAnalysisThread timeFixedSoundRecorder");
 	}
 	
 	private void initSwitch(int id) {
