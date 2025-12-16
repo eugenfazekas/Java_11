@@ -40,6 +40,8 @@ private static int horizResult;
 	
 	private static float fakeBuffer;
 	private static float fakeBufferMultiplier;
+	private static float fakeBufferMultiplierValue = 1.2f;
+	private static float fakeBufferMultiplierContinueValue =6f;
 	private static int lastFakeIndex;
 	//private static int fakeCounter;
 	
@@ -68,6 +70,8 @@ private static int horizResult;
 	
 		fakeBuffer = 1;
 		fakeBufferMultiplier = 1;
+		resultBuffer = 0;
+		resultBufferCounter = 0;
 		
 		for(int i = 0; i < check.length; i = i+4) {
 			
@@ -148,12 +152,12 @@ private static int horizResult;
 	
 	private static void addToFakeBuffer(int index) {
 		
-		fakeBufferMultiplier *= 1.5;
+		fakeBufferMultiplier *= fakeBufferMultiplierValue;
 		Debug.debug(debugLevel,"VRSCMainLogic addToFakeBuffer index"+index+", lastFakeIndex"+lastFakeIndex);
 		
 		if(index - 4 == lastFakeIndex) {
 			
-			fakeBufferMultiplier *= 1.3;
+			fakeBufferMultiplier *= fakeBufferMultiplierContinueValue;
 			Debug.debug(debugLevel, "VRSCMainLogic Repeated Fake! index: " + index 
 				+ ", fakeBufferMultiplier: " + fakeBufferMultiplier);
 		}

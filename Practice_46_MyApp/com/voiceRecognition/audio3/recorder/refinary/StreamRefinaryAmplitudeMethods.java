@@ -16,9 +16,6 @@ public class StreamRefinaryAmplitudeMethods {
 	
 	static AudioFormat audioFormat; 
 
-//	private static int lastValidCounter;
-
-//	private static int totalValidCounter;
 	static int startAmplitudeLimit;
     static int endAmplitudeLimit;
 	static int minValidSampleSize;

@@ -41,8 +41,13 @@ public class VRAMainLogic {
 	static int j;
 	static int lengthResult;
 	static int tempLengthResult;
-	static float fakeBuffer;
-	static float fakeCounter;
+	
+	private static float fakeBuffer;
+	private static float fakeBufferMultiplier;
+	private static float fakeBufferMultiplierValue = 1.5f;
+	private static float fakeBufferMultiplierContinueValue = 3f;
+	private static int lastFakeIndex;
+	
 	static int debugLevel = 5;
 	
 	private static float[] oneDCompare(int[] check, int[] db, int[] checkAMP, int[]dbAMP) {
@@ -138,9 +143,11 @@ public class VRAMainLogic {
 		freqComboBuffer = 0;
 		freqComboBufferCounter = 0;
 		multiBuffer = 0;
-		multiBufferCounter = 0;		
+		multiBufferCounter = 0;	
+		
 		fakeBuffer = 0;
-		fakeCounter = 1;	
+		fakeBuffer = 1;
+		fakeBufferMultiplier = 1;
 		
 		ampHLength  = check[0].length > db[0].length ? check[0].length : db[0].length; 
 		freqHLength = check[1].length > db[1].length ? check[1].length : db[1].length; 
@@ -152,14 +159,7 @@ public class VRAMainLogic {
 			freqResult = new float[2];
 			freqComboResult = 0;
 			multiResult = 0;
-		//Debug.debug(debugLevel, "twoDCompare i: " +i + ", check 0: "+ Arrays.toString(check[0][i])
-			//+ ", db 0: "+ Arrays.toString(check[0][i]));
-		//	Debug.debug(debugLevel, "twoDCompare i: " +i + ", check 1: "+  Arrays.toString(check[1][i])
-			//+ ", db 1: "+ Arrays.toString(check[1][i]));
 
-			
-//			if(i  < check[1].length  && i < db[1].length && check[1][i].length  == 4 && db[1][i].length == 4) 
-//				continue;
 			
 			if(i < check[0].length && i < db[0].length) {
 				ampResult = oneDCompare(check[0][i], db[0][i], null, null)[0];
@@ -197,10 +197,10 @@ public class VRAMainLogic {
 				+ (multiBuffer/ (multiBufferCounter+fakeBuffer)));
 					
 			if((i >= check[0].length &&  i < db[0].length) || (i < check[0].length &&  i >= db[0].length))
-				addToFakeBuffer(ampBufferCounter,1);
+				addToFakeBuffer(i);
 			
 			if((i >= check[1].length &&  i < db[1].length) || (i < check[1].length &&  i >= db[1].length))
-				addToFakeBuffer(freqBufferCounter,1);
+				addToFakeBuffer(i);
 		}
 
 		finalResult = ((float) ((float)(freqBuffer/ (freqBufferCounter+fakeBuffer)) / 100) 
@@ -210,6 +210,8 @@ public class VRAMainLogic {
 	}
 	
 	private static int getLengthPercentDiff(int input1, int input2, int baseHundredPercent) {
+		
+		baseHundredPercent = baseHundredPercent > 15 ? baseHundredPercent : 15;
 
 		Debug.debug(debugLevel, "getLengthPercentDiff input1: "+ input1+ ", input2: "+input2 
 			+ ", baseHundredPercent: " +baseHundredPercent);
@@ -227,10 +229,24 @@ public class VRAMainLogic {
 		return lengthResult;
 	}
 	
-	private static void addToFakeBuffer(int lengthCounter, int source) {
+	private static void addToFakeBuffer(int index) {
 		
-		fakeBuffer +=  fakeCounter *((float)lengthCounter / 90);
-		fakeCounter *=1.20;		
+		fakeBufferMultiplier *= fakeBufferMultiplierValue;
+		Debug.debug(debugLevel, "VRPMainLogic addToFakeBuffer index"+index+", lastFakeIndex"+lastFakeIndex);
+		
+		if(index - 2 == lastFakeIndex) {
+			
+			fakeBufferMultiplier *= fakeBufferMultiplierContinueValue;
+			Debug.debug(debugLevel, "VRPMainLogic Repeated Fake! index: " + index + ", fakeBufferMultiplier: " 
+					+ fakeBufferMultiplier);
+		}
+		
+		fakeBuffer += fakeBufferMultiplier;
+		
+		lastFakeIndex = index;
+		
+	//	fakeBuffer +=  fakeCounter *((float)lengthCounter / 90);
+	//	fakeCounter *=1.20;		
 		
 		//Debug.debug(debugLevel, "\n ADDToFAKEBuffer fakeCounter: "+ fakeCounter + ", fakeBuffer: "
 		//+fakeBuffer  + ", Source: "+source+ "\n");

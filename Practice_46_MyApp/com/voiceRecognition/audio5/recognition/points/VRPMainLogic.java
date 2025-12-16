@@ -16,8 +16,11 @@ public class VRPMainLogic {
 	private static float result;
 	private static int vertCheckResult;
 	private static int horizCheckResult;
+	
 	private static float fakeBuffer;
 	private static float fakeBufferMultiplier;
+	private static float fakeBufferMultiplierValue = 1.5f;
+	private static float fakeBufferMultiplierContinueValue = 4f;
 	private static int lastFakeIndex;
 	
 	private static int debugLevel = 5;
@@ -110,12 +113,12 @@ public class VRPMainLogic {
 	
 	private static void addToFakeBuffer(int index) {
 		
-		fakeBufferMultiplier *= 1.07;
+		fakeBufferMultiplier *= fakeBufferMultiplierValue;
 		Debug.debug(debugLevel, "VRPMainLogic addToFakeBuffer index"+index+", lastFakeIndex"+lastFakeIndex);
 		
 		if(index - 2 == lastFakeIndex) {
 			
-			fakeBufferMultiplier *= 1.07;
+			fakeBufferMultiplier *= fakeBufferMultiplierContinueValue;
 			Debug.debug(debugLevel, "VRPMainLogic Repeated Fake! index: " + index + ", fakeBufferMultiplier: " 
 					+ fakeBufferMultiplier);
 		}

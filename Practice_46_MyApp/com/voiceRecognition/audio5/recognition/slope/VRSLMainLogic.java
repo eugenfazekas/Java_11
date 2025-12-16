@@ -35,14 +35,14 @@ public class VRSLMainLogic {
 	static float resultBufferCounter;
 	static int[] checkTempArray;
 	static int[] dbTempArray;
+
+	private static int baseLengthHundredPercent = 15;
 	
 	private static float fakeBuffer;
 	private static float fakeBufferMultiplier;
-	private static int lastFakeIndex;
-		
-	private static int baseLengthHundredPercent = 15;
-	private static float fakeBufferMultiplierValue = 1.7f;
-	private static float fakeBufferMultiplierContinueValue = 3f;
+	private static float fakeBufferMultiplierValue = 1.5f;
+	private static float fakeBufferMultiplierContinueValue = 4f;
+	private static int lastFakeIndex;	
 		
 	private static int debugLevel = 5;
 	

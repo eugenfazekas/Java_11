@@ -5,8 +5,14 @@ public class MainAppSetup {
 	public static boolean methodExecutor = true;
 	public static boolean audioApp = true;
 	
-	public static String audioAppProfile = "voiceRecognition";
-	public static String audioAppProfilePathName = "Kikapcs";
+	//public static String audioAppProfile = "saveNamedRecords";
+	//public static String audioAppProfilePathName = "Windows";
+	
+	//public static String audioAppProfile = "voiceRecognition";
+	//public static String audioAppProfilePathName = "Kikapcs";
+	
+	public static String audioAppProfile = "voiceRecognitionDebug";
+	public static String audioAppProfilePathName = "Teszt";
 	
 	public static String mainAppName = "mainApp";
 	public static String voiceRecognitionAppName = "voiceRecognition";

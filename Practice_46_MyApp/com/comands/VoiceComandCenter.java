@@ -15,7 +15,7 @@ public class VoiceComandCenter {
 	
 	private static int readedVoiceCounter = 0;
 	private static final String[] tvBekapcs = new String[] {"Tv","Bekapcs"};
-	private static final String[] stopVLC = new String[] {"Tv","Kikapcs"};
+	private static final String[] stopVLC = new String[] {"Tv","Leall"};
 	
 	public static Map<Integer, String> readedVoiceArrray = 
 			new ConcurrentHashMap<Integer, String>();

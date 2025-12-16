@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import com.comands.VoiceComandCenter;
 import com.voiceRecognition.audio0.main.VoiceRecognitionAppSetup;
 import com.voiceRecognition.audio4.audioGramInitializer.mainInit.AudioAnalysisThread;
 import com.voiceRecognition.audio5.recognition.area.VoiceRecognitionAreaCheck;
@@ -164,10 +163,9 @@ public class VoiceRecognitionMain {
 		
 		AudioAnalysisThread.startedVoiceCheck.get(id).setNextStage();
 		
-		if(VoiceRecognitionDB.DB_NAMES.get((int)tempResult[1])!= null) {
-			readedVoiceArrray.put(readedVoiceArrrayCounter++, VoiceRecognitionDB.DB_NAMES.get((int)tempResult[1]));
-			VoiceComandCenter.addToReadedVoiceArray(VoiceRecognitionDB.DB_NAMES.get((int)tempResult[1]));
-		}
+		if(VoiceRecognitionDB.DB_NAMES.get((int)tempResult[1])!= null) 
+			addNewVoiceResult();
+		
 		Debug.debug(1, "VoiceRecognitionMain buildMainResultBuilder MatchPercent: "+ tempResult[0] 
 			+ ", Match Name-: "+ VoiceRecognitionDB.DB_NAMES.get((int)tempResult[1]));
 		
@@ -215,5 +213,12 @@ public class VoiceRecognitionMain {
 			}
 		}		
 			return sortResult;
-	}	
+	}
+	
+	private static void addNewVoiceResult() {
+		
+		readedVoiceArrray.put(readedVoiceArrrayCounter++, VoiceRecognitionDB.DB_NAMES.get((int)tempResult[1]));
+		//Do Stuff with new voice
+		//VoiceComandCenter.addToReadedVoiceArray(VoiceRecognitionDB.DB_NAMES.get((int)tempResult[1]));
+	}
 }

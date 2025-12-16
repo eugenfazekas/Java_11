@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jdk-11">
+	<classpathentry kind="src" path=""/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER">
 		<attributes>
 			<attribute name="module" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/jar_files"/>
-	<classpathentry kind="src" path=""/>
-	<classpathentry kind="lib" path="D:/My Documents/D/Programing/Git/Java_11/Practice_40_SpectrumConverter/jar_files/commons-math3-3.5.jar"/>
-	<classpathentry kind="lib" path="D:/My Documents/D/Programing/Git/Java_11/Practice_40_SpectrumConverter/jar_files/JLargeArrays-1.5.jar"/>
-	<classpathentry kind="lib" path="D:/My Documents/D/Programing/Git/Java_11/Practice_40_SpectrumConverter/jar_files/JTransforms-3.1.jar"/>
-	<classpathentry kind="lib" path="D:/My Documents/D/Programing/Git/Java_11/Practice_40_SpectrumConverter/jar_files/TarsosDSP-2.4.1.jar"/>
+	<classpathentry kind="lib" path="D:/My Documents/D/Programing/Git/Java_11/Practice_46_MyApp/jar_files/commons-math3-3.5.jar"/>
+	<classpathentry kind="lib" path="D:/My Documents/D/Programing/Git/Java_11/Practice_46_MyApp/jar_files/JLargeArrays-1.5.jar"/>
+	<classpathentry kind="lib" path="D:/My Documents/D/Programing/Git/Java_11/Practice_46_MyApp/jar_files/JTransforms-3.1.jar"/>
+	<classpathentry kind="lib" path="D:/My Documents/D/Programing/Git/Java_11/Practice_46_MyApp/jar_files/TarsosDSP-2.4.1.jar"/>
 	<classpathentry kind="output" path=""/>
 </classpath>
